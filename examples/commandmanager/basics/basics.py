@@ -12,6 +12,6 @@ while not quit:
         isRunning = False
         quit = True
     elif msg == "REQUEST":
-        print cmdMng.devices['servo1'].get_angle()
+        print(cmdMng.devices['servo1'].get_angle())
     else:
         cmdMng.serialcommandhandlers[0].write(msg)

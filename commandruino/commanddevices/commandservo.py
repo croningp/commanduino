@@ -40,6 +40,6 @@ class CommandServo(CommandDevice):
     def get_angle(self):
         self.angle_lock.acquire()
         self.request_angle()
-        is_valid = self.angle_lock.wait_until_released()
+        is_valid, elapsed = self.angle_lock.wait_until_released()
         self.angle_lock.ensure_released()
-        return self.angle, is_valid
+        return self.angle, is_valid, elapsed

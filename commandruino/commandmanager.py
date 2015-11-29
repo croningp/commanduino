@@ -1,51 +1,52 @@
 from commandhandler import SerialCommandHandler
 
+from commanddevices.register import create_and_setup_device
+from commanddevices.register import DeviceRegisterError
+
 from lock import Lock
 
 import logging
 module_logger = logging.getLogger(__name__)
 
 
-BONJOUR_REGISTER = {}
-from commanddevices.commandservo import CommandServo
-BONJOUR_REGISTER['SERVO'] = CommandServo
-
-
-def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
-
-    if bonjour_id in BONJOUR_REGISTER:
-        device = BONJOUR_REGISTER[bonjour_id].from_config(device_config)
-        cmdHdl.add_relay(command_id, device.handle_command)
-        device.set_command_header(command_id)
-        device.set_write_function(cmdHdl.write)
-        return device
-    else:
-        raise DeviceRegisterError(bonjour_id)
-
-
-class DeviceRegisterError(Exception):
-    def __init__(self, bonjour_id):
-        self.bonjour_id = bonjour_id
-
-    def __str__(self):
-        return '{self.bonjour_id} is not in the register of device'.format(self=self)
-
-
 class CommandManager(object):
 
     def __init__(self, serialcommand_configs, devices_dict):
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.init_lock = Lock(timeout=5)
 
         self.serialcommandhandlers = []
         for idx, config in enumerate(serialcommand_configs):
             cmdHdl = SerialCommandHandler.from_config(config)
             cmdHdl.add_default_handler(self.unrecognized)
             cmdHdl.start()
-            import time
-            time.sleep(1)  # fix this by using a BONJOUR on manager
+            try:
+                elapsed = self.wait_serial_device_for_init(cmdHdl)
+                self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=cmdHdl._serial.port, init_time=round(elapsed, 3)))
+            except InitError:
+                self.logger.warning('CommandManager on port "{port}" has not initialized'.format(port=cmdHdl._serial.port))
             self.serialcommandhandlers.append(cmdHdl)
 
         self.register_all_devices(devices_dict)
+
+    def handle_init(self, *arg):
+        self.init_lock.ensure_released()
+
+    def wait_for_init(self):
+        self.init_lock.acquire()
+        is_init, elapsed = self.init_lock.wait_until_released()
+        self.init_lock.ensure_released()
+        return is_init, elapsed
+
+    def wait_serial_device_for_init(self, cmdHdl):
+        self.logger.debug('Waiting for init on port "{port}"...'.format(port=cmdHdl._serial.port))
+
+        cmdHdl.add_command('INIT', self.handle_init)
+        is_init, elapsed = self.wait_for_init()
+        cmdHdl.remove_command('INIT', self.handle_init)
+        if is_init:
+            return elapsed
+        raise InitError(cmdHdl._serial.port)
 
     def register_all_devices(self, devices_dict):
         self.devices = {}
@@ -61,11 +62,11 @@ class CommandManager(object):
 
         try:
             bojour_service = CommandBonjour(self.serialcommandhandlers)
-            cmdHdl, bonjour_id = bojour_service.detect_device(command_id)
+            cmdHdl, bonjour_id, elapsed = bojour_service.detect_device(command_id)
             try:
                 device = create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config)
                 self.devices[device_name] = device
-                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found and registered'.format(name=device_name, id=command_id, type=bonjour_id))
+                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s and registered'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
             except DeviceRegisterError:
                 self.logger.warning('Device "{name}" of type "{type}" is not in the device register'.format(name=device_name, type=bonjour_id))
         except BonjourError:
@@ -85,6 +86,14 @@ class CommandManager(object):
 
     def unrecognized(self, cmd):
         self.logger.warning('Received unknown command "{}"'.format(cmd))
+
+
+class InitError(Exception):
+    def __init__(self, port):
+        self.port = port
+
+    def __str__(self):
+        return 'Manager on port {self.port} did not inititalize'.format(self=self)
 
 
 class CommandBonjour(object):
@@ -113,9 +122,9 @@ class CommandBonjour(object):
         self.lock.acquire()
         self.init_bonjour_info()
         self.send_bonjour(serialcommandhandler, command_id)
-        is_valid = self.lock.wait_until_released()
+        is_valid, elapsed = self.lock.wait_until_released()
         self.lock.ensure_released()
-        return self.device_bonjour_id, is_valid
+        return self.device_bonjour_id, is_valid, elapsed
 
     def detect_device(self, command_id):
         for cmdHdl in self.serialcommandhandlers:
@@ -123,11 +132,11 @@ class CommandBonjour(object):
 
             cmdHdl.add_relay(command_id, cmdHdl.handle)
             cmdHdl.add_command('BONJOUR', self.handle_bonjour)
-            bonjour_id, is_valid = self.get_bonjour_id(cmdHdl, command_id)
+            bonjour_id, is_valid, elapsed = self.get_bonjour_id(cmdHdl, command_id)
             cmdHdl.remove_command('BONJOUR', self.handle_bonjour)
             cmdHdl.remove_relay(command_id, cmdHdl.handle)
             if is_valid:
-                return cmdHdl, bonjour_id
+                return cmdHdl, bonjour_id, elapsed
         raise BonjourError(command_id)
 
 

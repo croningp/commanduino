@@ -24,8 +24,8 @@ class Lock(object):
             time.sleep(self.sleep_time)
             elapsed = time.time() - start_time
             if elapsed > self.timeout:
-                return False
-        return True
+                return False, elapsed
+        return True, elapsed
 
     def ensure_released(self):
         if self.locked():
