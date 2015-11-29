@@ -5,7 +5,7 @@ def defaultPrint(cmd):
     print cmd
 
 cmdHdl = SerialCommandHandler('/dev/cu.usbmodem1411')
-cmdHdl.addDefaultHandler(defaultPrint)
+cmdHdl.add_default_handler(defaultPrint)
 cmdHdl.start()
 
 quit = False

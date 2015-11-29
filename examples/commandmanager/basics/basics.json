@@ -1,0 +1,19 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/cu.usbmodem1411",
+      "baudrate": 9600
+    }
+  ],
+  "devices": {
+    "servo1": {
+      "command_id": "S1"
+    },
+    "servo2": {
+      "command_id": "S2"
+    },
+    "servo3": {
+      "command_id": "S3"
+    }
+  }
+}
