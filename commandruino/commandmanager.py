@@ -103,8 +103,7 @@ class CommandManager(object):
             except DeviceRegisterError:
                 device = create_and_setup_device(cmdHdl, command_id, DEFAULT_REGISTER, device_config)
                 self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
-            finally:
-                self.devices[device_name] = device
+            self.devices[device_name] = device
 
         except BonjourError:
             self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))

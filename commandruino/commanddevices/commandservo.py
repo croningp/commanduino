@@ -11,9 +11,6 @@ CMD_ANSWER_ANGLE = 'A'
 CMD_SET_ANGLE = 'W'
 CMD_REQUEST_ANGLE = 'R'
 
-DEFAULT_SLEEP_TIME = 0.01
-DEFAULT_TIMEOUT = 1
-
 
 class CommandServo(CommandDevice):
 

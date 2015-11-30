@@ -8,6 +8,9 @@ BONJOUR_REGISTER[DEFAULT_REGISTER] = CommandDevice
 from commandservo import CommandServo
 BONJOUR_REGISTER['SERVO'] = CommandServo
 
+from commandlinearaccelstepper import CommandLinearAccelStepper
+BONJOUR_REGISTER['LINEARACCELSTEPPER'] = CommandLinearAccelStepper
+
 
 def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
 

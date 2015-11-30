@@ -4,7 +4,7 @@
       "port": "/dev/ttyACM0"
     },
     {
-      "port": "/dev/ttyACM2"
+      "port": "/dev/ttyACM3"
     }
   ],
   "devices": {
@@ -15,10 +15,7 @@
       "command_id": "S2"
     },
     "stepper1": {
-      "command_id": "M1"
-    },
-    "stepper2": {
-      "command_id": "M2"
+      "command_id": "LS1"
     }
   }
 }
