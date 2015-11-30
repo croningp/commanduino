@@ -1,19 +1,26 @@
 from commandhandler import SerialCommandHandler
 
 from commanddevices.register import create_and_setup_device
+from commanddevices.register import DEFAULT_REGISTER
 from commanddevices.register import DeviceRegisterError
 
 from lock import Lock
 
+import time
 import logging
 module_logger = logging.getLogger(__name__)
+
+
+COMMAND_BONJOUR = 'BONJOUR'
+COMMAND_IS_INIT = 'ISINIT'
+COMMAND_INIT = 'INIT'
 
 
 class CommandManager(object):
 
     def __init__(self, serialcommand_configs, devices_dict):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.init_lock = Lock(timeout=5)
+        self.init_lock = Lock()
 
         self.serialcommandhandlers = []
         for idx, config in enumerate(serialcommand_configs):
@@ -30,20 +37,32 @@ class CommandManager(object):
         self.register_all_devices(devices_dict)
 
     def handle_init(self, *arg):
+        if arg[0] and bool(int(arg[0])):
+            self.init_lock.ensure_released()
+
+    def request_init(self, serialcommandhandler):
+        serialcommandhandler.send(COMMAND_IS_INIT)
+
+    def request_and_wait_for_init(self, serialcommandhandler, n_repeat=5):
+        start_time = time.time()
+
+        self.init_lock.acquire()
+        for i in range(n_repeat):
+            self.request_init(serialcommandhandler)
+            is_init, _ = self.init_lock.wait_until_released()
+            if is_init:
+                break
         self.init_lock.ensure_released()
 
-    def wait_for_init(self):
-        self.init_lock.acquire()
-        is_init, elapsed = self.init_lock.wait_until_released()
-        self.init_lock.ensure_released()
+        elapsed = time.time() - start_time
         return is_init, elapsed
 
     def wait_serial_device_for_init(self, cmdHdl):
         self.logger.debug('Waiting for init on port "{port}"...'.format(port=cmdHdl._serial.port))
 
-        cmdHdl.add_command('INIT', self.handle_init)
-        is_init, elapsed = self.wait_for_init()
-        cmdHdl.remove_command('INIT', self.handle_init)
+        cmdHdl.add_command(COMMAND_INIT, self.handle_init)
+        is_init, elapsed = self.request_and_wait_for_init(cmdHdl)
+        cmdHdl.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed
         raise InitError(cmdHdl._serial.port)
@@ -61,14 +80,18 @@ class CommandManager(object):
             device_config = {}
 
         try:
-            bojour_service = CommandBonjour(self.serialcommandhandlers)
-            cmdHdl, bonjour_id, elapsed = bojour_service.detect_device(command_id)
+            bonjour_service = CommandBonjour(self.serialcommandhandlers)
+            cmdHdl, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
+            self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
             try:
                 device = create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config)
-                self.devices[device_name] = device
-                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s and registered'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
+                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
             except DeviceRegisterError:
-                self.logger.warning('Device "{name}" of type "{type}" is not in the device register'.format(name=device_name, type=bonjour_id))
+                device = create_and_setup_device(cmdHdl, command_id, DEFAULT_REGISTER, device_config)
+                self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
+            finally:
+                self.devices[device_name] = device
+
         except BonjourError:
             self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
 
@@ -116,7 +139,7 @@ class CommandBonjour(object):
             self.lock.ensure_released()
 
     def send_bonjour(self, serialcommandhandler, command_id):
-        serialcommandhandler.send(command_id, 'BONJOUR')
+        serialcommandhandler.send(command_id, COMMAND_BONJOUR)
 
     def get_bonjour_id(self, serialcommandhandler, command_id):
         self.lock.acquire()
@@ -131,9 +154,9 @@ class CommandBonjour(object):
             self.logger.debug('Scanning for "{id}" on port "{port}"...'.format(id=command_id, port=cmdHdl._serial.port))
 
             cmdHdl.add_relay(command_id, cmdHdl.handle)
-            cmdHdl.add_command('BONJOUR', self.handle_bonjour)
+            cmdHdl.add_command(COMMAND_BONJOUR, self.handle_bonjour)
             bonjour_id, is_valid, elapsed = self.get_bonjour_id(cmdHdl, command_id)
-            cmdHdl.remove_command('BONJOUR', self.handle_bonjour)
+            cmdHdl.remove_command(COMMAND_BONJOUR, self.handle_bonjour)
             cmdHdl.remove_relay(command_id, cmdHdl.handle)
             if is_valid:
                 return cmdHdl, bonjour_id, elapsed

@@ -1,5 +1,9 @@
+DEFAULT_REGISTER = 'TEMPLATE'
 
 BONJOUR_REGISTER = {}
+
+from commanddevice import CommandDevice
+BONJOUR_REGISTER[DEFAULT_REGISTER] = CommandDevice
 
 from commandservo import CommandServo
 BONJOUR_REGISTER['SERVO'] = CommandServo
@@ -12,9 +16,9 @@ def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
         cmdHdl.add_relay(command_id, device.handle_command)
         device.set_command_header(command_id)
         device.set_write_function(cmdHdl.write)
-        return device
     else:
         raise DeviceRegisterError(bonjour_id)
+    return device
 
 
 class DeviceRegisterError(Exception):

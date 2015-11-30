@@ -1,0 +1,24 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/ttyACM0"
+    },
+    {
+      "port": "/dev/ttyACM2"
+    }
+  ],
+  "devices": {
+    "servo1": {
+      "command_id": "S1"
+    },
+    "servo2": {
+      "command_id": "S2"
+    },
+    "stepper1": {
+      "command_id": "M1"
+    },
+    "stepper2": {
+      "command_id": "M2"
+    }
+  }
+}
