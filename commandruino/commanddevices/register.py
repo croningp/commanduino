@@ -19,6 +19,7 @@ def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
         cmdHdl.add_relay(command_id, device.handle_command)
         device.set_command_header(command_id)
         device.set_write_function(cmdHdl.write)
+        device.init()
     else:
         raise DeviceRegisterError(bonjour_id)
     return device
