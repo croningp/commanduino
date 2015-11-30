@@ -31,7 +31,7 @@ class CommandDevice(object):
 
     @classmethod
     def from_config(cls, config):
-        return cls()
+        return cls(**config)
 
     def handle_command(self, cmd):
         self.cmdHdl.handle(cmd)

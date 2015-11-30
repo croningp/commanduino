@@ -61,10 +61,6 @@ class CommandLinearAccelStepper(CommandDevice):
     def init(self):
         self.set_all_params()
 
-    @classmethod
-    def from_config(cls, config):
-        return cls(**config)
-
     def set_all_params(self):
         self.set_speed(self.speed)
         self.set_max_speed(self.max_speed)
@@ -119,26 +115,26 @@ class CommandLinearAccelStepper(CommandDevice):
     def disable_revert_switch(self):
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH)
 
-    def home(self, wait=True):
+    def home(self, wait=False):
         homing_speed = self.apply_reverted_direction(self.homing_speed)
         self.set_speed(-homing_speed)
         self.send(COMMANDLINEARACCELSTEPPER_HOME)
         if wait:
             self.wait_until_idle()
 
-    def move_to(self, steps, wait=True):
+    def move_to(self, steps, wait=False):
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
         if wait:
             self.wait_until_idle()
 
-    def move(self, steps, wait=True):
+    def move(self, steps, wait=False):
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE, steps)
         if wait:
             self.wait_until_idle()
 
-    def stop(self, wait=True):
+    def stop(self, wait=False):
         self.send(COMMANDLINEARACCELSTEPPER_STOP)
         if wait:
             self.wait_until_idle()

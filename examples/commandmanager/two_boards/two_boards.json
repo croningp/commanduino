@@ -4,7 +4,7 @@
       "port": "/dev/ttyACM0"
     },
     {
-      "port": "/dev/ttyACM3"
+      "port": "/dev/ttyACM1"
     }
   ],
   "devices": {
