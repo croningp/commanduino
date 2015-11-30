@@ -1,4 +1,5 @@
 from ..commandhandler import CommandHandler
+from ..lock import Lock
 
 import logging
 module_logger = logging.getLogger(__name__)
@@ -30,3 +31,31 @@ class CommandDevice(object):
 
     def unrecognized(self, cmd):
         self.logger.warning('Received unknown command "{}"'.format(cmd))
+
+    def register_request(self, request_command, answer_command, variable_name, callback_function_for_variable_update, variable_init_value=None):
+
+        setattr(self, variable_name, variable_init_value)
+
+        lock_variable_name = variable_name + '_lock'
+        setattr(self, lock_variable_name, Lock())
+
+        self.cmdHdl.add_command(answer_command, callback_function_for_variable_update)
+
+        request_function_name = 'request_' + variable_name
+
+        def request():
+            self.send(request_command)
+
+        setattr(self, request_function_name, request)
+
+        get_function_name = 'get_' + variable_name
+
+        def get():
+            variable_lock = getattr(self, lock_variable_name)
+            variable_lock.acquire()
+            getattr(self, request_function_name)()
+            is_valid, elapsed = variable_lock.wait_until_released()
+            variable_lock.ensure_released()
+            return getattr(self, variable_name), is_valid, elapsed
+
+        setattr(self, get_function_name, get)
