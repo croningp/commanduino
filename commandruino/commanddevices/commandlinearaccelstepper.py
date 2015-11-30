@@ -1,4 +1,7 @@
 from commanddevice import CommandDevice
+from commanddevice import DeviceTimeOutError
+
+import time
 
 import logging
 module_logger = logging.getLogger(__name__)
@@ -32,12 +35,65 @@ COMMANDLINEARACCELSTEPPER_DIST = "D"
 COMMANDLINEARACCELSTEPPER_TARGET = "T"
 COMMANDLINEARACCELSTEPPER_POSITION = "P"
 
+DEFAULT_SPEED = 5000
+DEFAULT_MAX_SPEED = 5000
+DEFAULT_ACCELERATION = 2000
+
+DEFAULT_HOMING_SPEED = 2000
+
+DEFAULT_SLEEP_TIME = 0.1  # let's not make it too low to not make the communication bus too busy
+
 
 class CommandLinearAccelStepper(CommandDevice):
 
-    def __init__(self):
+    def __init__(self, speed=DEFAULT_SPEED, max_speed=DEFAULT_MAX_SPEED, acceleration=DEFAULT_ACCELERATION, homing_speed=DEFAULT_HOMING_SPEED, enabled_acceleration=True, reverted_direction=False, reverted_switch=False):
         CommandDevice.__init__(self)
         self.register_all_requests()
+
+        self.speed = speed
+        self.max_speed = speed
+        self.acceleration = acceleration
+        self.homing_speed = homing_speed
+        self.enabled_acceleration = enabled_acceleration
+        self.reverted_direction = reverted_direction
+        self.reverted_switch = reverted_switch
+
+    def init(self):
+        self.set_all_params()
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+    def set_all_params(self):
+        self.set_speed(self.speed)
+        self.set_max_speed(self.max_speed)
+        self.set_acceleration(self.acceleration)
+
+        if self.enabled_acceleration:
+            self.enable_acceleration()
+        else:
+            self.disable_acceleration()
+
+        if self.reverted_switch:
+            self.enable_revert_switch()
+        else:
+            self.disable_revert_switch()
+
+    def apply_reverted_direction(self, value):
+        if self.reverted_direction:
+            value = -value
+        return value
+
+    def is_moving(self):
+        is_moving, is_valid, elapsed = self.get_moving_state()
+        if not is_valid:
+            raise DeviceTimeOutError(self.__class__.__name__, elapsed)
+        return is_moving
+
+    def wait_until_idle(self):
+        while self.is_moving():
+            time.sleep(DEFAULT_SLEEP_TIME)
 
     def set_current_position(self, steps):
         self.send(COMMANDLINEARACCELSTEPPER_SET_POSITION, steps)
@@ -63,17 +119,29 @@ class CommandLinearAccelStepper(CommandDevice):
     def disable_revert_switch(self):
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH)
 
-    def home(self):
+    def home(self, wait=True):
+        homing_speed = self.apply_reverted_direction(self.homing_speed)
+        self.set_speed(-homing_speed)
         self.send(COMMANDLINEARACCELSTEPPER_HOME)
+        if wait:
+            self.wait_until_idle()
 
-    def move_to(self, steps):
+    def move_to(self, steps, wait=True):
+        steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
+        if wait:
+            self.wait_until_idle()
 
-    def move(self, steps):
+    def move(self, steps, wait=True):
+        steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE, steps)
+        if wait:
+            self.wait_until_idle()
 
-    def stop(self):
+    def stop(self, wait=True):
         self.send(COMMANDLINEARACCELSTEPPER_STOP)
+        if wait:
+            self.wait_until_idle()
 
     def register_all_requests(self):
         self.register_request(
@@ -114,15 +182,15 @@ class CommandLinearAccelStepper(CommandDevice):
 
     def handle_distance_to_goal_command(self, *arg):
         if arg[0]:
-            self.distance_to_goal = int(arg[0])
+            self.distance_to_goal = self.apply_reverted_direction(int(arg[0]))
             self.distance_to_goal_lock.ensure_released()
 
     def handle_target_position_command(self, *arg):
         if arg[0]:
-            self.target_position = int(arg[0])
+            self.target_position = self.apply_reverted_direction(int(arg[0]))
             self.target_position_lock.ensure_released()
 
     def handle_current_position_command(self, *arg):
         if arg[0]:
-            self.current_position = int(arg[0])
+            self.current_position = self.apply_reverted_direction(int(arg[0]))
             self.current_position_lock.ensure_released()
