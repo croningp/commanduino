@@ -36,6 +36,14 @@ class CommandManager(object):
             self.serialcommandhandlers.append(cmdHdl)
 
         self.register_all_devices(devices_dict)
+        self.set_devices_as_attributes()
+
+    def set_devices_as_attributes(self):
+        for device_name, device in self.devices.items():
+            if hasattr(self, device_name):
+                self.logger.warning("Device named {device_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{device_name}]".format(device_name=device_name))
+            else:
+                setattr(self, device_name, device)
 
     def handle_init(self, *arg):
         if arg[0] and bool(int(arg[0])):
