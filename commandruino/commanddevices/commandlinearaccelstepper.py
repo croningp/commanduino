@@ -95,24 +95,34 @@ class CommandLinearAccelStepper(CommandDevice):
         self.send(COMMANDLINEARACCELSTEPPER_SET_POSITION, steps)
 
     def set_speed(self, steps_per_second):
+        self.speed = steps_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_SPEED, steps_per_second)
 
+    def set_homing_speed(self, steps_per_second):
+        self.homing_speed = steps_per_second
+
     def set_max_speed(self, steps_per_second):
+        self.max_speed = steps_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_MAX_SPEED, steps_per_second)
 
     def set_acceleration(self, steps_per_second_per_second):
+        self.acceleration = steps_per_second_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_ACC, steps_per_second_per_second)
 
     def enable_acceleration(self):
+        self.enabled_acceleration = True
         self.send(COMMANDLINEARACCELSTEPPER_ENABLE_ACC)
 
     def disable_acceleration(self):
+        self.enabled_acceleration = False
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_ACC)
 
     def enable_revert_switch(self):
+        self.reverted_switch = True
         self.send(COMMANDLINEARACCELSTEPPER_ENABLE_SWITCH)
 
     def disable_revert_switch(self):
+        self.reverted_switch = False
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH)
 
     def home(self, wait=False):
