@@ -167,8 +167,9 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         self._serial = serial.Serial(port, baudrate, timeout=timeout)
 
     def close(self):
-        self._serial.close()
-        self.logger.debug('Closing port "{}"'.format(self._serial.port))
+        if hasattr(self, "_serial"):
+            self._serial.close()
+            self.logger.debug('Closing port "{}"'.format(self._serial.port))
 
     def __del__(self):
         self.close()

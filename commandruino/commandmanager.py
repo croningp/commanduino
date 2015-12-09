@@ -7,6 +7,7 @@ from commanddevices.register import DeviceRegisterError
 from lock import Lock
 
 import time
+from serial import SerialException
 import logging
 module_logger = logging.getLogger(__name__)
 
@@ -25,9 +26,13 @@ class CommandManager(object):
 
         self.serialcommandhandlers = []
         for idx, config in enumerate(serialcommand_configs):
-            cmdHdl = SerialCommandHandler.from_config(config)
-            cmdHdl.add_default_handler(self.unrecognized)
-            cmdHdl.start()
+            try:
+                cmdHdl = SerialCommandHandler.from_config(config)
+                cmdHdl.add_default_handler(self.unrecognized)
+                cmdHdl.start()
+            except SerialException:
+                self.logger.warning('Port {} was not found'.format(config['port']))
+                continue
             try:
                 elapsed = self.wait_serial_device_for_init(cmdHdl)
                 self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=cmdHdl._serial.port, init_time=round(elapsed, 3)))
