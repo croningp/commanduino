@@ -41,6 +41,8 @@ class Axis(object):
 
     def move_to(self, position_in_unit, wait=False, force=False):
         if self.is_initialized() or force==True:
+            if type(position_in_unit) == list:
+                position_in_unit = position_in_unit[0]
             position = self.cast_position(position_in_unit)
             n_steps = self.position_to_step(position)
             self.linear_actuator.move_to(n_steps)
@@ -49,6 +51,8 @@ class Axis(object):
 
     def move(self, position_in_unit, wait=False, force=False):
         if self.is_initialized() or force==True:
+            if type(position_in_unit) == list:
+                position_in_unit = position_in_unit[0]
             n_steps = self.position_to_step(position_in_unit)
             self.linear_actuator.move(n_steps)
             if wait:
