@@ -135,7 +135,6 @@ class CommandLinearAccelStepper(CommandDevice):
 
     def move_to(self, steps, wait=False):
         if not self.enabled_acceleration:
-            print 'tot'
             self.set_speed(self.running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
