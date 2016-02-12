@@ -30,7 +30,7 @@ class CommandManager(object):
                 cmdHdl = SerialCommandHandler.from_config(config)
                 cmdHdl.add_default_handler(self.unrecognized)
                 cmdHdl.start()
-            except SerialException:
+            except (SerialException, OSError):
                 self.logger.warning('Port {} was not found'.format(config['port']))
                 continue
             try:

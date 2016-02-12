@@ -13,9 +13,9 @@ int lastButtonState = 0;     // previous state of the button
 void setup() {
   // initialize the button pin as a input:
   pinMode(buttonPin, INPUT);
-  
+
   // initialize serial communication:
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   cmdHdl.addCommand("CURRENT", sendCurrentState);
   cmdHdl.addCommand("NPUSH", sendNumberOfPush);
@@ -24,7 +24,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   cmdHdl.processSerial(Serial);
 
   // read the pushbutton input pin:

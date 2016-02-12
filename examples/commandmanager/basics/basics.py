@@ -1,4 +1,4 @@
-from commandruino import CommandManager
+from commanduino import CommandManager
 
 import logging
 logging.basicConfig(level=logging.INFO)

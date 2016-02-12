@@ -1,8 +1,11 @@
-from commandruino import CommandManager
+from commanduino import CommandManager
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
+# in your two board please load the arduino example OF:
+# - CommandServo
+# - CommandLinearAccelStepper
 cmdMng = CommandManager.from_configfile('./two_boards.json')
 
 s1 = cmdMng.devices['servo1']
