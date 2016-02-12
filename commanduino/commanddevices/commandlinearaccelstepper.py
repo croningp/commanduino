@@ -50,7 +50,7 @@ class CommandLinearAccelStepper(CommandDevice):
         CommandDevice.__init__(self)
         self.register_all_requests()
 
-        self.speed = speed
+        self.running_speed = speed
         self.max_speed = speed
         self.acceleration = acceleration
         self.homing_speed = homing_speed
@@ -62,7 +62,7 @@ class CommandLinearAccelStepper(CommandDevice):
         self.set_all_params()
 
     def set_all_params(self):
-        self.set_speed(self.speed)
+        self.set_speed(self.running_speed)
         self.set_max_speed(self.max_speed)
         self.set_acceleration(self.acceleration)
 
@@ -134,12 +134,17 @@ class CommandLinearAccelStepper(CommandDevice):
             self.wait_until_idle()
 
     def move_to(self, steps, wait=False):
+        if not self.enabled_acceleration:
+            print 'tot'
+            self.set_speed(self.running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
         if wait:
             self.wait_until_idle()
 
     def move(self, steps, wait=False):
+        if not self.enabled_acceleration:
+            self.set_speed(self.running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE, steps)
         if wait:
