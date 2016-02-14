@@ -5,6 +5,9 @@ BONJOUR_REGISTER = {}
 from commanddevice import CommandDevice
 BONJOUR_REGISTER[DEFAULT_REGISTER] = CommandDevice
 
+from commanddigitalwrite import CommandDigitalWrite
+BONJOUR_REGISTER['DIGITALWRITE'] = CommandDigitalWrite
+
 from commandservo import CommandServo
 BONJOUR_REGISTER['SERVO'] = CommandServo
 

@@ -1,0 +1,12 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/tty.usbmodem1411"
+    }
+  ],
+  "devices": {
+    "D1": {
+      "command_id": "D1"
+    }
+  }
+}
