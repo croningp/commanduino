@@ -1,0 +1,15 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/tty.usbmodem1411"
+    },
+    {
+      "port": "/dev/ttyACM0"
+    }
+  ],
+  "devices": {
+    "A1": {
+      "command_id": "A1"
+    }
+  }
+}
