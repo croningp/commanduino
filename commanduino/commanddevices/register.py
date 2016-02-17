@@ -8,6 +8,9 @@ BONJOUR_REGISTER[DEFAULT_REGISTER] = CommandDevice
 from commanddigitalwrite import CommandDigitalWrite
 BONJOUR_REGISTER['DIGITALWRITE'] = CommandDigitalWrite
 
+from commandanalogwrite import CommandAnalogWrite
+BONJOUR_REGISTER['ANALOGWRITE'] = CommandAnalogWrite
+
 from commandservo import CommandServo
 BONJOUR_REGISTER['SERVO'] = CommandServo
 
