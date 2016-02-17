@@ -5,6 +5,12 @@
     },
     {
       "port": "/dev/ttyACM0"
+    },
+    {
+      "port": "/dev/ttyACM1"
+    },
+    {
+      "port": "/dev/ttyACM2"
     }
   ],
   "devices": {
