@@ -3,6 +3,11 @@ from commanddevice import CommandDevice
 import logging
 module_logger = logging.getLogger(__name__)
 
+
+# bonjour info
+BONJOUR_ID = 'DIGITALWRITE'
+CLASS_NAME = 'CommandDigitalWrite'
+
 # outgoing
 CMD_SET_LEVEL = 'W'
 

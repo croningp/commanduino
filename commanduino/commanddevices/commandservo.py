@@ -1,8 +1,11 @@
 from commanddevice import CommandDevice
-from ..lock import Lock
 
 import logging
 module_logger = logging.getLogger(__name__)
+
+# bonjour info
+BONJOUR_ID = 'SERVO'
+CLASS_NAME = 'CommandServo'
 
 # incoming
 CMD_ANSWER_ANGLE = 'A'

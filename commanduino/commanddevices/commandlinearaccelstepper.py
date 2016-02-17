@@ -6,6 +6,10 @@ import time
 import logging
 module_logger = logging.getLogger(__name__)
 
+# bonjour info
+BONJOUR_ID = 'LINEARACCELSTEPPER'
+CLASS_NAME = 'CommandLinearAccelStepper'
+
 # incoming command
 COMMANDLINEARACCELSTEPPER_SET_POSITION = "SP"
 COMMANDLINEARACCELSTEPPER_SET_SPEED = "SS"

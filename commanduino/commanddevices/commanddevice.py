@@ -4,6 +4,10 @@ from ..lock import Lock
 import logging
 module_logger = logging.getLogger(__name__)
 
+# bonjour info
+BONJOUR_ID = 'TEMPLATE'
+CLASS_NAME = 'CommandDevice'
+
 
 class DeviceTimeOutError(Exception):
     def __init__(self, device_name, elapsed):

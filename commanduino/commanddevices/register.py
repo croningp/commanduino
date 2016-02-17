@@ -1,21 +1,11 @@
-DEFAULT_REGISTER = 'TEMPLATE'
+import commanddevice
 
+DEFAULT_REGISTER = commanddevice.BONJOUR_ID
 BONJOUR_REGISTER = {}
 
-from commanddevice import CommandDevice
-BONJOUR_REGISTER[DEFAULT_REGISTER] = CommandDevice
 
-from commanddigitalwrite import CommandDigitalWrite
-BONJOUR_REGISTER['DIGITALWRITE'] = CommandDigitalWrite
-
-from commandanalogwrite import CommandAnalogWrite
-BONJOUR_REGISTER['ANALOGWRITE'] = CommandAnalogWrite
-
-from commandservo import CommandServo
-BONJOUR_REGISTER['SERVO'] = CommandServo
-
-from commandlinearaccelstepper import CommandLinearAccelStepper
-BONJOUR_REGISTER['LINEARACCELSTEPPER'] = CommandLinearAccelStepper
+def add_to_bonjour_register(bonjour_id, constructor):
+    BONJOUR_REGISTER[bonjour_id] = constructor
 
 
 def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
@@ -26,9 +16,9 @@ def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
         device.set_command_header(command_id)
         device.set_write_function(cmdHdl.write)
         device.init()
+        return device
     else:
         raise DeviceRegisterError(bonjour_id)
-    return device
 
 
 class DeviceRegisterError(Exception):
@@ -37,3 +27,11 @@ class DeviceRegisterError(Exception):
 
     def __str__(self):
         return '{self.bonjour_id} is not in the register of device'.format(self=self)
+
+
+class DeviceBonjourRegisterError(Exception):
+    def __init__(self, command_module_name):
+        self.command_module_name = command_module_name
+
+    def __str__(self):
+        return '{self.command_module_name} does not contain BONJOUR_ID and CLASS_NAME information'.format(self=self)
