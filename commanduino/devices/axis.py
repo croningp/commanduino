@@ -33,30 +33,23 @@ class Axis(object):
     def wait_until_idle(self):
         self.linear_actuator.wait_until_idle()
 
-    def home(self, wait=False):
-        self.linear_actuator.home()
-        if wait:
-            self.wait_until_idle()
+    def home(self, wait=True):
+        self.linear_actuator.home(wait=wait)
         self.initialized = True
 
-    def move_to(self, position_in_unit, wait=False, force=False):
+    def move_to(self, position_in_unit, wait=True, force=False):
         if self.is_initialized() or force==True:
             if type(position_in_unit) == list:
                 position_in_unit = position_in_unit[0]
             position = self.cast_position(position_in_unit)
             n_steps = self.position_to_step(position)
-            self.linear_actuator.move_to(n_steps)
-            if wait:
-                self.wait_until_idle()
+            self.linear_actuator.move_to(n_steps, wait=wait)
 
-    def move(self, position_in_unit, wait=False, force=False):
-        if self.is_initialized() or force==True:
-            if type(position_in_unit) == list:
-                position_in_unit = position_in_unit[0]
-            n_steps = self.position_to_step(position_in_unit)
-            self.linear_actuator.move(n_steps)
-            if wait:
-                self.wait_until_idle()
+    def move(self, delta_position_in_unit, wait=True, force=False):
+        pos_info = self.linear_actuator.get_current_position()
+
+        if pos_info[1]:
+            self.move_to(pos_info[0] + delta_position_in_unit, wait=wait, force=force)
 
     def get_current_position(self):
         n_steps, _, _ = self.linear_actuator.get_current_position()
@@ -90,22 +83,22 @@ class MultiAxis(object):
         for axis in self.axes:
             axis.wait_until_idle()
 
-    def home(self, wait=False):
+    def home(self, wait=True):
         for axis in self.axes:
-            axis.home()
+            axis.home(wait=False)
         if wait:
             self.wait_until_idle()
         self.initialized = True
 
-    def move_to(self, position_array_in_unit, wait=False, force=False):
+    def move_to(self, position_array_in_unit, wait=True, force=False):
         for i, position_in_unit in enumerate(position_array_in_unit):
-            self.axes[i].move_to(position_in_unit, force=force)
+            self.axes[i].move_to(position_in_unit, wait=False, force=force)
         if wait:
             self.wait_until_idle()
 
-    def move(self, position_array_in_unit, wait=False, force=False):
+    def move(self, position_array_in_unit, wait=True, force=False):
         for i, position_in_unit in enumerate(position_array_in_unit):
-            self.axes[i].move(position_in_unit, force=force)
+            self.axes[i].move(position_in_unit, wait=False, force=force)
         if wait:
             self.wait_until_idle()
 
