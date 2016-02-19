@@ -32,12 +32,20 @@ COMMANDLINEARACCELSTEPPER_REQUEST_DIST = "RD"
 COMMANDLINEARACCELSTEPPER_REQUEST_TARGET = "RT"
 COMMANDLINEARACCELSTEPPER_REQUEST_POSITION = "RP"
 
+COMMANDLINEARACCELSTEPPER_REQUEST_SPEED = "RIS"
+COMMANDLINEARACCELSTEPPER_REQUEST_MAXSPEED = "RIMS"
+COMMANDLINEARACCELSTEPPER_REQUEST_ACCELERATION = "RIA"
+
 # outgoing command
 COMMANDLINEARACCELSTEPPER_SWITCH = "S"
 COMMANDLINEARACCELSTEPPER_MOVING = "M"
 COMMANDLINEARACCELSTEPPER_DIST = "D"
 COMMANDLINEARACCELSTEPPER_TARGET = "T"
 COMMANDLINEARACCELSTEPPER_POSITION = "P"
+
+COMMANDLINEARACCELSTEPPER_SPEED = "IS"
+COMMANDLINEARACCELSTEPPER_MAXSPEED = "IMS"
+COMMANDLINEARACCELSTEPPER_ACCELERATION = "IA"
 
 DEFAULT_SPEED = 5000
 DEFAULT_MAX_SPEED = 5000
@@ -54,9 +62,9 @@ class CommandLinearAccelStepper(CommandDevice):
         CommandDevice.__init__(self)
         self.register_all_requests()
 
-        self.running_speed = speed
-        self.max_speed = speed
-        self.acceleration = acceleration
+        self.init_speed = speed
+        self.init_max_speed = speed
+        self.init_acceleration = acceleration
         self.homing_speed = homing_speed
         self.enabled_acceleration = enabled_acceleration
         self.reverted_direction = reverted_direction
@@ -66,9 +74,9 @@ class CommandLinearAccelStepper(CommandDevice):
         self.set_all_params()
 
     def set_all_params(self):
-        self.set_speed(self.running_speed)
-        self.set_max_speed(self.max_speed)
-        self.set_acceleration(self.acceleration)
+        self.set_running_speed(self.init_speed)
+        self.set_max_speed(self.init_max_speed)
+        self.set_acceleration(self.init_acceleration)
 
         if self.enabled_acceleration:
             self.enable_acceleration()
@@ -85,42 +93,46 @@ class CommandLinearAccelStepper(CommandDevice):
             value = -value
         return value
 
+    @property
     def is_moving(self):
-        is_moving, is_valid, elapsed = self.get_moving_state()
-        if not is_valid:
-            raise DeviceTimeOutError(self.__class__.__name__, elapsed)
-        return is_moving
+        return self.get_moving_state()
 
     def wait_until_idle(self):
         time.sleep(DEFAULT_SLEEP_TIME)
-        while self.is_moving():
+        while self.is_moving:
             time.sleep(DEFAULT_SLEEP_TIME)
 
     def set_current_position(self, steps):
         self.send(COMMANDLINEARACCELSTEPPER_SET_POSITION, steps)
 
     def set_speed(self, steps_per_second):
-        self.speed = steps_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_SPEED, steps_per_second)
+
+    def set_running_speed(self, steps_per_second):
+        self.running_speed = steps_per_second
 
     def set_homing_speed(self, steps_per_second):
         self.homing_speed = steps_per_second
 
     def set_max_speed(self, steps_per_second):
-        self.max_speed = steps_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_MAX_SPEED, steps_per_second)
 
     def set_acceleration(self, steps_per_second_per_second):
-        self.acceleration = steps_per_second_per_second
         self.send(COMMANDLINEARACCELSTEPPER_SET_ACC, steps_per_second_per_second)
 
     def enable_acceleration(self):
-        self.enabled_acceleration = True
+        self.wait_until_idle()
         self.send(COMMANDLINEARACCELSTEPPER_ENABLE_ACC)
+        # small bug here, better to run stop(), the stepper has a small velocity, seems to be a bug in accel stepper
+        self.stop()
+        self.enabled_acceleration = True
 
     def disable_acceleration(self):
-        self.enabled_acceleration = False
+        self.wait_until_idle()
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_ACC)
+        # small bug here, better to run stop(), the stepper has a small velocity, seems to be a bug in accel stepper
+        self.stop()
+        self.enabled_acceleration = False
 
     def enable_revert_switch(self):
         self.reverted_switch = True
@@ -138,16 +150,18 @@ class CommandLinearAccelStepper(CommandDevice):
             self.wait_until_idle()
 
     def move_to(self, steps, wait=True):
-        if not self.enabled_acceleration:
-            self.set_speed(self.running_speed)
+        # if not self.enabled_acceleration:
+        running_speed = self.apply_reverted_direction(self.running_speed)
+        self.set_speed(running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
         if wait:
             self.wait_until_idle()
 
     def move(self, steps, wait=True):
-        if not self.enabled_acceleration:
-            self.set_speed(self.running_speed)
+        # if not self.enabled_acceleration:
+        running_speed = self.apply_reverted_direction(self.running_speed)
+        self.set_speed(running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE, steps)
         if wait:
@@ -172,8 +186,8 @@ class CommandLinearAccelStepper(CommandDevice):
         self.register_request(
             COMMANDLINEARACCELSTEPPER_REQUEST_DIST,
             COMMANDLINEARACCELSTEPPER_DIST,
-            'distance_to_goal',
-            self.handle_distance_to_goal_command)
+            'distance_to_go',
+            self.handle_distance_to_go_command)
         self.register_request(
             COMMANDLINEARACCELSTEPPER_REQUEST_TARGET,
             COMMANDLINEARACCELSTEPPER_TARGET,
@@ -184,6 +198,22 @@ class CommandLinearAccelStepper(CommandDevice):
             COMMANDLINEARACCELSTEPPER_POSITION,
             'current_position',
             self.handle_current_position_command)
+        self.register_request(
+            COMMANDLINEARACCELSTEPPER_REQUEST_SPEED,
+            COMMANDLINEARACCELSTEPPER_SPEED,
+            'speed',
+            self.handle_speed_command)
+        self.register_request(
+            COMMANDLINEARACCELSTEPPER_REQUEST_MAXSPEED,
+            COMMANDLINEARACCELSTEPPER_MAXSPEED,
+            'max_speed',
+            self.handle_max_speed_command)
+        self.register_request(
+            COMMANDLINEARACCELSTEPPER_REQUEST_ACCELERATION,
+            COMMANDLINEARACCELSTEPPER_ACCELERATION,
+            'acceleration',
+            self.handle_acceleration_command)
+
 
     def handle_switch_state_command(self, *arg):
         if arg[0]:
@@ -195,10 +225,10 @@ class CommandLinearAccelStepper(CommandDevice):
             self.moving_state = bool(int(arg[0]))
             self.moving_state_lock.ensure_released()
 
-    def handle_distance_to_goal_command(self, *arg):
+    def handle_distance_to_go_command(self, *arg):
         if arg[0]:
-            self.distance_to_goal = self.apply_reverted_direction(int(arg[0]))
-            self.distance_to_goal_lock.ensure_released()
+            self.distance_to_go = self.apply_reverted_direction(int(arg[0]))
+            self.distance_to_go_lock.ensure_released()
 
     def handle_target_position_command(self, *arg):
         if arg[0]:
@@ -209,3 +239,30 @@ class CommandLinearAccelStepper(CommandDevice):
         if arg[0]:
             self.current_position = self.apply_reverted_direction(int(arg[0]))
             self.current_position_lock.ensure_released()
+
+    def handle_speed_command(self, *arg):
+        if arg[0]:
+            self.speed = self.apply_reverted_direction(float(arg[0]))
+            self.speed_lock.ensure_released()
+
+    def handle_max_speed_command(self, *arg):
+        if arg[0]:
+            self.max_speed = float(arg[0])
+            self.max_speed_lock.ensure_released()
+
+    def handle_acceleration_command(self, *arg):
+        if arg[0]:
+            self.acceleration = float(arg[0])
+            self.acceleration_lock.ensure_released()
+
+    def print_info(self):
+        print '###'
+        print 'switch_state: ', self.get_switch_state()
+        print 'moving_state: ', self.get_moving_state()
+        print 'distance_to_go: ',  self.get_distance_to_go()
+        print 'target_position: ', self.get_target_position()
+        print 'current_position: ', self.get_current_position()
+        print 'speed: ',  self.get_speed()
+        print 'max_speed: ', self.get_max_speed()
+        print 'acceleration: ',  self.get_acceleration()
+        print '###'
