@@ -4,6 +4,8 @@ from ..lock import Lock
 import logging
 module_logger = logging.getLogger(__name__)
 
+DEFAULT_TIMEOUT = 1
+
 # bonjour info
 BONJOUR_ID = 'TEMPLATE'
 CLASS_NAME = 'CommandDevice'
@@ -16,6 +18,15 @@ class DeviceTimeOutError(Exception):
 
     def __str__(self):
         return '{device_name} did not respond within {elapsed}s'.format(device_name=self.device_name, elapsed=round(self.elapsed, 3))
+
+class CommandTimeOutError(Exception):
+    def __init__(self, device_name, command_name, elapsed):
+        self.device_name = device_name
+        self.elapsed = elapsed
+        self.command_name = command_name
+
+    def __str__(self):
+        return '{device_name} did not respond to {command_name} within {elapsed}s'.format(device_name=self.device_name, command_name=self.command_name, elapsed=round(self.elapsed, 3))
 
 
 class CommandDevice(object):
@@ -52,12 +63,12 @@ class CommandDevice(object):
     def unrecognized(self, cmd):
         self.logger.warning('Received unknown command "{}"'.format(cmd))
 
-    def register_request(self, request_command, answer_command, variable_name, callback_function_for_variable_update, variable_init_value=None):
+    def register_request(self, request_command, answer_command, variable_name, callback_function_for_variable_update, variable_init_value=None, timeout=DEFAULT_TIMEOUT):
 
         setattr(self, variable_name, variable_init_value)
 
         lock_variable_name = variable_name + '_lock'
-        setattr(self, lock_variable_name, Lock())
+        setattr(self, lock_variable_name, Lock(timeout))
 
         self.cmdHdl.add_command(answer_command, callback_function_for_variable_update)
 
@@ -76,6 +87,10 @@ class CommandDevice(object):
             getattr(self, request_function_name)()
             is_valid, elapsed = variable_lock.wait_until_released()
             variable_lock.ensure_released()
-            return getattr(self, variable_name), is_valid, elapsed
+
+            if is_valid:
+                return getattr(self, variable_name)
+            else:
+                raise CommandTimeOutError(self.cmdHdl.cmd_header, request_command, elapsed)
 
         setattr(self, get_function_name, get)

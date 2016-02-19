@@ -8,9 +8,14 @@ from lock import Lock
 
 import time
 from serial import SerialException
+
 import logging
 module_logger = logging.getLogger(__name__)
 
+DEFAULT_INIT_TIMEOUT = 1
+DEFAULT_INIT_N_REPEATS = 5
+
+DEFAULT_BONJOUR_TIMEOUT = 0.1
 
 COMMAND_BONJOUR = 'BONJOUR'
 COMMAND_IS_INIT = 'ISINIT'
@@ -20,9 +25,11 @@ COMMAND_RESET = 'RESET'
 
 class CommandManager(object):
 
-    def __init__(self, serialcommand_configs, devices_dict):
+    def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.init_lock = Lock()
+
+        self.init_n_repeats = init_n_repeats
+        self.init_lock = Lock(init_timeout)
 
         self.serialcommandhandlers = []
         for idx, config in enumerate(serialcommand_configs):
@@ -57,11 +64,11 @@ class CommandManager(object):
     def request_init(self, serialcommandhandler):
         serialcommandhandler.send(COMMAND_IS_INIT)
 
-    def request_and_wait_for_init(self, serialcommandhandler, n_repeat=5):
+    def request_and_wait_for_init(self, serialcommandhandler):
         start_time = time.time()
 
         self.init_lock.acquire()
-        for i in range(n_repeat):
+        for i in range(self.init_n_repeats):
             self.request_init(serialcommandhandler)
             is_init, _ = self.init_lock.wait_until_released()
             if is_init:
@@ -147,11 +154,11 @@ class InitError(Exception):
 
 class CommandBonjour(object):
 
-    def __init__(self, serialcommandhandlers):
+    def __init__(self, serialcommandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.serialcommandhandlers = serialcommandhandlers
-        self.lock = Lock()
+        self.lock = Lock(timeout)
         self.init_bonjour_info()
 
     def init_bonjour_info(self):
