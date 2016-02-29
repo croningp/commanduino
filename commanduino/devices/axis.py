@@ -46,13 +46,11 @@ class Axis(object):
             self.linear_actuator.move_to(n_steps, wait=wait)
 
     def move(self, delta_position_in_unit, wait=True, force=False):
-        pos_info = self.linear_actuator.get_current_position()
-
-        if pos_info[1]:
-            self.move_to(pos_info[0] + delta_position_in_unit, wait=wait, force=force)
+        current_position = self.get_current_position()
+        self.move_to(current_position + delta_position_in_unit, wait=wait, force=force)
 
     def get_current_position(self):
-        n_steps, _, _ = self.linear_actuator.get_current_position()
+        n_steps = self.linear_actuator.get_current_position()
         return self.step_to_position(n_steps)
 
     def stop(self):
