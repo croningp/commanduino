@@ -5,12 +5,10 @@ from commanddevices.register import DEFAULT_REGISTER
 from commanddevices.register import DeviceRegisterError
 
 from lock import Lock
+from _logger import create_logger
 
 import time
 from serial import SerialException
-
-import logging
-module_logger = logging.getLogger(__name__)
 
 DEFAULT_INIT_TIMEOUT = 1
 DEFAULT_INIT_N_REPEATS = 5
@@ -21,14 +19,14 @@ COMMAND_BONJOUR = 'BONJOUR'
 COMMAND_IS_INIT = 'ISINIT'
 COMMAND_INIT = 'INIT'
 
-# removing all stuff related to rest because it does not compile all all boards
+# removing all stuff related to reset because it does not compile on all boards
 # COMMAND_RESET = 'RESET'
 
 
 class CommandManager(object):
 
     def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
@@ -90,7 +88,7 @@ class CommandManager(object):
             return elapsed
         raise InitError(cmdHdl._serial.port)
 
-    # removing all stuff related to rest because it does not    compile all all boards
+    # removing all stuff related to reset because it does not compile on all boards
     # def send_reset(self, serialcommandhandler):
     #     serialcommandhandler.send(COMMAND_RESET)
     #
@@ -158,7 +156,7 @@ class InitError(Exception):
 class CommandBonjour(object):
 
     def __init__(self, serialcommandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self.serialcommandhandlers = serialcommandhandlers
         self.lock = Lock(timeout)

@@ -1,8 +1,7 @@
 from ..commandhandler import CommandHandler
 from ..lock import Lock
 
-import logging
-module_logger = logging.getLogger(__name__)
+from .._logger import create_logger
 
 DEFAULT_TIMEOUT = 1
 
@@ -19,6 +18,7 @@ class DeviceTimeOutError(Exception):
     def __str__(self):
         return '{device_name} did not respond within {elapsed}s'.format(device_name=self.device_name, elapsed=round(self.elapsed, 3))
 
+
 class CommandTimeOutError(Exception):
     def __init__(self, device_name, command_name, elapsed):
         self.device_name = device_name
@@ -32,7 +32,7 @@ class CommandTimeOutError(Exception):
 class CommandDevice(object):
 
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = create_logger(self.__class__.__name__)
 
         self.cmdHdl = CommandHandler()
         self.cmdHdl.add_default_handler(self.unrecognized)
