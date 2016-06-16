@@ -19,6 +19,7 @@ class Lock(object):
         return self.lock.locked()
 
     def wait_until_released(self):
+        elapsed = 0
         start_time = time.time()
         while self.locked():
             time.sleep(self.sleep_time)
