@@ -53,6 +53,9 @@ class Axis(object):
         n_steps = self.linear_actuator.get_current_position()
         return self.step_to_position(n_steps)
 
+    def get_switch_state(self):
+        return self.linear_actuator.get_switch_state()
+
     def stop(self):
         self.linear_actuator.stop()
 
@@ -105,6 +108,12 @@ class MultiAxis(object):
         for axis in self.axes:
             position.append(axis.get_current_position())
         return position
+
+    def get_switch_state(self):
+        switch_state = []
+        for axis in self.axes:
+            switch_state.append(axis.get_switch_state())
+        return switch_state
 
     def stop(self):
         for axis in self.axes:
