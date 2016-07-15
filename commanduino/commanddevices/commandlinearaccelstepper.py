@@ -98,7 +98,6 @@ class CommandLinearAccelStepper(CommandDevice):
         return self.get_moving_state()
 
     def wait_until_idle(self):
-        time.sleep(DEFAULT_SLEEP_TIME)
         while self.is_moving:
             time.sleep(DEFAULT_SLEEP_TIME)
 
