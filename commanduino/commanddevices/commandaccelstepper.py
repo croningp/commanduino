@@ -199,7 +199,7 @@ class CommandAccelStepper(CommandDevice):
         """
         self.wait_until_idle()
         self.send(COMMANDACCELSTEPPER_ENABLE_ACC)
-        #Bug!
+        #Bug in the stepper motor
         self.stop()
         self.enabled_acceleration = True
 
@@ -209,7 +209,7 @@ class CommandAccelStepper(CommandDevice):
         """
         self.wait_until_idle()
         self.send(COMMANDACCELSTEPPER_DISABLE_ACC)
-        #Bug!
+        #Bug in the Stepper motor
         self.stop()
         self.enabled_acceleration = False
 
