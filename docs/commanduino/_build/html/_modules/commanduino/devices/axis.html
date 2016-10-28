@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commanduino.devices.axis &#8212; Commanduino 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commanduino.devices.axis</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">.. module:: Axis</span>
+<span class="sd">   :platform: Unix</span>
+<span class="sd">   :synopsis: Represets an Axis which devices can move along</span>
+
+<span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Axis"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis">[docs]</a><span class="k">class</span> <span class="nc">Axis</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a singular Axis which devices can move along.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        linear_actuator: The linear actuator which moves along the axis.</span>
+
+<span class="sd">        unit_per_step (int): Amount of units to move per step, default set to 1</span>
+
+<span class="sd">        min_position (int): Minimum position of the axis, default set to 0</span>
+
+<span class="sd">        max_position (str): The maximum position of hte axis, cast to (float)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_actuator</span><span class="p">,</span> <span class="n">unit_per_step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_position</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_position</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span> <span class="o">=</span> <span class="n">linear_actuator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit_per_step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">unit_per_step</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_position</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_position</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Axis.initialize"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialises the axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Axis.is_initialized"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.is_initialized">[docs]</a>    <span class="k">def</span> <span class="nf">is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for initialisation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.initialized (bool): Initialisation status</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span></div>
+
+<div class="viewcode-block" id="Axis.position_to_step"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.position_to_step">[docs]</a>    <span class="k">def</span> <span class="nf">position_to_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_in_unit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts position to steps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position_in_unit (int): Position in Units.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            n_steps (int): Number of steps.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n_steps</span> <span class="o">=</span> <span class="n">position_in_unit</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_per_step</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_steps</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Axis.step_to_position"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.step_to_position">[docs]</a>    <span class="k">def</span> <span class="nf">step_to_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Comverts steps to position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_steps (int): Number of steps.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            n_steps * units_per_step</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">n_steps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_per_step</span></div>
+
+<div class="viewcode-block" id="Axis.cast_position"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.cast_position">[docs]</a>    <span class="k">def</span> <span class="nf">cast_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_in_unit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Casts the position on the axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position_in_unit (int): Position in units.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            casted_position (int): The casted position.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">casted_position</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_position</span><span class="p">,</span> <span class="n">position_in_unit</span><span class="p">)</span>
+        <span class="n">casted_position</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_position</span><span class="p">,</span> <span class="n">casted_position</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">casted_position</span></div>
+
+<div class="viewcode-block" id="Axis.is_moving"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.is_moving">[docs]</a>    <span class="k">def</span> <span class="nf">is_moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for axis movement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.linear_actuator.is_moving (bool): The actuator movement status.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">is_moving</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Axis.wait_until_idle"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.wait_until_idle">[docs]</a>    <span class="k">def</span> <span class="nf">wait_until_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waits until the linear actuator is idle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Axis.home"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the actuator to the home position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (bool): Wait until the actuator is idle, default set to True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">home</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Axis.move_to"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.move_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the linear actuator to a set position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position_in_unit (int): Position to move to.</span>
+
+<span class="sd">            wait (bool): Wait until the actuator is idle, default set to True.</span>
+
+<span class="sd">            force (bool): Force the movement, default set to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">()</span> <span class="ow">or</span> <span class="n">force</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">position_in_unit</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">position_in_unit</span> <span class="o">=</span> <span class="n">position_in_unit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast_position</span><span class="p">(</span><span class="n">position_in_unit</span><span class="p">)</span>
+            <span class="n">n_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_to_step</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Axis.move"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_position_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the linear actuator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_position_in_unit (int): The amount to move.</span>
+
+<span class="sd">            wait (bool): Wait until the linear actuator is idle, default set to True.</span>
+
+<span class="sd">            force (bool):Force the movement, default set to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">current_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_position</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">current_position</span> <span class="o">+</span> <span class="n">delta_position_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Axis.get_current_position"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.get_current_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the current position on the axis.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.step_to_position (int): THe position of the linear actuator.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">get_current_position</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_to_position</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Axis.get_switch_state"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.get_switch_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_switch_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the switch state of the linear actuator.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The switch state of the linear actuator.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">get_switch_state</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Axis.stop"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.Axis.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops the linear actuator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_actuator</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="MultiAxis"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis">[docs]</a><span class="k">class</span> <span class="nc">MultiAxis</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a collection of Axis objects which device can move along.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *args: Variable argument list.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="MultiAxis.initialize"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialises the set of axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiAxis.is_initialized"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.is_initialized">[docs]</a>    <span class="k">def</span> <span class="nf">is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the initialisation status of the devices.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.initialised (bool): The initialisation status.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span></div>
+
+<div class="viewcode-block" id="MultiAxis.is_moving"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.is_moving">[docs]</a>    <span class="k">def</span> <span class="nf">is_moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for movement along the axes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True (bool): The axes are moving.</span>
+
+<span class="sd">            False (bool): The axes are not moving.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">axis</span><span class="o">.</span><span class="n">is_moving</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="MultiAxis.wait_until_idle"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.wait_until_idle">[docs]</a>    <span class="k">def</span> <span class="nf">wait_until_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waits until the axes are idle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MultiAxis.home"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the axes to their home position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (bool): Wait until the axes are idle, default set to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">home</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="MultiAxis.move_to"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.move_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_array_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the axes to a set position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position_array_in_unit (int): The position to move to.</span>
+
+<span class="sd">            wait (bool): Wait until the axes are idle, default set to True.</span>
+
+<span class="sd">            force (bool): Force the movement of the axes, default se tto False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">position_in_unit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">position_array_in_unit</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">position_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MultiAxis.move"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_array_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the axes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position_array_in_unit (int): The amount to move.</span>
+
+<span class="sd">            wait (bool): Wait until the axes are idle, default set to True.</span>
+
+<span class="sd">            force (bool): Force the movement of the axes, default set to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">position_in_unit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">position_array_in_unit</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">position_in_unit</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MultiAxis.get_current_position"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.get_current_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the current position of the axes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            position (List): List of the positions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">position</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">position</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">axis</span><span class="o">.</span><span class="n">get_current_position</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">position</span></div>
+
+<div class="viewcode-block" id="MultiAxis.get_switch_state"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.get_switch_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_switch_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the switch state of the axes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            switch_state (List): List of the switch states.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">switch_state</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">switch_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">axis</span><span class="o">.</span><span class="n">get_switch_state</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">switch_state</span></div>
+
+<div class="viewcode-block" id="MultiAxis.stop"><a class="viewcode-back" href="../../../commanduino.devices.html#commanduino.devices.axis.MultiAxis.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops all movement in the axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Jonathan Grizou.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Devices Package &#8212; Commanduino 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="index.html" />
+    <link rel="up" title="Commanduino Library" href="commanduino.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Command Devices Package" href="commanduino.commanddevices.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="commanduino.commanddevices.html" title="Command Devices Package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="commanduino.html" accesskey="U">Commanduino Library</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="devices-package">
+<span id="devices"></span><h1>Devices Package<a class="headerlink" href="#devices-package" title="Permalink to this headline">¶</a></h1>
+<p>This is the documentation concerned with controlling an Axis/Axes.</p>
+<div class="section" id="module-commanduino.devices.axis">
+<span id="axis-module"></span><h2>Axis Module<a class="headerlink" href="#module-commanduino.devices.axis" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Axis"></span><dl class="class">
+<dt id="commanduino.devices.axis.Axis">
+<em class="property">class </em><code class="descclassname">commanduino.devices.axis.</code><code class="descname">Axis</code><span class="sig-paren">(</span><em>linear_actuator</em>, <em>unit_per_step=1</em>, <em>min_position=0</em>, <em>max_position=inf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Represents a singular Axis which devices can move along.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">linear_actuator: The linear actuator which moves along the axis.</p>
+<p>unit_per_step (int): Amount of units to move per step, default set to 1</p>
+<p>min_position (int): Minimum position of the axis, default set to 0</p>
+<p class="last">max_position (str): The maximum position of hte axis, cast to (float)</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.cast_position">
+<code class="descname">cast_position</code><span class="sig-paren">(</span><em>position_in_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.cast_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.cast_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Casts the position on the axis.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>position_in_unit (int): Position in units.</dd>
+<dt>Returns:</dt>
+<dd>casted_position (int): The casted position.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.get_current_position">
+<code class="descname">get_current_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.get_current_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.get_current_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current position on the axis.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.step_to_position (int): THe position of the linear actuator.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.get_switch_state">
+<code class="descname">get_switch_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.get_switch_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.get_switch_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the switch state of the linear actuator.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>The switch state of the linear actuator.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.home">
+<code class="descname">home</code><span class="sig-paren">(</span><em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the actuator to the home position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wait (bool): Wait until the actuator is idle, default set to True</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the axis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.is_initialized">
+<code class="descname">is_initialized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.is_initialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.is_initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for initialisation.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.initialized (bool): Initialisation status</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.is_moving">
+<code class="descname">is_moving</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.is_moving"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.is_moving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for axis movement.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.linear_actuator.is_moving (bool): The actuator movement status.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.move">
+<code class="descname">move</code><span class="sig-paren">(</span><em>delta_position_in_unit</em>, <em>wait=True</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the linear actuator.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">delta_position_in_unit (int): The amount to move.</p>
+<p>wait (bool): Wait until the linear actuator is idle, default set to True.</p>
+<p class="last">force (bool):Force the movement, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.move_to">
+<code class="descname">move_to</code><span class="sig-paren">(</span><em>position_in_unit</em>, <em>wait=True</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.move_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.move_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the linear actuator to a set position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">position_in_unit (int): Position to move to.</p>
+<p>wait (bool): Wait until the actuator is idle, default set to True.</p>
+<p class="last">force (bool): Force the movement, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.position_to_step">
+<code class="descname">position_to_step</code><span class="sig-paren">(</span><em>position_in_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.position_to_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.position_to_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts position to steps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>position_in_unit (int): Position in Units.</dd>
+<dt>Returns:</dt>
+<dd>n_steps (int): Number of steps.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.step_to_position">
+<code class="descname">step_to_position</code><span class="sig-paren">(</span><em>n_steps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.step_to_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.step_to_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Comverts steps to position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n_steps (int): Number of steps.</dd>
+<dt>Returns:</dt>
+<dd>n_steps * units_per_step</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the linear actuator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.Axis.wait_until_idle">
+<code class="descname">wait_until_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#Axis.wait_until_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.Axis.wait_until_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits until the linear actuator is idle.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="commanduino.devices.axis.MultiAxis">
+<em class="property">class </em><code class="descclassname">commanduino.devices.axis.</code><code class="descname">MultiAxis</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Represents a collection of Axis objects which device can move along.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id1"><span class="problematic" id="id2">*</span></a>args: Variable argument list.</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.get_current_position">
+<code class="descname">get_current_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.get_current_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.get_current_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current position of the axes.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>position (List): List of the positions.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.get_switch_state">
+<code class="descname">get_switch_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.get_switch_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.get_switch_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the switch state of the axes.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>switch_state (List): List of the switch states.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.home">
+<code class="descname">home</code><span class="sig-paren">(</span><em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the axes to their home position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wait (bool): Wait until the axes are idle, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the set of axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.is_initialized">
+<code class="descname">is_initialized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.is_initialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.is_initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the initialisation status of the devices.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.initialised (bool): The initialisation status.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.is_moving">
+<code class="descname">is_moving</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.is_moving"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.is_moving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for movement along the axes.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><p class="first">True (bool): The axes are moving.</p>
+<p class="last">False (bool): The axes are not moving.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.move">
+<code class="descname">move</code><span class="sig-paren">(</span><em>position_array_in_unit</em>, <em>wait=True</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the axes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">position_array_in_unit (int): The amount to move.</p>
+<p>wait (bool): Wait until the axes are idle, default set to True.</p>
+<p class="last">force (bool): Force the movement of the axes, default set to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.move_to">
+<code class="descname">move_to</code><span class="sig-paren">(</span><em>position_array_in_unit</em>, <em>wait=True</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.move_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.move_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the axes to a set position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">position_array_in_unit (int): The position to move to.</p>
+<p>wait (bool): Wait until the axes are idle, default set to True.</p>
+<p class="last">force (bool): Force the movement of the axes, default se tto False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops all movement in the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.devices.axis.MultiAxis.wait_until_idle">
+<code class="descname">wait_until_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/devices/axis.html#MultiAxis.wait_until_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.devices.axis.MultiAxis.wait_until_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits until the axes are idle.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Devices Package</a><ul>
+<li><a class="reference internal" href="#module-commanduino.devices.axis">Axis Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="commanduino.commanddevices.html"
+                        title="previous chapter">Command Devices Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/commanduino.devices.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="commanduino.commanddevices.html" title="Command Devices Package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="commanduino.html" >Commanduino Library</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Jonathan Grizou.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>

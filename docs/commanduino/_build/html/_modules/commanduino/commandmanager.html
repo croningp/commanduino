@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>commanduino.commandmanager &#8212; Commanduino 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for commanduino.commandmanager</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: commandmanager</span>
+<span class="sd">   :platform: Unix</span>
+<span class="sd">   :synopsis: Module to manage various Command Handlers.</span>
+
+<span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.commandhandler</span> <span class="k">import</span> <span class="n">SerialCommandHandler</span>
+
+<span class="kn">from</span> <span class="nn">.commanddevices.register</span> <span class="k">import</span> <span class="n">create_and_setup_device</span>
+<span class="kn">from</span> <span class="nn">.commanddevices.register</span> <span class="k">import</span> <span class="n">DEFAULT_REGISTER</span>
+<span class="kn">from</span> <span class="nn">.commanddevices.register</span> <span class="k">import</span> <span class="n">DeviceRegisterError</span>
+
+<span class="kn">from</span> <span class="nn">.lock</span> <span class="k">import</span> <span class="n">Lock</span>
+<span class="kn">from</span> <span class="nn">._logger</span> <span class="k">import</span> <span class="n">create_logger</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">serial</span> <span class="k">import</span> <span class="n">SerialException</span>
+
+<span class="c1">#default initialisation timeout.</span>
+<span class="n">DEFAULT_INIT_TIMEOUT</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#Default amount of times to attempt initialisation</span>
+<span class="n">DEFAULT_INIT_N_REPEATS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1">#Default timeout value.</span>
+<span class="n">DEFAULT_BONJOUR_TIMEOUT</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">COMMAND_BONJOUR</span> <span class="o">=</span> <span class="s1">&#39;BONJOUR&#39;</span>
+<span class="n">COMMAND_IS_INIT</span> <span class="o">=</span> <span class="s1">&#39;ISINIT&#39;</span>
+<span class="n">COMMAND_INIT</span> <span class="o">=</span> <span class="s1">&#39;INIT&#39;</span>
+
+<span class="c1"># removing all stuff related to reset because it does not compile on all boards</span>
+<span class="c1"># COMMAND_RESET = &#39;RESET&#39;</span>
+
+
+<div class="viewcode-block" id="CommandManager"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager">[docs]</a><span class="k">class</span> <span class="nc">CommandManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages variying amounts of Command Handler objects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        serialcommand_configs (Tuple): Collection of serial command configurations.</span>
+
+<span class="sd">        devices_dict (Dict): Dictionary containing the list of devices.</span>
+
+<span class="sd">        init_timeout (int): Initialisation timeout, default se tto DEFAULT_INIT_TIMEOUT (1).</span>
+
+<span class="sd">        init_n_repeats (int): Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        OSError: Port was not found.</span>
+
+<span class="sd">        SerialException: Port was not found.</span>
+
+<span class="sd">        InitError: CommandManager on port was not initialised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommand_configs</span><span class="p">,</span> <span class="n">devices_dict</span><span class="p">,</span> <span class="n">init_timeout</span><span class="o">=</span><span class="n">DEFAULT_INIT_TIMEOUT</span><span class="p">,</span> <span class="n">init_n_repeats</span><span class="o">=</span><span class="n">DEFAULT_INIT_N_REPEATS</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">create_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_n_repeats</span> <span class="o">=</span> <span class="n">init_n_repeats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">(</span><span class="n">init_timeout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">serialcommandhandlers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">serialcommand_configs</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cmdHdl</span> <span class="o">=</span> <span class="n">SerialCommandHandler</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+                <span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_default_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrecognized</span><span class="p">)</span>
+                <span class="n">cmdHdl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">SerialException</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Port </span><span class="si">{}</span><span class="s1"> was not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]))</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_serial_device_for_init</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Found CommandManager on port &quot;</span><span class="si">{port}</span><span class="s1">&quot;, init time was </span><span class="si">{init_time}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">_serial</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">init_time</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="n">InitError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;CommandManager on port &quot;</span><span class="si">{port}</span><span class="s1">&quot; has not initialized&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">_serial</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">serialcommandhandlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_all_devices</span><span class="p">(</span><span class="n">devices_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_devices_as_attributes</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CommandManager.set_devices_as_attributes"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.set_devices_as_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_devices_as_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the list of devices as attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">device</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Device named </span><span class="si">{device_name}</span><span class="s2"> is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[</span><span class="si">{device_name}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">device_name</span><span class="o">=</span><span class="n">device_name</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandManager.handle_init"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.handle_init">[docs]</a>    <span class="k">def</span> <span class="nf">handle_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the initialisation of the Manager, ensuring that the threading locks are released.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandManager.request_init"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.request_init">[docs]</a>    <span class="k">def</span> <span class="nf">request_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommandhandler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requests initialisation over serial communication.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            serialcommandhandler (SerialCommandHandler): Serial Command Handler object for communication.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serialcommandhandler</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMAND_IS_INIT</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandManager.request_and_wait_for_init"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.request_and_wait_for_init">[docs]</a>    <span class="k">def</span> <span class="nf">request_and_wait_for_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommandhandler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requests initialisation and waits until it obtains a threading lock.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            serialcommandhandler (SerialCommandHandler): Serial Command Handler object for communication.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_n_repeats</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">request_init</span><span class="p">(</span><span class="n">serialcommandhandler</span><span class="p">)</span>
+            <span class="n">is_init</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_lock</span><span class="o">.</span><span class="n">wait_until_released</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">is_init</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span>
+
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">return</span> <span class="n">is_init</span><span class="p">,</span> <span class="n">elapsed</span></div>
+
+<div class="viewcode-block" id="CommandManager.wait_serial_device_for_init"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.wait_serial_device_for_init">[docs]</a>    <span class="k">def</span> <span class="nf">wait_serial_device_for_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmdHdl</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waits for initialisation using serial communication.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmdHdl (CommandHandler): CommandHandler object to add/remove commands.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            elapsed (flaot): Time waited for initialisation.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            InitError: CommandManager on the port was not initialised.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Waiting for init on port &quot;</span><span class="si">{port}</span><span class="s1">&quot;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">_serial</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+
+        <span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">COMMAND_INIT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_init</span><span class="p">)</span>
+        <span class="n">is_init</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_and_wait_for_init</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">)</span>
+        <span class="n">cmdHdl</span><span class="o">.</span><span class="n">remove_command</span><span class="p">(</span><span class="n">COMMAND_INIT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_init</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_init</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">elapsed</span>
+        <span class="k">raise</span> <span class="n">InitError</span><span class="p">(</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">_serial</span><span class="o">.</span><span class="n">port</span><span class="p">)</span></div>
+
+    <span class="c1"># removing all stuff related to reset because it does not compile on all boards</span>
+    <span class="c1"># def send_reset(self, serialcommandhandler):</span>
+    <span class="c1">#     serialcommandhandler.send(COMMAND_RESET)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def reset_and_wait_for_init(self, cmdHdl):</span>
+    <span class="c1">#     self.send_reset(cmdHdl)</span>
+    <span class="c1">#     self.wait_serial_device_for_init(cmdHdl)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def reset_all_and_wait_for_init(self):</span>
+    <span class="c1">#     for cmdHdl in self.serialcommandhandlers:</span>
+    <span class="c1">#         self.send_reset(cmdHdl)</span>
+    <span class="c1">#     for cmdHdl in self.serialcommandhandlers:</span>
+    <span class="c1">#         self.wait_serial_device_for_init(cmdHdl)</span>
+
+<div class="viewcode-block" id="CommandManager.register_all_devices"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.register_all_devices">[docs]</a>    <span class="k">def</span> <span class="nf">register_all_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">devices_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers all available Arduino devices.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            devices_dict (Dict): Dictionary containing all devices.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">device_info</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">devices_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_device</span><span class="p">(</span><span class="n">device_name</span><span class="p">,</span> <span class="n">device_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandManager.register_device"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.register_device">[docs]</a>    <span class="k">def</span> <span class="nf">register_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">device_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers an individual Arduino device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device_name (str): Name of the device.</span>
+
+<span class="sd">            device_info (Dict): Dictionary containing the device information.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            DeviceRegisterError: Device is not in the device register.</span>
+
+<span class="sd">            BonjourError: Device has not been found.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command_id</span> <span class="o">=</span> <span class="n">device_info</span><span class="p">[</span><span class="s1">&#39;command_id&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;config&#39;</span> <span class="ow">in</span> <span class="n">device_info</span><span class="p">:</span>
+            <span class="n">device_config</span> <span class="o">=</span> <span class="n">device_info</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">device_config</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bonjour_service</span> <span class="o">=</span> <span class="n">CommandBonjour</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialcommandhandlers</span><span class="p">)</span>
+            <span class="n">cmdHdl</span><span class="p">,</span> <span class="n">bonjour_id</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">bonjour_service</span><span class="o">.</span><span class="n">detect_device</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Device &quot;</span><span class="si">{name}</span><span class="s1">&quot; with id &quot;</span><span class="si">{id}</span><span class="s1">&quot; and of type &quot;</span><span class="si">{type}</span><span class="s1">&quot; found in </span><span class="si">{bonjour_time}</span><span class="s1">s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">device_name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">bonjour_id</span><span class="p">,</span> <span class="n">bonjour_time</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">device</span> <span class="o">=</span> <span class="n">create_and_setup_device</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">,</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">bonjour_id</span><span class="p">,</span> <span class="n">device_config</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Device &quot;</span><span class="si">{name}</span><span class="s1">&quot; with id &quot;</span><span class="si">{id}</span><span class="s1">&quot; and of type &quot;</span><span class="si">{type}</span><span class="s1">&quot; found in the register, creating it&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">device_name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">bonjour_id</span><span class="p">,</span> <span class="n">bonjour_time</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="n">DeviceRegisterError</span><span class="p">:</span>
+                <span class="n">device</span> <span class="o">=</span> <span class="n">create_and_setup_device</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">,</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">DEFAULT_REGISTER</span><span class="p">,</span> <span class="n">device_config</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Device &quot;</span><span class="si">{name}</span><span class="s1">&quot; with id &quot;</span><span class="si">{id}</span><span class="s1">&quot; and of type &quot;</span><span class="si">{type}</span><span class="s1">&quot; is not in the device register, creating a blank minimal device instead&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">device_name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">bonjour_id</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="k">except</span> <span class="n">BonjourError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Device &quot;</span><span class="si">{name}</span><span class="s1">&quot; with id &quot;</span><span class="si">{id}</span><span class="s1">&quot; has not been found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">device_name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">command_id</span><span class="p">))</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CommandManager.from_config"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the necessary information from a configuration setup.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls (CommandManager): The instantiating class.</span>
+
+<span class="sd">            config (Dict): Dictionary contianing the configuration data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serialcommand_configs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ios&#39;</span><span class="p">]</span>
+        <span class="n">devices</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;devices&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">serialcommand_configs</span><span class="p">,</span> <span class="n">devices</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CommandManager.from_configfile"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.from_configfile">[docs]</a>    <span class="k">def</span> <span class="nf">from_configfile</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">configfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the configuration data from a configuration file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls (CommandManager): The instantiating class.</span>
+
+<span class="sd">            configfile (File): The configuration file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CommandManager.unrecognized"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandManager.unrecognized">[docs]</a>    <span class="k">def</span> <span class="nf">unrecognized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Received command is unrecognised.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmd (str): The received command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Received unknown command &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="InitError"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.InitError">[docs]</a><span class="k">class</span> <span class="nc">InitError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for when the manager fails to initialise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Manager on port </span><span class="si">{self.port}</span><span class="s1"> did not inititalize&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CommandBonjour"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour">[docs]</a><span class="k">class</span> <span class="nc">CommandBonjour</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Command Manager for Bonjour devices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        serialcommandhandlers: Collection of SerialCommandHandler objects.</span>
+
+<span class="sd">        timeout (float): Time to wait before timeout, default set to DEFAULT_BONJOUR_TIMEOUT (0.1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommandhandlers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">DEFAULT_BONJOUR_TIMEOUT</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">create_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">serialcommandhandlers</span> <span class="o">=</span> <span class="n">serialcommandhandlers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_bonjour_info</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CommandBonjour.init_bonjour_info"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour.init_bonjour_info">[docs]</a>    <span class="k">def</span> <span class="nf">init_bonjour_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialises the Bonjour information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_bonjour_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_bonjour_id_valid</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="CommandBonjour.handle_bonjour"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour.handle_bonjour">[docs]</a>    <span class="k">def</span> <span class="nf">handle_bonjour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the Bonjour initialisation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device_bonjour_id</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device_bonjour_id_valid</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandBonjour.send_bonjour"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour.send_bonjour">[docs]</a>    <span class="k">def</span> <span class="nf">send_bonjour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommandhandler</span><span class="p">,</span> <span class="n">command_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a message to the device.</span>
+
+<span class="sd">        .. todo:: Fix this up</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            serialcommandhandler (SerialCommandHandler): The Serial Command Handler object.</span>
+
+<span class="sd">            command_id (str): The ID of the command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serialcommandhandler</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command_id</span><span class="p">,</span> <span class="n">COMMAND_BONJOUR</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandBonjour.get_bonjour_id"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour.get_bonjour_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonjour_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serialcommandhandler</span><span class="p">,</span> <span class="n">command_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the device&#39;s bonjour ID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            serialcommandhandler (SerialCommandHandler): The Serial Command Handler object.</span>
+
+<span class="sd">            command_id (str): The ID of the command.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.device_bonjour_id (str): The Bonjour ID.</span>
+
+<span class="sd">            is_valid (bool): Validity of the ID.</span>
+
+<span class="sd">            elapsed (float): Time elapsed since request.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_bonjour_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_bonjour</span><span class="p">(</span><span class="n">serialcommandhandler</span><span class="p">,</span> <span class="n">command_id</span><span class="p">)</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">wait_until_released</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_bonjour_id</span><span class="p">,</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">elapsed</span></div>
+
+<div class="viewcode-block" id="CommandBonjour.detect_device"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.CommandBonjour.detect_device">[docs]</a>    <span class="k">def</span> <span class="nf">detect_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attempts to detect the Bonjour device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            command_id (str): The ID of the command.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cmdHdl (SerialCommandHandler): The Serial Command Handler.</span>
+
+<span class="sd">            bonjour_id (str): The Bonjour ID.</span>
+
+<span class="sd">            elapsed (float): Time elapsed since request.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cmdHdl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialcommandhandlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Scanning for &quot;</span><span class="si">{id}</span><span class="s1">&quot; on port &quot;</span><span class="si">{port}</span><span class="s1">&quot;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">_serial</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+
+            <span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_relay</span><span class="p">(</span><span class="n">command_id</span><span class="p">,</span> <span class="n">cmdHdl</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+            <span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">COMMAND_BONJOUR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_bonjour</span><span class="p">)</span>
+            <span class="n">bonjour_id</span><span class="p">,</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bonjour_id</span><span class="p">(</span><span class="n">cmdHdl</span><span class="p">,</span> <span class="n">command_id</span><span class="p">)</span>
+            <span class="n">cmdHdl</span><span class="o">.</span><span class="n">remove_command</span><span class="p">(</span><span class="n">COMMAND_BONJOUR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_bonjour</span><span class="p">)</span>
+            <span class="n">cmdHdl</span><span class="o">.</span><span class="n">remove_relay</span><span class="p">(</span><span class="n">command_id</span><span class="p">,</span> <span class="n">cmdHdl</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_valid</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cmdHdl</span><span class="p">,</span> <span class="n">bonjour_id</span><span class="p">,</span> <span class="n">elapsed</span>
+        <span class="k">raise</span> <span class="n">BonjourError</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BonjourError"><a class="viewcode-back" href="../../commanduino.html#commanduino.commandmanager.BonjourError">[docs]</a><span class="k">class</span> <span class="nc">BonjourError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for when Bonjour device is not available/not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_id</span> <span class="o">=</span> <span class="n">command_id</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{self.command_id}</span><span class="s1"> seems to not be existing/available&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Commanduino 0.1.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Jonathan Grizou.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>
