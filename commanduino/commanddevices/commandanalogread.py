@@ -18,7 +18,7 @@ module_logger = logging.getLogger(__name__)
 BONJOUR_ID = 'ANALOGREAD'
 CLASS_NAME = 'CommandAnalogRead'
 
-#Incoming (Low)
+#Incoming (Level)
 CMD_ANSWER_LEVEL = 'L'
 
 #Outgoing (Read)
