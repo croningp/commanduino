@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Examples &mdash; Commanduino 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="index.html"/>
+        <link rel="prev" title="Devices Package" href="commanduino.devices.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Commanduino
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="commanduino.html">Commanduino Library</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#commandservo-example">CommandServo Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#json-configuration-file-demo-json">JSON Configuration file (demo.json)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-script-demo-py">Python Script (demo.py)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Commanduino</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Examples</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/examples.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="examples">
+<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Here you will find in-depth examples of how to use the Commanduino library.</p>
+<div class="section" id="commandservo-example">
+<h2>CommandServo Example<a class="headerlink" href="#commandservo-example" title="Permalink to this headline">¶</a></h2>
+<p>This example focuses on controlling a servo motor attached to an Arduino board via Python.</p>
+<p>Below are samples of a .json configuration file and the Python script which controls the motor.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example is for the CommandServo module but other modules can be used this way too, just replace the name!</p>
+</div>
+<div class="section" id="json-configuration-file-demo-json">
+<h3>JSON Configuration file (demo.json)<a class="headerlink" href="#json-configuration-file-demo-json" title="Permalink to this headline">¶</a></h3>
+<p>This is how to lay out a .json configuration file.</p>
+<ul>
+<li><dl class="first docutils">
+<dt>ios</dt>
+<dd><p class="first last">This are the I/O port(s) on which the Arduino board is attached to.
+This is dependent on the the port which is set upon uploading code to the Arduino board.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>devices</dt>
+<dd><p class="first">These are the names that will be used to communicate with the device in the Python code (e.g. servo1, servo2, etc).</p>
+<ul>
+<li><dl class="first docutils">
+<dt>command_id</dt>
+<dd><p class="first last">This is the label which the library uses to identify the device.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p class="last">Add as many devices as necessary.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>JSON Configuration file:</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;ios&quot;</span> <span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/tty.usbmodem1411&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/ttyACM0&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/ttyACM1&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/ttyACM5&quot;</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;devices&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;servo1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;command_id&quot;</span><span class="p">:</span> <span class="s2">&quot;S1&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;servo2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;command_id&quot;</span><span class="p">:</span> <span class="s2">&quot;S2&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-script-demo-py">
+<h3>Python Script (demo.py)<a class="headerlink" href="#python-script-demo-py" title="Permalink to this headline">¶</a></h3>
+<p>This is an example of a python script which uses the Commanduino library.</p>
+<ol class="arabic simple">
+<li>First, import the CommandManager module from the commanduino library.</li>
+<li>Create a CommandManager object, using a .json configuration file to set the parameters.</li>
+<li>The manager is now initialised and ready for use!</li>
+<li>You can gain access to the devices through the command manager methods (e.g. cmdMgr.servo1)</li>
+<li>This will allow access to the control methods for the device (e.g.cmdMgr.servo1.set_angle(60))</li>
+</ol>
+<p>Please see the <a class="reference internal" href="commanduino.commanddevices.html#command-devices"><span class="std std-ref">Command Devices Package</span></a> page for a list of supported devices.</p>
+<p><strong>Python Script Example:</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">commanduino</span> <span class="k">import</span> <span class="n">CommandManager</span>
+
+<span class="n">cmdMng</span> <span class="o">=</span> <span class="n">CommandManager</span><span class="o">.</span><span class="n">from_configfile</span><span class="p">(</span><span class="s1">&#39;./demo.json&#39;</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo1</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo2</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo1</span><span class="o">.</span><span class="n">get_angle</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo2</span><span class="o">.</span><span class="n">get_angle</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo1</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+    <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo2</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo1</span><span class="o">.</span><span class="n">get_angle</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="n">cmdMng</span><span class="o">.</span><span class="n">servo2</span><span class="o">.</span><span class="n">get_angle</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Insert Examples here similar to the above format!</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="commanduino.devices.html" class="btn btn-neutral" title="Devices Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonathan Grizou.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

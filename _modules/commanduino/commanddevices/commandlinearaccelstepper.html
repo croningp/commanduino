@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>commanduino.commanddevices.commandlinearaccelstepper &mdash; Commanduino 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Commanduino
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../commanduino.html">Commanduino Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Commanduino</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>commanduino.commanddevices.commandlinearaccelstepper</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for commanduino.commanddevices.commandlinearaccelstepper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">.. module:: CommandLinearAccelStepper</span>
+<span class="sd">   :platform: Unix</span>
+<span class="sd">   :synopsis: Represents a Linear AccelStepper Arduino device.</span>
+
+<span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.commanddevice</span> <span class="k">import</span> <span class="n">CommandDevice</span>
+<span class="kn">from</span> <span class="nn">.commanddevice</span> <span class="k">import</span> <span class="n">DeviceTimeOutError</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">module_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c1"># bonjour info</span>
+<span class="n">BONJOUR_ID</span> <span class="o">=</span> <span class="s1">&#39;LINEARACCELSTEPPER&#39;</span>
+<span class="n">CLASS_NAME</span> <span class="o">=</span> <span class="s1">&#39;CommandLinearAccelStepper&#39;</span>
+
+<span class="c1">#Incoming Commands</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_SET_POSITION</span> <span class="o">=</span> <span class="s2">&quot;SP&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_SET_SPEED</span> <span class="o">=</span> <span class="s2">&quot;SS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_SET_MAX_SPEED</span> <span class="o">=</span> <span class="s2">&quot;SMS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_SET_ACC</span> <span class="o">=</span> <span class="s2">&quot;SA&quot;</span>
+
+<span class="n">COMMANDLINEARACCELSTEPPER_ENABLE_ACC</span> <span class="o">=</span> <span class="s2">&quot;EA&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_DISABLE_ACC</span> <span class="o">=</span> <span class="s2">&quot;DA&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_ENABLE_SWITCH</span> <span class="o">=</span> <span class="s2">&quot;ES&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH</span> <span class="o">=</span> <span class="s2">&quot;DS&quot;</span>
+
+<span class="n">COMMANDLINEARACCELSTEPPER_HOME</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_MOVE_TO</span> <span class="o">=</span> <span class="s2">&quot;MT&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_MOVE</span> <span class="o">=</span> <span class="s2">&quot;M&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_STOP</span> <span class="o">=</span> <span class="s2">&quot;S&quot;</span>
+
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_SWITCH</span> <span class="o">=</span> <span class="s2">&quot;RS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_MOVING</span> <span class="o">=</span> <span class="s2">&quot;RM&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_DIST</span> <span class="o">=</span> <span class="s2">&quot;RD&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_TARGET</span> <span class="o">=</span> <span class="s2">&quot;RT&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_POSITION</span> <span class="o">=</span> <span class="s2">&quot;RP&quot;</span>
+
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_SPEED</span> <span class="o">=</span> <span class="s2">&quot;RIS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_MAXSPEED</span> <span class="o">=</span> <span class="s2">&quot;RIMS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_ACCELERATION</span> <span class="o">=</span> <span class="s2">&quot;RIA&quot;</span>
+
+<span class="c1">#Outgoing Commands</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_SWITCH</span> <span class="o">=</span> <span class="s2">&quot;S&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_MOVING</span> <span class="o">=</span> <span class="s2">&quot;M&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_DIST</span> <span class="o">=</span> <span class="s2">&quot;D&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_TARGET</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_POSITION</span> <span class="o">=</span> <span class="s2">&quot;P&quot;</span>
+
+<span class="n">COMMANDLINEARACCELSTEPPER_SPEED</span> <span class="o">=</span> <span class="s2">&quot;IS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_MAXSPEED</span> <span class="o">=</span> <span class="s2">&quot;IMS&quot;</span>
+<span class="n">COMMANDLINEARACCELSTEPPER_ACCELERATION</span> <span class="o">=</span> <span class="s2">&quot;IA&quot;</span>
+
+<span class="c1">#Default speed.</span>
+<span class="n">DEFAULT_SPEED</span> <span class="o">=</span> <span class="mi">5000</span>
+
+<span class="c1">#Default maximum speed.</span>
+<span class="n">DEFAULT_MAX_SPEED</span> <span class="o">=</span> <span class="mi">5000</span>
+
+<span class="c1">#Default acceleration.</span>
+<span class="n">DEFAULT_ACCELERATION</span> <span class="o">=</span> <span class="mi">2000</span>
+
+<span class="c1">#Default homing speed.</span>
+<span class="n">DEFAULT_HOMING_SPEED</span> <span class="o">=</span> <span class="mi">2000</span>
+
+<span class="c1">#Default sleep time.</span>
+<span class="n">DEFAULT_SLEEP_TIME</span> <span class="o">=</span> <span class="mf">0.1</span>  <span class="c1"># let&#39;s not make it too low to not make the communication bus too busy</span>
+
+
+<div class="viewcode-block" id="CommandLinearAccelStepper"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper">[docs]</a><span class="k">class</span> <span class="nc">CommandLinearAccelStepper</span><span class="p">(</span><span class="n">CommandDevice</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Linear Aceclerator Stepper Arduino device.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        speed (int): Speed of the device, default set to DEFAULT_SPEED (5000)</span>
+
+<span class="sd">        max_speed (int): Maximum speed of the device, default set to DEFAULT_MAX_SPEED (5000)</span>
+
+<span class="sd">        acceleration (int): Speed of acceleration, default set to DEFAULT_ACCELERATION (2000)</span>
+
+<span class="sd">        homing_speed (int): Himing speed of the device, default set to DEFAULT_HOMING_SPEED (2000)</span>
+
+<span class="sd">        enabled_acceleration (bool): Acceleration enabled, default set to True.</span>
+
+<span class="sd">        reverted_direction (bool): Direction is reverted, default set to False.</span>
+
+<span class="sd">        reverted_switch (bool): Switch is reverted, default set to False.</span>
+
+<span class="sd">    Base:</span>
+<span class="sd">        CommandDevice</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="n">DEFAULT_SPEED</span><span class="p">,</span> <span class="n">max_speed</span><span class="o">=</span><span class="n">DEFAULT_MAX_SPEED</span><span class="p">,</span> <span class="n">acceleration</span><span class="o">=</span><span class="n">DEFAULT_ACCELERATION</span><span class="p">,</span> <span class="n">homing_speed</span><span class="o">=</span><span class="n">DEFAULT_HOMING_SPEED</span><span class="p">,</span> <span class="n">enabled_acceleration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reverted_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reverted_switch</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">CommandDevice</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_all_requests</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_speed</span> <span class="o">=</span> <span class="n">speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_max_speed</span> <span class="o">=</span> <span class="n">speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_acceleration</span> <span class="o">=</span> <span class="n">acceleration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">homing_speed</span> <span class="o">=</span> <span class="n">homing_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled_acceleration</span> <span class="o">=</span> <span class="n">enabled_acceleration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverted_direction</span> <span class="o">=</span> <span class="n">reverted_direction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverted_switch</span> <span class="o">=</span> <span class="n">reverted_switch</span>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.init"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_all_params</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_all_params"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_all_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_all_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets all the parameters of the device automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_running_speed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_max_speed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_max_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_acceleration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_acceleration</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_acceleration</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable_acceleration</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disable_acceleration</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverted_switch</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable_revert_switch</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disable_revert_switch</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.apply_reverted_direction"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.apply_reverted_direction">[docs]</a>    <span class="k">def</span> <span class="nf">apply_reverted_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reverts the direction of movement.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (int): The current value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            value (int): The new value (-value)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverted_direction</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for movement in device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self.get_moving_state(): The movement state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_moving_state</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.wait_until_idle"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.wait_until_idle">[docs]</a>    <span class="k">def</span> <span class="nf">wait_until_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waits until the device is idle (not moving).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_moving</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">DEFAULT_SLEEP_TIME</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_current_position"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_current_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_current_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the current position of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps (int): The position to move to.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_SET_POSITION</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_speed"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_speed">[docs]</a>    <span class="k">def</span> <span class="nf">set_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the speed of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps_per_second (int): The number of steps per second to move.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_SET_SPEED</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_running_speed"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_running_speed">[docs]</a>    <span class="k">def</span> <span class="nf">set_running_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the running speed of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps_per_second (int): The number of steps per second.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_speed</span> <span class="o">=</span> <span class="n">steps_per_second</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_homing_speed"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_homing_speed">[docs]</a>    <span class="k">def</span> <span class="nf">set_homing_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the homing speed of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps_per_second (int): The number of steps per second.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">homing_speed</span> <span class="o">=</span> <span class="n">steps_per_second</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_max_speed"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_max_speed">[docs]</a>    <span class="k">def</span> <span class="nf">set_max_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the maximum speed of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps_per_second (int): The number of steps per second.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_SET_MAX_SPEED</span><span class="p">,</span> <span class="n">steps_per_second</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.set_acceleration"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_acceleration">[docs]</a>    <span class="k">def</span> <span class="nf">set_acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps_per_second_per_second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the acceleration speed of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps_per_second_per_second (int): The number of steps per second per second.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_SET_ACC</span><span class="p">,</span> <span class="n">steps_per_second_per_second</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.enable_acceleration"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_acceleration">[docs]</a>    <span class="k">def</span> <span class="nf">enable_acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enables acceleration on the device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_ENABLE_ACC</span><span class="p">)</span>
+        <span class="c1"># small bug here, better to run stop(), the stepper has a small velocity, seems to be a bug in accel stepper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled_acceleration</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.disable_acceleration"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_acceleration">[docs]</a>    <span class="k">def</span> <span class="nf">disable_acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disables acceleration on the device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_DISABLE_ACC</span><span class="p">)</span>
+        <span class="c1"># small bug here, better to run stop(), the stepper has a small velocity, seems to be a bug in accel stepper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled_acceleration</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.enable_revert_switch"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_revert_switch">[docs]</a>    <span class="k">def</span> <span class="nf">enable_revert_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enables switch revertion on the device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverted_switch</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_ENABLE_SWITCH</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.disable_revert_switch"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_revert_switch">[docs]</a>    <span class="k">def</span> <span class="nf">disable_revert_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disables switch revertion on the device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverted_switch</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.home"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Homes the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (bool): Wait for the device to be idle, default set to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">homing_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">homing_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_speed</span><span class="p">(</span><span class="o">-</span><span class="n">homing_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_HOME</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.move_to"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move_to">[docs]</a>    <span class="k">def</span> <span class="nf">move_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the device to a specific point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps (int): The position to move to.</span>
+
+<span class="sd">            wait (bool): Wait until the device is idle, default set to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if not self.enabled_acceleration:</span>
+        <span class="n">running_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_speed</span><span class="p">(</span><span class="n">running_speed</span><span class="p">)</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_MOVE_TO</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.move"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the device a certain number of steps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps (int): The number of steps to move.</span>
+
+<span class="sd">            wait (bool): Waits for the device to be idle, default set to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if not self.enabled_acceleration:</span>
+        <span class="n">running_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_speed</span><span class="p">(</span><span class="n">running_speed</span><span class="p">)</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_MOVE</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.stop"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops the movement of the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (bool): Wait until the device is idle, default set to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">COMMANDLINEARACCELSTEPPER_STOP</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_until_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.register_all_requests"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.register_all_requests">[docs]</a>    <span class="k">def</span> <span class="nf">register_all_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers all requests to the device for later access.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_SWITCH</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_SWITCH</span><span class="p">,</span>
+            <span class="s1">&#39;switch_state&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_switch_state_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_MOVING</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_MOVING</span><span class="p">,</span>
+            <span class="s1">&#39;moving_state&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_moving_state_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_DIST</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_DIST</span><span class="p">,</span>
+            <span class="s1">&#39;distance_to_go&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_distance_to_go_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_TARGET</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_TARGET</span><span class="p">,</span>
+            <span class="s1">&#39;target_position&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_target_position_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_POSITION</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_POSITION</span><span class="p">,</span>
+            <span class="s1">&#39;current_position&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_current_position_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_SPEED</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_SPEED</span><span class="p">,</span>
+            <span class="s1">&#39;speed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_speed_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_MAXSPEED</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_MAXSPEED</span><span class="p">,</span>
+            <span class="s1">&#39;max_speed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_max_speed_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_request</span><span class="p">(</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_REQUEST_ACCELERATION</span><span class="p">,</span>
+            <span class="n">COMMANDLINEARACCELSTEPPER_ACCELERATION</span><span class="p">,</span>
+            <span class="s1">&#39;acceleration&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_acceleration_command</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_switch_state_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_switch_state_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_switch_state_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for switch state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            arg*: Variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">switch_state</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">switch_state_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_moving_state_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_moving_state_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_moving_state_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for moving state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moving_state</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moving_state_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_distance_to_go_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_distance_to_go_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_distance_to_go_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for distance to go.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_go</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_go_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_target_position_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_target_position_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_target_position_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for target position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_position_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_current_position_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_current_position_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_current_position_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for current position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_position_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_speed_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_speed_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_speed_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for speed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_reverted_direction</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">speed_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_max_speed_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_max_speed_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_max_speed_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for maximum speed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable argument.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_speed_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.handle_acceleration_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_acceleration_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_acceleration_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the command for acceleration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *arg: Variable arguement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acceleration</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CommandLinearAccelStepper.print_info"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.print_info">[docs]</a>    <span class="k">def</span> <span class="nf">print_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the current information for the device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;###&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;switch_state: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_switch_state</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;moving_state: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_moving_state</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;distance_to_go: &#39;</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_distance_to_go</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;target_position: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_position</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;current_position: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_position</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;speed: &#39;</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_speed</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;max_speed: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_speed</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;acceleration: &#39;</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_acceleration</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;###&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonathan Grizou.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

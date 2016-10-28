@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>commanduino.commanddevices.commanddevice &mdash; Commanduino 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Commanduino
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../commanduino.html">Commanduino Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Commanduino</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>commanduino.commanddevices.commanddevice</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for commanduino.commanddevices.commanddevice</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">.. module:: commanddevice</span>
+<span class="sd">   :platform: Unix</span>
+<span class="sd">   :synopsis: Forms the template of the different Arduino devices.</span>
+
+<span class="sd">.. moduleauthor:: Jonathan Grizou &lt;Jonathan.Grizou@gla.ac.uk&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">..commandhandler</span> <span class="k">import</span> <span class="n">CommandHandler</span>
+<span class="kn">from</span> <span class="nn">..lock</span> <span class="k">import</span> <span class="n">Lock</span>
+
+<span class="kn">from</span> <span class="nn">.._logger</span> <span class="k">import</span> <span class="n">create_logger</span>
+
+<span class="c1">#Defualt timeout value</span>
+<span class="n">DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#Bonjour Information</span>
+<span class="n">BONJOUR_ID</span> <span class="o">=</span> <span class="s1">&#39;TEMPLATE&#39;</span>
+<span class="n">CLASS_NAME</span> <span class="o">=</span> <span class="s1">&#39;CommandDevice&#39;</span>
+
+
+<div class="viewcode-block" id="DeviceTimeOutError"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.DeviceTimeOutError">[docs]</a><span class="k">class</span> <span class="nc">DeviceTimeOutError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for when the device does not response within a set timeframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device_name (str): Name of the device.</span>
+
+<span class="sd">        elapsed (float): Time elapsed until the exception was thrown.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_name</span> <span class="o">=</span> <span class="n">device_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span> <span class="o">=</span> <span class="n">elapsed</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{device_name}</span><span class="s1"> did not respond within </span><span class="si">{elapsed}</span><span class="s1">s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">device_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device_name</span><span class="p">,</span> <span class="n">elapsed</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CommandTimeOutError"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandTimeOutError">[docs]</a><span class="k">class</span> <span class="nc">CommandTimeOutError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for when the device does not respond to a command after a set timeframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device_name (str): The name of the device.</span>
+
+<span class="sd">        command_name (str): The name of the command.</span>
+
+<span class="sd">        elapsed (float): Time elapsed until the exception was thrown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">command_name</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_name</span> <span class="o">=</span> <span class="n">device_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span> <span class="o">=</span> <span class="n">elapsed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_name</span> <span class="o">=</span> <span class="n">command_name</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{device_name}</span><span class="s1"> did not respond to </span><span class="si">{command_name}</span><span class="s1"> within </span><span class="si">{elapsed}</span><span class="s1">s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">device_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device_name</span><span class="p">,</span> <span class="n">command_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">command_name</span><span class="p">,</span> <span class="n">elapsed</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CommandDevice"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice">[docs]</a><span class="k">class</span> <span class="nc">CommandDevice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class to represent the different Arduino devices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">create_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_default_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrecognized</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CommandDevice.init"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: This function is called once the write function is set. Do your setup here by sending command to the devices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CommandDevice.from_config"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the device information from a configuration setup.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            CommandDevice: A new instance of CommandDevice with details set from the configuration.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandDevice.handle_command"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.handle_command">[docs]</a>    <span class="k">def</span> <span class="nf">handle_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles a command to the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmd (str): The command to handle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandDevice.set_command_header"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.set_command_header">[docs]</a>    <span class="k">def</span> <span class="nf">set_command_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmdHeader</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the command header.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmdHeader (str): The command header to be set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">set_command_header</span><span class="p">(</span><span class="n">cmdHeader</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandDevice.set_write_function"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.set_write_function">[docs]</a>    <span class="k">def</span> <span class="nf">set_write_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">write_func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the write function for the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            write_func (str): The write function to be set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span> <span class="o">=</span> <span class="n">write_func</span></div>
+
+<div class="viewcode-block" id="CommandDevice.send"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sends a command to/from the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            command_id (str): The ID of the command.</span>
+
+<span class="sd">            *arg: Variable argument.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">forge_command</span><span class="p">(</span><span class="n">command_id</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CommandDevice.unrecognized"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.unrecognized">[docs]</a>    <span class="k">def</span> <span class="nf">unrecognized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The supplied command is unrecognised.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmd (str): The supplied command.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Received unknown command &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CommandDevice.register_request"><a class="viewcode-back" href="../../../commanduino.commanddevices.html#commanduino.commanddevices.commanddevice.CommandDevice.register_request">[docs]</a>    <span class="k">def</span> <span class="nf">register_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_command</span><span class="p">,</span> <span class="n">answer_command</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">callback_function_for_variable_update</span><span class="p">,</span> <span class="n">variable_init_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">DEFAULT_TIMEOUT</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a new request to/from the device.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request_command (str): The requesting command.</span>
+
+<span class="sd">            answer_command (str): The answering command.</span>
+
+<span class="sd">            variable_name (str): The name of the variable.</span>
+
+<span class="sd">            callback_function_for_variable_update (str): The callback function for updating the variable.</span>
+
+<span class="sd">            variable_init_value: Initialisation value for the variable, default set to None.</span>
+
+<span class="sd">            timeout (float): Time to wait until timeout, default set to DEFAULT_TIMEOUT (1)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">variable_init_value</span><span class="p">)</span>
+
+        <span class="n">lock_variable_name</span> <span class="o">=</span> <span class="n">variable_name</span> <span class="o">+</span> <span class="s1">&#39;_lock&#39;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock_variable_name</span><span class="p">,</span> <span class="n">Lock</span><span class="p">(</span><span class="n">timeout</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">answer_command</span><span class="p">,</span> <span class="n">callback_function_for_variable_update</span><span class="p">)</span>
+
+        <span class="n">request_function_name</span> <span class="o">=</span> <span class="s1">&#39;request_&#39;</span> <span class="o">+</span> <span class="n">variable_name</span>
+
+        <span class="k">def</span> <span class="nf">request</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Sends the request command to/from device.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">request_command</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_function_name</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+
+        <span class="n">get_function_name</span> <span class="o">=</span> <span class="s1">&#39;get_&#39;</span> <span class="o">+</span> <span class="n">variable_name</span>
+
+        <span class="k">def</span> <span class="nf">get</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Gets the variable name.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                variable_name (str): Name of the variable.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                CommandTimeOutError: Device did not response to command after X time.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">variable_lock</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock_variable_name</span><span class="p">)</span>
+            <span class="n">variable_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_function_name</span><span class="p">)()</span>
+            <span class="n">is_valid</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">variable_lock</span><span class="o">.</span><span class="n">wait_until_released</span><span class="p">()</span>
+            <span class="n">variable_lock</span><span class="o">.</span><span class="n">ensure_released</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">is_valid</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandTimeOutError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmdHdl</span><span class="o">.</span><span class="n">cmd_header</span><span class="p">,</span> <span class="n">request_command</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_function_name</span><span class="p">,</span> <span class="n">get</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonathan Grizou.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,857 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Devices Package &mdash; Commanduino 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Commanduino 0.1.2 documentation" href="index.html"/>
+        <link rel="up" title="Commanduino Library" href="commanduino.html"/>
+        <link rel="next" title="Devices Package" href="commanduino.devices.html"/>
+        <link rel="prev" title="Commanduino Library" href="commanduino.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Commanduino
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="commanduino.html">Commanduino Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commanduino.html#module-commanduino">Module contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="commanduino.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Command Devices Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commandanalogread">Command Analog Read Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commandanalogwrite">Command Analog Write Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commanddevice">Command Device Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commanddigitalread">Command Digital Read Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commanddigitalwrite">Command Digital Write Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commandlinearaccelstepper">Command Linear Accelerator Stepper Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.commandservo">Command Servo Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-commanduino.commanddevices.register">Register Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="commanduino.devices.html">Devices Package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commanduino.html#module-commanduino.commandhandler">Command Handler Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commanduino.html#module-commanduino.commandmanager">Command Manager Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commanduino.html#module-commanduino.lock">Lock module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Commanduino</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="commanduino.html">Commanduino Library</a> &raquo;</li>
+      
+    <li>Command Devices Package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/commanduino.commanddevices.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-devices-package">
+<span id="command-devices"></span><h1>Command Devices Package<a class="headerlink" href="#command-devices-package" title="Permalink to this headline">¶</a></h1>
+<p>This is the documentation for the Arduino devices that can be controlled with the Commanduino library.
+For more information on Axis control, please see the <a class="reference internal" href="commanduino.devices.html#devices"><span class="std std-ref">Devices Package</span></a>.
+Here is a list of all supported devices:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#cmdar"><span class="std std-ref">Command Analog Read Module</span></a></li>
+<li><a class="reference internal" href="#cmdaw"><span class="std std-ref">Command Analog Write Module</span></a></li>
+<li><a class="reference internal" href="#cmddev"><span class="std std-ref">Command Device Module</span></a></li>
+<li><a class="reference internal" href="#cmddr"><span class="std std-ref">Command Digital Read Module</span></a></li>
+<li><a class="reference internal" href="#cmddw"><span class="std std-ref">Command Digital Write Module</span></a></li>
+<li><a class="reference internal" href="#cmdlas"><span class="std std-ref">Command Linear Accelerator Stepper Module</span></a></li>
+<li><a class="reference internal" href="#cmdserv"><span class="std std-ref">Command Servo Module</span></a></li>
+</ul>
+</div></blockquote>
+<p>For registering each device, please see the <a class="reference internal" href="#cmdreg"><span class="std std-ref">Register Module</span></a></p>
+<div class="section" id="module-commanduino.commanddevices">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-commanduino.commanddevices" title="Permalink to this headline">¶</a></h2>
+<p>Custom package for managing different Arduino devices to be used in the Commanduino Library.</p>
+</div>
+<div class="section" id="module-commanduino.commanddevices.commandanalogread">
+<span id="command-analog-read-module"></span><span id="cmdar"></span><h2>Command Analog Read Module<a class="headerlink" href="#module-commanduino.commanddevices.commandanalogread" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandAnalogRead"></span><dl class="class">
+<dt id="commanduino.commanddevices.commandanalogread.CommandAnalogRead">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commandanalogread.</code><code class="descname">CommandAnalogRead</code><a class="reference internal" href="_modules/commanduino/commanddevices/commandanalogread.html#CommandAnalogRead"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandanalogread.CommandAnalogRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>AnalogRead Arduino device.</p>
+<dl class="docutils">
+<dt>Base:</dt>
+<dd>CommandDevice</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.commanddevices.commandanalogread.CommandAnalogRead.handle_level_command">
+<code class="descname">handle_level_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandanalogread.html#CommandAnalogRead.handle_level_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandanalogread.CommandAnalogRead.handle_level_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the level command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id1"><span class="problematic" id="id2">*</span></a>arg: Variable Argument.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandanalogread.CommandAnalogRead.register_all_requests">
+<code class="descname">register_all_requests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandanalogread.html#CommandAnalogRead.register_all_requests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandanalogread.CommandAnalogRead.register_all_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers all requests to the device.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commandanalogwrite">
+<span id="command-analog-write-module"></span><span id="cmdaw"></span><h2>Command Analog Write Module<a class="headerlink" href="#module-commanduino.commanddevices.commandanalogwrite" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandAnalogWrite"></span><dl class="class">
+<dt id="commanduino.commanddevices.commandanalogwrite.CommandAnalogWrite">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commandanalogwrite.</code><code class="descname">CommandAnalogWrite</code><a class="reference internal" href="_modules/commanduino/commanddevices/commandanalogwrite.html#CommandAnalogWrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandanalogwrite.CommandAnalogWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>AnalogWrite Arduino device.</p>
+<dl class="docutils">
+<dt>Base:</dt>
+<dd>CommandDevice</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.commanddevices.commandanalogwrite.CommandAnalogWrite.set_pwm_value">
+<code class="descname">set_pwm_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandanalogwrite.html#CommandAnalogWrite.set_pwm_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandanalogwrite.CommandAnalogWrite.set_pwm_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the pwm value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>value: The value to set.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commanddevice">
+<span id="command-device-module"></span><span id="cmddev"></span><h2>Command Device Module<a class="headerlink" href="#module-commanduino.commanddevices.commanddevice" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-commanddevice"></span><dl class="class">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commanddevice.</code><code class="descname">CommandDevice</code><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class to represent the different Arduino devices.</p>
+<dl class="classmethod">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.from_config">
+<em class="property">classmethod </em><code class="descname">from_config</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the device information from a configuration setup.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>CommandDevice: A new instance of CommandDevice with details set from the configuration.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.handle_command">
+<code class="descname">handle_command</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.handle_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.handle_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles a command to the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd (str): The command to handle.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.init">
+<code class="descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is called once the write function is set. Do your setup here by sending command to the devices</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.register_request">
+<code class="descname">register_request</code><span class="sig-paren">(</span><em>request_command</em>, <em>answer_command</em>, <em>variable_name</em>, <em>callback_function_for_variable_update</em>, <em>variable_init_value=None</em>, <em>timeout=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.register_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.register_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new request to/from the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">request_command (str): The requesting command.</p>
+<p>answer_command (str): The answering command.</p>
+<p>variable_name (str): The name of the variable.</p>
+<p>callback_function_for_variable_update (str): The callback function for updating the variable.</p>
+<p>variable_init_value: Initialisation value for the variable, default set to None.</p>
+<p class="last">timeout (float): Time to wait until timeout, default set to DEFAULT_TIMEOUT (1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>command_id</em>, <em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a command to/from the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">command_id (str): The ID of the command.</p>
+<p class="last"><a href="#id3"><span class="problematic" id="id4">*</span></a>arg: Variable argument.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.set_command_header">
+<code class="descname">set_command_header</code><span class="sig-paren">(</span><em>cmdHeader</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.set_command_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.set_command_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the command header.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmdHeader (str): The command header to be set.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.set_write_function">
+<code class="descname">set_write_function</code><span class="sig-paren">(</span><em>write_func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.set_write_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.set_write_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the write function for the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>write_func (str): The write function to be set.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddevice.CommandDevice.unrecognized">
+<code class="descname">unrecognized</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandDevice.unrecognized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandDevice.unrecognized" title="Permalink to this definition">¶</a></dt>
+<dd><p>The supplied command is unrecognised.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd (str): The supplied command.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="commanduino.commanddevices.commanddevice.CommandTimeOutError">
+<em class="property">exception </em><code class="descclassname">commanduino.commanddevices.commanddevice.</code><code class="descname">CommandTimeOutError</code><span class="sig-paren">(</span><em>device_name</em>, <em>command_name</em>, <em>elapsed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#CommandTimeOutError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.CommandTimeOutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for when the device does not respond to a command after a set timeframe.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">device_name (str): The name of the device.</p>
+<p>command_name (str): The name of the command.</p>
+<p class="last">elapsed (float): Time elapsed until the exception was thrown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="exception">
+<dt id="commanduino.commanddevices.commanddevice.DeviceTimeOutError">
+<em class="property">exception </em><code class="descclassname">commanduino.commanddevices.commanddevice.</code><code class="descname">DeviceTimeOutError</code><span class="sig-paren">(</span><em>device_name</em>, <em>elapsed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddevice.html#DeviceTimeOutError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddevice.DeviceTimeOutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for when the device does not response within a set timeframe.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">device_name (str): Name of the device.</p>
+<p class="last">elapsed (float): Time elapsed until the exception was thrown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commanddigitalread">
+<span id="command-digital-read-module"></span><span id="cmddr"></span><h2>Command Digital Read Module<a class="headerlink" href="#module-commanduino.commanddevices.commanddigitalread" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandDigitalRead"></span><dl class="class">
+<dt id="commanduino.commanddevices.commanddigitalread.CommandDigitalRead">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commanddigitalread.</code><code class="descname">CommandDigitalRead</code><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalread.html#CommandDigitalRead"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalread.CommandDigitalRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>DigitalRead Arduino device.</p>
+<dl class="docutils">
+<dt>Base:</dt>
+<dd>CommandDevice</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddigitalread.CommandDigitalRead.handle_state_command">
+<code class="descname">handle_state_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalread.html#CommandDigitalRead.handle_state_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalread.CommandDigitalRead.handle_state_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the state setting command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id5"><span class="problematic" id="id6">*</span></a>arg: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddigitalread.CommandDigitalRead.register_all_requests">
+<code class="descname">register_all_requests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalread.html#CommandDigitalRead.register_all_requests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalread.CommandDigitalRead.register_all_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers all requests.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commanddigitalwrite">
+<span id="command-digital-write-module"></span><span id="cmddw"></span><h2>Command Digital Write Module<a class="headerlink" href="#module-commanduino.commanddevices.commanddigitalwrite" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandDigitalWrite"></span><dl class="class">
+<dt id="commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commanddigitalwrite.</code><code class="descname">CommandDigitalWrite</code><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalwrite.html#CommandDigitalWrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>DigitalWrite Arduino device.</p>
+<dl class="docutils">
+<dt>Base:</dt>
+<dd>CommandDevice</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.high">
+<code class="descname">high</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalwrite.html#CommandDigitalWrite.high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.high" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the level to HIGH.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.low">
+<code class="descname">low</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalwrite.html#CommandDigitalWrite.low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.low" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the level to LOW.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.set_level">
+<code class="descname">set_level</code><span class="sig-paren">(</span><em>level</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commanddigitalwrite.html#CommandDigitalWrite.set_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commanddigitalwrite.CommandDigitalWrite.set_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the level of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>level (int): The level setting.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commandlinearaccelstepper">
+<span id="command-linear-accelerator-stepper-module"></span><span id="cmdlas"></span><h2>Command Linear Accelerator Stepper Module<a class="headerlink" href="#module-commanduino.commanddevices.commandlinearaccelstepper" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandLinearAccelStepper"></span><dl class="class">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commandlinearaccelstepper.</code><code class="descname">CommandLinearAccelStepper</code><span class="sig-paren">(</span><em>speed=5000</em>, <em>max_speed=5000</em>, <em>acceleration=2000</em>, <em>homing_speed=2000</em>, <em>enabled_acceleration=True</em>, <em>reverted_direction=False</em>, <em>reverted_switch=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>Linear Aceclerator Stepper Arduino device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">speed (int): Speed of the device, default set to DEFAULT_SPEED (5000)</p>
+<p>max_speed (int): Maximum speed of the device, default set to DEFAULT_MAX_SPEED (5000)</p>
+<p>acceleration (int): Speed of acceleration, default set to DEFAULT_ACCELERATION (2000)</p>
+<p>homing_speed (int): Himing speed of the device, default set to DEFAULT_HOMING_SPEED (2000)</p>
+<p>enabled_acceleration (bool): Acceleration enabled, default set to True.</p>
+<p>reverted_direction (bool): Direction is reverted, default set to False.</p>
+<p class="last">reverted_switch (bool): Switch is reverted, default set to False.</p>
+</dd>
+<dt>Base:</dt>
+<dd>CommandDevice</dd>
+</dl>
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.apply_reverted_direction">
+<code class="descname">apply_reverted_direction</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.apply_reverted_direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.apply_reverted_direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverts the direction of movement.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>value (int): The current value.</dd>
+<dt>Returns:</dt>
+<dd>value (int): The new value (-value)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_acceleration">
+<code class="descname">disable_acceleration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.disable_acceleration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables acceleration on the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_revert_switch">
+<code class="descname">disable_revert_switch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.disable_revert_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.disable_revert_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables switch revertion on the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_acceleration">
+<code class="descname">enable_acceleration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.enable_acceleration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables acceleration on the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_revert_switch">
+<code class="descname">enable_revert_switch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.enable_revert_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.enable_revert_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables switch revertion on the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_acceleration_command">
+<code class="descname">handle_acceleration_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_acceleration_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_acceleration_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for acceleration.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id7"><span class="problematic" id="id8">*</span></a>arg: Variable arguement.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_current_position_command">
+<code class="descname">handle_current_position_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_current_position_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_current_position_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for current position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id9"><span class="problematic" id="id10">*</span></a>arg: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_distance_to_go_command">
+<code class="descname">handle_distance_to_go_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_distance_to_go_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_distance_to_go_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for distance to go.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id11"><span class="problematic" id="id12">*</span></a>arg: variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_max_speed_command">
+<code class="descname">handle_max_speed_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_max_speed_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_max_speed_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for maximum speed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id13"><span class="problematic" id="id14">*</span></a>arg: Variable argument.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_moving_state_command">
+<code class="descname">handle_moving_state_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_moving_state_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_moving_state_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for moving state.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id15"><span class="problematic" id="id16">*</span></a>arg: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_speed_command">
+<code class="descname">handle_speed_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_speed_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_speed_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for speed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id17"><span class="problematic" id="id18">*</span></a>arg: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_switch_state_command">
+<code class="descname">handle_switch_state_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_switch_state_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_switch_state_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for switch state.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>arg*: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_target_position_command">
+<code class="descname">handle_target_position_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.handle_target_position_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.handle_target_position_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for target position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id19"><span class="problematic" id="id20">*</span></a>arg: Variable command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.home">
+<code class="descname">home</code><span class="sig-paren">(</span><em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Homes the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wait (bool): Wait for the device to be idle, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.init">
+<code class="descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.is_moving">
+<code class="descname">is_moving</code><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.is_moving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for movement in device.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self.get_moving_state(): The movement state.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move">
+<code class="descname">move</code><span class="sig-paren">(</span><em>steps</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the device a certain number of steps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">steps (int): The number of steps to move.</p>
+<p class="last">wait (bool): Waits for the device to be idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move_to">
+<code class="descname">move_to</code><span class="sig-paren">(</span><em>steps</em>, <em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.move_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.move_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the device to a specific point.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">steps (int): The position to move to.</p>
+<p class="last">wait (bool): Wait until the device is idle, default set to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.print_info">
+<code class="descname">print_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.print_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.print_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the current information for the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.register_all_requests">
+<code class="descname">register_all_requests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.register_all_requests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.register_all_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers all requests to the device for later access.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_acceleration">
+<code class="descname">set_acceleration</code><span class="sig-paren">(</span><em>steps_per_second_per_second</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_acceleration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the acceleration speed of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps_per_second_per_second (int): The number of steps per second per second.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_all_params">
+<code class="descname">set_all_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_all_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_all_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets all the parameters of the device automatically.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_current_position">
+<code class="descname">set_current_position</code><span class="sig-paren">(</span><em>steps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_current_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_current_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the current position of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps (int): The position to move to.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_homing_speed">
+<code class="descname">set_homing_speed</code><span class="sig-paren">(</span><em>steps_per_second</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_homing_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_homing_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the homing speed of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps_per_second (int): The number of steps per second.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_max_speed">
+<code class="descname">set_max_speed</code><span class="sig-paren">(</span><em>steps_per_second</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_max_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_max_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the maximum speed of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps_per_second (int): The number of steps per second.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_running_speed">
+<code class="descname">set_running_speed</code><span class="sig-paren">(</span><em>steps_per_second</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_running_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_running_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the running speed of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps_per_second (int): The number of steps per second.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_speed">
+<code class="descname">set_speed</code><span class="sig-paren">(</span><em>steps_per_second</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.set_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.set_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the speed of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>steps_per_second (int): The number of steps per second to move.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><em>wait=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the movement of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wait (bool): Wait until the device is idle, default set to True.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.wait_until_idle">
+<code class="descname">wait_until_idle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandlinearaccelstepper.html#CommandLinearAccelStepper.wait_until_idle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandlinearaccelstepper.CommandLinearAccelStepper.wait_until_idle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits until the device is idle (not moving).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.commandservo">
+<span id="command-servo-module"></span><span id="cmdserv"></span><h2>Command Servo Module<a class="headerlink" href="#module-commanduino.commanddevices.commandservo" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CommandServo"></span><dl class="class">
+<dt id="commanduino.commanddevices.commandservo.CommandServo">
+<em class="property">class </em><code class="descclassname">commanduino.commanddevices.commandservo.</code><code class="descname">CommandServo</code><a class="reference internal" href="_modules/commanduino/commanddevices/commandservo.html#CommandServo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandservo.CommandServo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#commanduino.commanddevices.commanddevice.CommandDevice" title="commanduino.commanddevices.commanddevice.CommandDevice"><code class="xref py py-class docutils literal"><span class="pre">commanduino.commanddevices.commanddevice.CommandDevice</span></code></a></p>
+<p>Servo Arduino device.</p>
+<dl class="method">
+<dt id="commanduino.commanddevices.commandservo.CommandServo.handle_angle_command">
+<code class="descname">handle_angle_command</code><span class="sig-paren">(</span><em>*arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandservo.html#CommandServo.handle_angle_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandservo.CommandServo.handle_angle_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the command for the angle.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id21"><span class="problematic" id="id22">*</span></a>arg: Variable argument.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandservo.CommandServo.register_all_requests">
+<code class="descname">register_all_requests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandservo.html#CommandServo.register_all_requests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandservo.CommandServo.register_all_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers all requests to the device for later use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="commanduino.commanddevices.commandservo.CommandServo.set_angle">
+<code class="descname">set_angle</code><span class="sig-paren">(</span><em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/commandservo.html#CommandServo.set_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.commandservo.CommandServo.set_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the angle of the device.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>angle (float): Angle to set the device to.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-commanduino.commanddevices.register">
+<span id="register-module"></span><span id="cmdreg"></span><h2>Register Module<a class="headerlink" href="#module-commanduino.commanddevices.register" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-register"></span><dl class="exception">
+<dt id="commanduino.commanddevices.register.DeviceBonjourRegisterError">
+<em class="property">exception </em><code class="descclassname">commanduino.commanddevices.register.</code><code class="descname">DeviceBonjourRegisterError</code><span class="sig-paren">(</span><em>command_module_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/register.html#DeviceBonjourRegisterError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.register.DeviceBonjourRegisterError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for handling when the Arduino device does not contain Bonjour ID and Class Name information.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="commanduino.commanddevices.register.DeviceRegisterError">
+<em class="property">exception </em><code class="descclassname">commanduino.commanddevices.register.</code><code class="descname">DeviceRegisterError</code><span class="sig-paren">(</span><em>bonjour_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/register.html#DeviceRegisterError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.register.DeviceRegisterError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for handling when the Bonjour ID is not in the register of the device.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="commanduino.commanddevices.register.add_to_bonjour_register">
+<code class="descclassname">commanduino.commanddevices.register.</code><code class="descname">add_to_bonjour_register</code><span class="sig-paren">(</span><em>bonjour_id</em>, <em>constructor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/register.html#add_to_bonjour_register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.register.add_to_bonjour_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the device to the Bonjour register.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">bonjour_id (str): The Bonjour ID.</p>
+<p class="last">constructor: The constructor for registration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="commanduino.commanddevices.register.create_and_setup_device">
+<code class="descclassname">commanduino.commanddevices.register.</code><code class="descname">create_and_setup_device</code><span class="sig-paren">(</span><em>cmdHdl</em>, <em>command_id</em>, <em>bonjour_id</em>, <em>device_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/commanduino/commanddevices/register.html#create_and_setup_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#commanduino.commanddevices.register.create_and_setup_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and sets up the Arduino device for usage.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cmdHdl (SerialCommandHandler): The Serial Command Handler object for serial communication.</p>
+<p>command_id (str): The ID of the command.</p>
+<p>bonjour_id (str): The Bonjour ID.</p>
+<p class="last">device_config (Dict): Dictionary containing the device configuration.</p>
+</dd>
+<dt>Raises:</dt>
+<dd>DeviceRegisterError: Bonjour ID is not in the register of the device.</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="commanduino.devices.html" class="btn btn-neutral float-right" title="Devices Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="commanduino.html" class="btn btn-neutral" title="Commanduino Library" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonathan Grizou.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
