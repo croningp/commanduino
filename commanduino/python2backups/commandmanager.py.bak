@@ -6,14 +6,14 @@
 .. moduleauthor:: Jonathan Grizou <Jonathan.Grizou@gla.ac.uk>
 
 """
-from .commandhandler import SerialCommandHandler
+from commandhandler import SerialCommandHandler
 
-from .commanddevices.register import create_and_setup_device
-from .commanddevices.register import DEFAULT_REGISTER
-from .commanddevices.register import DeviceRegisterError
+from commanddevices.register import create_and_setup_device
+from commanddevices.register import DEFAULT_REGISTER
+from commanddevices.register import DeviceRegisterError
 
-from .lock import Lock
-from ._logger import create_logger
+from lock import Lock
+from _logger import create_logger
 
 import time
 from serial import SerialException
@@ -84,7 +84,7 @@ class CommandManager(object):
         """
         Sets the list of devices as attributes.
         """
-        for device_name, device in list(self.devices.items()):
+        for device_name, device in self.devices.items():
             if hasattr(self, device_name):
                 self.logger.warning("Device named {device_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{device_name}]".format(device_name=device_name))
             else:
@@ -177,7 +177,7 @@ class CommandManager(object):
 
         """
         self.devices = {}
-        for device_name, device_info in list(devices_dict.items()):
+        for device_name, device_info in devices_dict.items():
             self.register_device(device_name, device_info)
 
     def register_device(self, device_name, device_info):
@@ -270,7 +270,9 @@ class InitError(Exception):
 
 class CommandBonjour(object):
     """
-    Represents a Command Manager for Bonjour devices.
+    Represents a Command Manager for Bonjour devices...?
+
+    .. todo:: Get proper definition of this.
 
     Args:
         serialcommandhandlers: Collection of SerialCommandHandler objects.

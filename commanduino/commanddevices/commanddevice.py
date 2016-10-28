@@ -1,16 +1,35 @@
+"""
+
+.. module:: commanddevice
+   :platform: Unix
+   :synopsis: Forms the template of the different Arduino devices.
+
+.. moduleauthor:: Jonathan Grizou <Jonathan.Grizou@gla.ac.uk>
+
+"""
 from ..commandhandler import CommandHandler
 from ..lock import Lock
 
 from .._logger import create_logger
 
+#Defualt timeout value
 DEFAULT_TIMEOUT = 1
 
-# bonjour info
+#Bonjour Information
 BONJOUR_ID = 'TEMPLATE'
 CLASS_NAME = 'CommandDevice'
 
 
 class DeviceTimeOutError(Exception):
+    """
+    Exception for when the device does not response within a set timeframe.
+
+    Args:
+        device_name (str): Name of the device.
+
+        elapsed (float): Time elapsed until the exception was thrown.
+
+    """
     def __init__(self, device_name, elapsed):
         self.device_name = device_name
         self.elapsed = elapsed
@@ -20,6 +39,16 @@ class DeviceTimeOutError(Exception):
 
 
 class CommandTimeOutError(Exception):
+    """
+    Exception for when the device does not respond to a command after a set timeframe.
+
+    Args:
+        device_name (str): The name of the device.
+
+        command_name (str): The name of the command.
+
+        elapsed (float): Time elapsed until the exception was thrown.
+    """
     def __init__(self, device_name, command_name, elapsed):
         self.device_name = device_name
         self.elapsed = elapsed
@@ -30,7 +59,9 @@ class CommandTimeOutError(Exception):
 
 
 class CommandDevice(object):
-
+    """
+    Base class to represent the different Arduino devices.
+    """
     def __init__(self):
         self.logger = create_logger(self.__class__.__name__)
 
@@ -39,31 +70,91 @@ class CommandDevice(object):
 
     def init(self):
         """
-        This function is called once the write function is set
-        Do your setup here by sending command to the devices
+        .. note:: This function is called once the write function is set. Do your setup here by sending command to the devices
         """
         pass
 
     @classmethod
     def from_config(cls, config):
+        """
+        Obtains the device information from a configuration setup.
+
+        Returns:
+            CommandDevice: A new instance of CommandDevice with details set from the configuration.
+
+        """
         return cls(**config)
 
     def handle_command(self, cmd):
+        """
+        Handles a command to the device.
+
+        Args:
+            cmd (str): The command to handle.
+
+        """
         self.cmdHdl.handle(cmd)
 
     def set_command_header(self, cmdHeader):
+        """
+        Sets the command header.
+
+        Args:
+            cmdHeader (str): The command header to be set.
+
+        """
         self.cmdHdl.set_command_header(cmdHeader)
 
     def set_write_function(self, write_func):
+        """
+        Sets the write function for the device.
+
+        Args:
+            write_func (str): The write function to be set.
+
+        """
         self.write = write_func
 
     def send(self, command_id, *arg):
+        """
+        Sends a command to/from the device.
+
+        Args:
+            command_id (str): The ID of the command.
+
+            *arg: Variable argument.
+
+        """
         self.write(self.cmdHdl.forge_command(command_id, *arg))
 
     def unrecognized(self, cmd):
+        """
+        The supplied command is unrecognised.
+
+        Args:
+            cmd (str): The supplied command.
+
+        """
         self.logger.warning('Received unknown command "{}"'.format(cmd))
 
     def register_request(self, request_command, answer_command, variable_name, callback_function_for_variable_update, variable_init_value=None, timeout=DEFAULT_TIMEOUT):
+        """
+        Registers a new request to/from the device.
+
+        Args:
+            request_command (str): The requesting command.
+
+            answer_command (str): The answering command.
+
+            variable_name (str): The name of the variable.
+
+            callback_function_for_variable_update (str): The callback function for updating the variable.
+
+            variable_init_value: Initialisation value for the variable, default set to None.
+
+            timeout (float): Time to wait until timeout, default set to DEFAULT_TIMEOUT (1)
+
+        """
 
         setattr(self, variable_name, variable_init_value)
 
@@ -75,6 +166,9 @@ class CommandDevice(object):
         request_function_name = 'request_' + variable_name
 
         def request():
+            """
+            Sends the request command to/from device.
+            """
             self.send(request_command)
 
         setattr(self, request_function_name, request)
@@ -82,6 +176,15 @@ class CommandDevice(object):
         get_function_name = 'get_' + variable_name
 
         def get():
+            """
+            Gets the variable name.
+
+            Returns:
+                variable_name (str): Name of the variable.
+
+            Raises:
+                CommandTimeOutError: Device did not response to command after X time.
+            """
             variable_lock = getattr(self, lock_variable_name)
             variable_lock.acquire()
             getattr(self, request_function_name)()

@@ -3,10 +3,10 @@
    :platform: Unix
    :synopsis: Represents a Servo Arduino device.
 
-.. moduleauthor:: Jonathan Grizou <Jonathan.Grizou@gla.ac.uk>
+.. moduleauthor:: Jonathan Grizou <Jonathan.Grixou@gla.ac.uk>
 
 """
-from .commanddevice import CommandDevice
+from commanddevice import CommandDevice
 
 import logging
 module_logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class CommandServo(CommandDevice):
 
         Args:
             *arg: Variable argument.
-
+            
         """
         if arg[0]:
             self.angle = int(arg[0])

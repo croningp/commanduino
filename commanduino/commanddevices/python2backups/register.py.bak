@@ -8,7 +8,7 @@
 
 """
 
-from . import commanddevice
+import commanddevice
 
 DEFAULT_REGISTER = commanddevice.BONJOUR_ID
 BONJOUR_REGISTER = {}

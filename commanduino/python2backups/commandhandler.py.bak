@@ -11,7 +11,7 @@ import time
 import serial
 import threading
 
-from ._logger import create_logger
+from _logger import create_logger
 
 #Default delimiter to separate commands
 DEFAULT_DELIM = ','
@@ -32,6 +32,8 @@ DEFAULT_TIMEOUT = 0.01
 class CommandHandler(object):
     """
     Represents the Command Handler which will handle commands to/from the Arduino hardware.
+
+    .. todo:: Get proper definition of DEFAULT_CMD_DECIMAL
 
     Args:
         delim (chr): Delimiter of the command, default set to DEFAULT_DELIM(',')
@@ -88,6 +90,8 @@ class CommandHandler(object):
         """
         Processes the serial communication to obtain data to be processed.
 
+        .. todo:: Clean this description up.
+
         Args:
             a_serial (int): The serial to read from.
 
@@ -139,6 +143,8 @@ class CommandHandler(object):
         """
         Adds an Arduino command to the Handler.
 
+        .. todo:: Get proper definition of callback_function.
+
         Args:
             command_id (str): The ID of the command.
 
@@ -154,6 +160,8 @@ class CommandHandler(object):
         """
         Removes an Arduino command from the Handler.
 
+        .. todo:: Get proper definition of callback_function.
+
         Args:
             command_id (str): The ID of the command.
 
@@ -167,6 +175,8 @@ class CommandHandler(object):
     def add_relay(self, command_id, callback_function):
         """
         Adds a relay to the Handler.
+
+        .. todo:: Get proper definition of callback_function.
 
         Args:
             command_id (str): The ID of the command.
@@ -183,6 +193,8 @@ class CommandHandler(object):
         """
         Removes a relay form the Handler.
 
+        .. todo:: Get proper definition of callback_function.
+
         Args:
             command_id (str): The ID of the command.
 
@@ -195,7 +207,11 @@ class CommandHandler(object):
 
     def add_default_handler(self, callback_function):
         """
-        Adds a default handler to the device.
+        Adds a default handler.
+
+        .. todo:: Clean up definition.
+
+        .. todo:: Get proper definition of callback_function.
 
         Args:
             callback_function (str): A copy of the command to "callback".
@@ -206,7 +222,11 @@ class CommandHandler(object):
 
     def remove_default_handler(self, callback_function):
         """
-        Removes a default handler from the device.
+        Removes a default handler.
+
+        .. todo:: Clean up definition.
+
+        .. todo:: Get proper definition of callback_function.
 
         Args:
             callback_function (str): A copy of the command to "callback".
@@ -234,6 +254,8 @@ class CommandHandler(object):
     def set_command_decimal(self, cmd_decimal):
         """
         Sets the decimal of the Arduino command.
+
+        .. todo:: Get definition of cmd_decimal.
 
         Args:
             cmd_decimal (int): The decimal of the command.
