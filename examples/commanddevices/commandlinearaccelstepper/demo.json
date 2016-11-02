@@ -15,11 +15,11 @@
   ],
   "devices": {
     "stepper": {
-      "command_id": "CSTP1",
+      "command_id": "LS1",
       "config": {
         "enabled_acceleration": false,
         "speed": 1000,
-        "max_speed": 10000,
+        "max_speed": 1000,
         "acceleration": 1000
       }
     }
