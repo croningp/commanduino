@@ -1,0 +1,27 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/tty.usbmodem1411"
+    },
+    {
+      "port": "/dev/ttyACM0"
+    },
+    {
+      "port": "/dev/ttyACM1"
+    },
+    {
+      "port": "/dev/ttyACM2"
+    }
+  ],
+  "devices": {
+    "stepper": {
+      "command_id": "CSTP1",
+      "config": {
+        "enabled_acceleration": false,
+        "speed": 1000,
+        "max_speed": 10000,
+        "acceleration": 1000
+      }
+    }
+  }
+}
