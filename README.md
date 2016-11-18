@@ -1,4 +1,7 @@
 # Commanduino Library
+
+Link to the documentation: [Commanduino](https://croningp.github.io/commanduino/index.html)
+
 This is the commanduino library for controlling Arduino hardware via a python interface. By using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries in conjunction with commanduino, you can essentially control any supported Arduino device through Python.
 
 ## How This Library Works
