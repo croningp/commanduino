@@ -79,7 +79,7 @@ As this library was develop for Unix-based OS', this issue may not be encountere
 
 ### Using the Library
 Using this library is extremely simple! This example will demonstrate the use of a Servo motor.
-All Demo files (either Arduino or Python) have an equivalent dmeo file in their respective counterpart (either Python or Arduino).
+All Demo files (either Arduino or Python) have an equivalent demo file in their respective counterpart (either Python or Arduino).
 
 * First, create an Arduino sketch for your device (Demo can be found at `File > Examples > CommandServo > Demo`):
 
