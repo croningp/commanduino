@@ -71,7 +71,7 @@ Using this library is extremely simple! This example will demonstrate the use of
 
 * First, create an Arduino sketch for your device:
 
-```
+```cpp
 #include <CommandHandler.h>
 #include <CommandManager.h>
 CommandManager cmdMng; //Create a CommandManager
@@ -130,7 +130,7 @@ void loop()
 
 * Next, just import the commanduino library and read the config file. You're now ready to access the methods of the device!
 
-```
+```python
 import time
 
 from commanduino import CommandManager
