@@ -24,6 +24,10 @@ This would move a stepper motor with ID "stepper1" 2000 steps.
 ### Commanduino
 Commanduino is a Python interface for this interaction. It uses its own version of the CommandManager and CommandHandler, which initialise and communicate with the Arduino hardware via the Arduino-CommandTools & Arduino-CommandHandler libraries. Each Arduino device is implemented in python with commands and functions that mirror those in the Arduino-CommandTools. This allows python to directly communicate with the hardware. The commanduino implementation of the CommandManager deals with the communications to the hardware. To use the CommandManager, one simply needs to createa config file with the device information and instantiate a CommandManager object which then reads the setup information from the config file. This will give you control of the device in Python. See the [Examples](#Using The Library) section for more information.
 
+###Hierarchial Design of Commanduino
+The following diagram shows the design of Commanduino, highlighting the layers of communication.
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20559139/1b647088-b16b-11e6-91d8-4bd206ca12ca.png "Commanduino Hierarchy")
+
 ## Tutorial
 The following will serve as a tutorial on how to use this libary. An example is provided which will demonstrate using the library with a supported device (Servo Motor).
 
@@ -65,7 +69,37 @@ As this library was develop for Unix-based OS', this issue may not be encountere
 ### Using the Library
 Using this library is extremely simple! This example will demonstrate the use of a Servo motor:
 
-* First, create a json config file containing the information of the device:
+* First, create an Arduino sketch for your device:
+
+```
+#include <CommandHandler.h>
+#include <CommandManager.h>
+CommandManager cmdMng; //Create a CommandManager
+
+#include <Servo.h>
+#include <CommandServo.h>
+CommandServo cmdServo1(9); //The parameter is the Pin number which you plug the device into
+
+void setup()
+{
+  Serial.begin(115200);
+
+  cmdServo1.registerToCommandManager(cmdMng, "S1"); //Register the Device to the CommandManager
+
+
+  cmdMng.init(); //Initialise the Manager
+}
+
+void loop()
+{
+  cmdMng.update();
+}
+
+```
+
+* Then, load this sketch onto the Arduino Board
+
+* Create a json config file containing the information of the device:
 
 ```json
 {
@@ -106,15 +140,16 @@ cmdMng = CommandManager.from_configfile('./demo.json')
 
 for i in range(2):
     cmdMng.servo1.set_angle(60)
-    cmdMng.servo2.set_angle(60)
     print cmdMng.servo1.get_angle()
-    print cmdMng.servo2.get_angle()
     time.sleep(1)
+
     cmdMng.servo1.set_angle(120)
-    cmdMng.servo2.set_angle(120)
     print cmdMng.servo1.get_angle()
-    print cmdMng.servo2.get_angle()
     time.sleep(1)
 ```
+
+What this script does is reads the information provided by the Config file and creates a CommandManager with this information. This sets up the device on both the Arduino side and Python side which allows you to control it.
+This script in particular will set the angle of the Servo motor to 60 degrees, wait for 1 second then set the angle to 120 degrees.
+When the script calls `cmdMng.servo1.set_angle(60)`, it is actually sending the command `S1,SA,60;` to the Arduino device which is then processed by the CommandHandler to obtain the desired movement.
 
 That's all there is to it!
