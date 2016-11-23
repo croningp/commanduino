@@ -26,7 +26,18 @@ Commanduino is a Python interface for this interaction. It uses its own version 
 
 ###Hierarchial Design of Commanduino
 The following diagram shows the design of Commanduino, highlighting the layers of communication.
-![Alt text](https://cloud.githubusercontent.com/assets/13821621/20559139/1b647088-b16b-11e6-91d8-4bd206ca12ca.png "Commanduino Hierarchy")
+![Alt text](https://cloud.githubusercontent.com/assets/13821621/20561408/6886aa92-b176-11e6-8987-4d69ce578e6a.png "Commanduino Hierarchy")
+
+Links to relavent GitHub Repositories:
+* Python:
+	* [Command Handler/Serial Command Handler](https://github.com/croningp/commanduino/blob/master/commanduino/commandhandler.py)
+	* [Command Manager](https://github.com/croningp/commanduino/blob/master/commanduino/commandmanager.py)
+	* [Command Devices](https://github.com/croningp/commanduino/tree/master/commanduino/commanddevices)
+
+* Arduino:
+	* [Command Handler](https://github.com/croningp/Arduino-CommandHandler)
+	* [Command Manager](https://github.com/croningp/Arduino-CommandTools/tree/master/CommandManager)
+	* [Command Devices](https://github.com/croningp/Arduino-CommandTools)
 
 ## Tutorial
 The following will serve as a tutorial on how to use this libary. An example is provided which will demonstrate using the library with a supported device (Servo Motor).
@@ -67,9 +78,10 @@ sudo adduser <username> dialout
 As this library was develop for Unix-based OS', this issue may not be encountered on Windows.
 
 ### Using the Library
-Using this library is extremely simple! This example will demonstrate the use of a Servo motor:
+Using this library is extremely simple! This example will demonstrate the use of a Servo motor.
+All Demo files (either Arduino or Python) have an equivalent dmeo file in their respective counterpart (either Python or Arduino).
 
-* First, create an Arduino sketch for your device:
+* First, create an Arduino sketch for your device (Demo can be found at `File > Examples > CommandServo > Demo`):
 
 ```cpp
 #include <CommandHandler.h>
@@ -100,6 +112,11 @@ void loop()
 * Then, load this sketch onto the Arduino Board
 
 * Create a json config file containing the information of the device:
+	* The `"ios"` represents the USB auto-detection of the Arduino Board
+	* `/dev/tty.usbmodem1411` represents a Mac USB port
+	* `/dev/ttyACM0/1/2 etc.` represents the Linux USB ports
+	* The library will automatically search these ports for connected Arduino devices
+	* Windows support coming Soon&trade;
 
 ```json
 {
@@ -120,9 +137,6 @@ void loop()
   "devices": {
     "servo1": {
       "command_id": "S1"
-    },
-    "servo2": {
-      "command_id": "S2"
     }
   }
 }
@@ -131,6 +145,10 @@ void loop()
 * Next, just import the commanduino library and read the config file. You're now ready to access the methods of the device!
 
 ```python
+
+"""
+This script reads the information provided by the Config file and creates a CommandManager with this information. This sets up the device on both the Arduino side and Python side which allows you to control it.
+"""
 import time
 
 from commanduino import CommandManager
@@ -146,9 +164,9 @@ for i in range(2):
     cmdMng.servo1.set_angle(120)
     print cmdMng.servo1.get_angle()
     time.sleep(1)
+
 ```
 
-What this script does is reads the information provided by the Config file and creates a CommandManager with this information. This sets up the device on both the Arduino side and Python side which allows you to control it.
 This script in particular will set the angle of the Servo motor to 60 degrees, wait for 1 second then set the angle to 120 degrees.
 When the script calls `cmdMng.servo1.set_angle(60)`, it is actually sending the command `S1,SA,60;` to the Arduino device which is then processed by the CommandHandler to obtain the desired movement.
 
