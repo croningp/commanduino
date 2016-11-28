@@ -171,3 +171,7 @@ This script in particular will set the angle of the Servo motor to 60 degrees, w
 When the script calls `cmdMng.servo1.set_angle(60)`, it is actually sending the command `S1,SA,60;` to the Arduino device which is then processed by the CommandHandler to obtain the desired movement.
 
 That's all there is to it!
+
+## Authors
+[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26).
+Members of the [Cronin Group](http://www.chem.gla.ac.uk/cronin/) 2016
