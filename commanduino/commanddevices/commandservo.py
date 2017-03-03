@@ -30,6 +30,22 @@ class CommandServo(CommandDevice):
     def __init__(self):
         CommandDevice.__init__(self)
         self.register_all_requests()
+        self.min_limit = 0
+        self.max_limit = 0
+        self.limit = False
+        
+        self.clamp = lambda n, minimum, maximum: max(min(maximum, n), minimum)
+
+    #Sets the limits of the device
+    def set_limit(self, minimum, maximum):
+        self.limit = True
+        if minimum > 0 and maximum < 180:
+            self.min_limit = minimum
+            self.max_limit = maximum
+
+    #Removes limits
+    def remove_limit(self):
+        self.limit = False
 
     ##
     def set_angle(self, angle):
@@ -40,7 +56,11 @@ class CommandServo(CommandDevice):
             angle (float): Angle to set the device to.
 
         """
-        self.send(CMD_SET_ANGLE, int(angle))
+        if(self.limit):
+            angle = self.clamp(angle, self.min_limit, self.max_limit)
+            self.send(CMD_SET_ANGLE, int(angle))
+        else:
+            self.send(CMD_SET_ANGLE, int(angle))
 
     def register_all_requests(self):
         """
