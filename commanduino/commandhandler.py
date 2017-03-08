@@ -65,6 +65,7 @@ class CommandHandler(object):
 
         """
         if a_char:
+            a_char = a_char.decode('utf-8')
             self.logger.debug('Processing "{}"'.format(a_char),
                               extra={'buffer': self.buffer})
             if a_char == self.term:
