@@ -1,4 +1,4 @@
-from commanddevice import CommandDevice
+from .commanddevice import CommandDevice
 
 import logging
 module_logger = logging.getLogger(__name__)

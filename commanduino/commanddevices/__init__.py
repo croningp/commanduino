@@ -38,7 +38,7 @@ from .commandaccelstepper import CommandAccelStepper
 add_to_bonjour_register('ACCELSTEPPER', CommandAccelStepper)
 
 # servo
-from commandsht1x import CommandSHT1X
+from .commandsht1x import CommandSHT1X
 add_to_bonjour_register('SHT1X', CommandSHT1X)
 
 # automated way, seems to only works in develop mode :(
