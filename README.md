@@ -88,7 +88,9 @@ All Demo files (either Arduino or Python) have an equivalent demo file in their 
 #include <CommandManager.h>
 CommandManager cmdMng; //Create a CommandManager
 
+//Install this library from Arduino's IDE
 #include <Servo.h>
+
 #include <CommandServo.h>
 CommandServo cmdServo1(9); //The parameter is the Pin number which you plug the device into
 
