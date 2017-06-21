@@ -148,7 +148,6 @@ class Axis(object):
             n_steps = self.position_to_step(position)
             self.linear_actuator.move_to(n_steps, wait=wait)
 
-
     def move(self, delta_position_in_unit, wait=True, force=False):
         """
         Moves the linear actuator.
