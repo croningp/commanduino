@@ -8,6 +8,7 @@
 
 """
 
+
 class Axis(object):
     """
     Represents a singular Axis which devices can move along.
@@ -17,13 +18,16 @@ class Axis(object):
 
         unit_per_step (int): Amount of units to move per step, default set to 1
 
-        min_position (int): Minimum position of the axis, default set to 0
+        min_position (int): Minimum position of the axis (in unit), default set
+                            to 0
 
-        max_position (str): The maximum position of hte axis, cast to (float)
+        max_position (str): The maximum position of the axis (in unit), cast to
+                            (float)
 
     """
 
-    def __init__(self, linear_actuator, unit_per_step=1, min_position=0, max_position=float('inf')):
+    def __init__(self, linear_actuator, unit_per_step=1, min_position=0,
+                 max_position=float('inf')):
         self.linear_actuator = linear_actuator
         self.unit_per_step = float(unit_per_step)
         self.min_position = float(min_position)
@@ -98,7 +102,8 @@ class Axis(object):
         Check for axis movement.
 
         Returns:
-            self.linear_actuator.is_moving (bool): The actuator movement status.
+            self.linear_actuator.is_moving (bool): The actuator movement
+            status.
 
         """
 
@@ -136,7 +141,7 @@ class Axis(object):
 
         """
 
-        if self.is_initialized() or force==True:
+        if self.is_initialized() or force:
             if type(position_in_unit) == list:
                 position_in_unit = position_in_unit[0]
             position = self.cast_position(position_in_unit)
@@ -150,14 +155,16 @@ class Axis(object):
         Args:
             delta_position_in_unit (int): The amount to move.
 
-            wait (bool): Wait until the linear actuator is idle, default set to True.
+            wait (bool): Wait until the linear actuator is idle, default set to
+                         True.
 
             force (bool):Force the movement, default set to False.
 
         """
 
         current_position = self.get_current_position()
-        self.move_to(current_position + delta_position_in_unit, wait=wait, force=force)
+        self.move_to(current_position + delta_position_in_unit, wait=wait,
+                     force=force)
 
     def get_current_position(self):
         """
@@ -327,6 +334,6 @@ class MultiAxis(object):
         """
         Stops all movement in the axes.
         """
-        
+
         for axis in self.axes:
             axis.stop()
