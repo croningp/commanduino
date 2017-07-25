@@ -5,7 +5,7 @@ module_logger = logging.getLogger(__name__)
 
 # bonjour info
 BONJOUR_ID = 'DALLAS'
-CLASS_NAME = 'CommandDALLAS'
+CLASS_NAME = 'CommandDallas'
 
 # incoming
 CMD_ANSWER_CELSIUS = 'C'
@@ -14,7 +14,7 @@ CMD_ANSWER_CELSIUS = 'C'
 CMD_REQUEST_CELSIUS = 'RC'
 
 
-class CommandDALLAS(CommandDevice):
+class CommandDallas(CommandDevice):
 
     def __init__(self):
         CommandDevice.__init__(self)
