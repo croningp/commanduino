@@ -41,6 +41,10 @@ add_to_bonjour_register('ACCELSTEPPER', CommandAccelStepper)
 from .commandsht1x import CommandSHT1X
 add_to_bonjour_register('SHT1X', CommandSHT1X)
 
+# Dallas temperature sensors
+from .commanddallas import CommandDallas
+add_to_bonjour_register('DALLAS', CommandDallas)
+
 # automated way, seems to only works in develop mode :(
 
 # import os
