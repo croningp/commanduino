@@ -24,8 +24,9 @@ This would move a stepper motor with ID "stepper1" 2000 steps.
 ### Commanduino
 Commanduino is a Python interface for this interaction. It uses its own version of the CommandManager and CommandHandler, which initialise and communicate with the Arduino hardware via the Arduino-CommandTools & Arduino-CommandHandler libraries. Each Arduino device is implemented in python with commands and functions that mirror those in the Arduino-CommandTools. This allows python to directly communicate with the hardware. The commanduino implementation of the CommandManager deals with the communications to the hardware. To use the CommandManager, one simply needs to createa config file with the device information and instantiate a CommandManager object which then reads the setup information from the config file. This will give you control of the device in Python. See the [Examples](#Using The Library) section for more information.
 
-###Hierarchial Design of Commanduino
+### Hierarchial Design of Commanduino
 The following diagram shows the design of Commanduino, highlighting the layers of communication.
+
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20561408/6886aa92-b176-11e6-8987-4d69ce578e6a.png "Commanduino Hierarchy")
 
 Links to relavent GitHub Repositories:
