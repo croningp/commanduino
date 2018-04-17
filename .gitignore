@@ -1,2 +1,4 @@
 *.pyc
 commanduino.egg-info
+build/
+dist/
