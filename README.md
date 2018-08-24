@@ -176,5 +176,9 @@ When the script calls `cmdMng.servo1.set_angle(60)`, it is actually sending the 
 That's all there is to it!
 
 ## Authors
-[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26).
-Members of the [Cronin Group](http://www.chem.gla.ac.uk/cronin/) 2016
+
+[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26) while working in the [Cronin Group](http://www.chem.gla.ac.uk/cronin/).
+
+## License
+
+[![GPL V3](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl.html)
