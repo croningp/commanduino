@@ -100,7 +100,7 @@ class CommandLinearAccelStepper(CommandDevice):
         self.register_all_requests()
 
         self.init_speed = speed
-        self.init_max_speed = speed
+        self.init_max_speed = max_speed
         self.init_acceleration = acceleration
         self.homing_speed = homing_speed
         self.enabled_acceleration = enabled_acceleration
@@ -360,7 +360,6 @@ class CommandLinearAccelStepper(CommandDevice):
             COMMANDLINEARACCELSTEPPER_ACCELERATION,
             'acceleration',
             self.handle_acceleration_command)
-
 
     def handle_switch_state_command(self, *arg):
         """
