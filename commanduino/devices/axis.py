@@ -8,6 +8,8 @@
 
 """
 
+from .._logger import create_logger
+
 
 class Axis(object):
     """
@@ -28,6 +30,7 @@ class Axis(object):
 
     def __init__(self, linear_actuator, unit_per_step=1, min_position=0,
                  max_position=float('inf')):
+        self.logger = create_logger(self.__class__.__name__)
         self.linear_actuator = linear_actuator
         self.unit_per_step = float(unit_per_step)
         self.min_position = float(min_position)
@@ -69,7 +72,7 @@ class Axis(object):
 
     def step_to_position(self, n_steps):
         """
-        Comverts steps to position.
+        Converts steps to position.
 
         Args:
             n_steps (int): Number of steps.
@@ -95,6 +98,8 @@ class Axis(object):
 
         casted_position = min(self.max_position, position_in_unit)
         casted_position = max(self.min_position, casted_position)
+        if casted_position != position_in_unit:
+            self.logger.warn("The position requested ({}) is outside the axis boundary!".format(position_in_unit))
         return casted_position
 
     def is_moving(self):
