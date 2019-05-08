@@ -457,17 +457,17 @@ class CommandLinearAccelStepper(CommandDevice):
             self.acceleration = float(arg[0])
             self.acceleration_lock.ensure_released()
 
-    def print_info(self):
+    def __str__(self):
         """
         Prints the current information for the device.
         """
-        print('###')
-        print('switch_state: ', self.get_switch_state())
-        print('moving_state: ', self.get_moving_state())
-        print('distance_to_go: ',  self.get_distance_to_go())
-        print('target_position: ', self.get_target_position())
-        print('current_position: ', self.get_current_position())
-        print('speed: ',  self.get_speed())
-        print('max_speed: ', self.get_max_speed())
-        print('acceleration: ',  self.get_acceleration())
-        print('###')
+        return "###\n" \
+               "switch_state: " + str(self.get_switch_state()) + "\n" \
+               "moving_state: " + str(self.get_moving_state()) + "\n" \
+               "distance_to_go: " + str(self.get_distance_to_go()) + "\n" \
+               "target_position: " + str(self.get_target_position()) + "\n" \
+               "current_position: " + str(self.get_current_position()) + "\n" \
+               "speed: " + str(self.get_speed()) + "\n" \
+               "max_speed: " + str(self.get_max_speed()) + "\n" \
+               "acceleration: " + str(self.get_acceleration()) + "\n" \
+               "###"
