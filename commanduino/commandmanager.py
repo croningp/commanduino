@@ -58,6 +58,7 @@ class CommandManager(object):
     def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
         self.logger = create_logger(self.__class__.__name__)
 
+        self.initialised = False
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
 
@@ -79,6 +80,7 @@ class CommandManager(object):
 
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
+        self.initialised = True
 
     def set_devices_as_attributes(self):
         """
@@ -254,7 +256,9 @@ class CommandManager(object):
             cmd (str): The received command.
 
         """
-        self.logger.warning('Received unknown command "{}"'.format(cmd))
+        # Do not print out unrecognized error during init. as those are "normal" when multiple Arduinos are connected
+        if self.initialised:
+            self.logger.warning('Received unknown command "{}"'.format(cmd))
 
 
 class InitError(Exception):
