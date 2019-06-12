@@ -16,6 +16,7 @@ from .lock import Lock
 from ._logger import create_logger
 
 import time
+import sys
 from serial import SerialException
 
 #default initialisation timeout.
@@ -37,7 +38,7 @@ COMMAND_INIT = 'INIT'
 
 class CommandManager(object):
     """
-    Manages variying amounts of Command Handler objects.
+    Manages varying amounts of Command Handler objects.
 
     Args:
         serialcommand_configs (Tuple): Collection of serial command configurations.
@@ -69,8 +70,12 @@ class CommandManager(object):
                 cmdHdl.add_default_handler(self.unrecognized)
                 cmdHdl.start()
             except (SerialException, OSError):
-                self.logger.warning('Port {} was not found'.format(config['port']))
-                continue
+                if 'required' in config and config['required'] is True:
+                    self.logger.error('Port {} was not found and it is required! Aborting...'.format(config['port']))
+                    sys.exit(1)
+                else:
+                    self.logger.warning('Port {} was not found'.format(config['port']))
+                    continue
             try:
                 elapsed = self.wait_serial_device_for_init(cmdHdl)
                 self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=cmdHdl._serial.port, init_time=round(elapsed, 3)))
@@ -269,7 +274,7 @@ class InitError(Exception):
         self.port = port
 
     def __str__(self):
-        return 'Manager on port {self.port} did not inititalize'.format(self=self)
+        return 'Manager on port {self.port} did not initialize'.format(self=self)
 
 
 class CommandBonjour(object):
