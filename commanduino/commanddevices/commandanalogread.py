@@ -14,14 +14,14 @@ import logging
 module_logger = logging.getLogger(__name__)
 
 
-#Bonjour information
+# Bonjour information
 BONJOUR_ID = 'ANALOGREAD'
 CLASS_NAME = 'CommandAnalogRead'
 
-#Incoming (Level)
+# Incoming (Level)
 CMD_ANSWER_LEVEL = 'L'
 
-#Outgoing (Read)
+# Outgoing (Read)
 CMD_REQUEST_LEVEL = 'R'
 
 

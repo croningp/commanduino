@@ -13,11 +13,11 @@ import logging
 module_logger = logging.getLogger(__name__)
 
 
-#Bonjour Information
+# Bonjour Information
 BONJOUR_ID = 'DIGITALWRITE'
 CLASS_NAME = 'CommandDigitalWrite'
 
-#Outgoing (Write)
+# Outgoing (Write)
 CMD_SET_LEVEL = 'W'
 
 

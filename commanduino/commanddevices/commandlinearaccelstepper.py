@@ -20,7 +20,7 @@ module_logger = logging.getLogger(__name__)
 BONJOUR_ID = 'LINEARACCELSTEPPER'
 CLASS_NAME = 'CommandLinearAccelStepper'
 
-#Incoming Commands
+# Incoming Commands
 COMMANDLINEARACCELSTEPPER_SET_POSITION = "SP"
 COMMANDLINEARACCELSTEPPER_SET_SPEED = "SS"
 COMMANDLINEARACCELSTEPPER_SET_MAX_SPEED = "SMS"
@@ -46,7 +46,7 @@ COMMANDLINEARACCELSTEPPER_REQUEST_SPEED = "RIS"
 COMMANDLINEARACCELSTEPPER_REQUEST_MAXSPEED = "RIMS"
 COMMANDLINEARACCELSTEPPER_REQUEST_ACCELERATION = "RIA"
 
-#Outgoing Commands
+# Outgoing Commands
 COMMANDLINEARACCELSTEPPER_SWITCH = "S"
 COMMANDLINEARACCELSTEPPER_MOVING = "M"
 COMMANDLINEARACCELSTEPPER_DIST = "D"
@@ -57,19 +57,19 @@ COMMANDLINEARACCELSTEPPER_SPEED = "IS"
 COMMANDLINEARACCELSTEPPER_MAXSPEED = "IMS"
 COMMANDLINEARACCELSTEPPER_ACCELERATION = "IA"
 
-#Default speed.
+# Default speed
 DEFAULT_SPEED = 5000
 
-#Default maximum speed.
+# Default maximum speed
 DEFAULT_MAX_SPEED = 5000
 
-#Default acceleration.
+# Default acceleration
 DEFAULT_ACCELERATION = 2000
 
-#Default homing speed.
+# Default homing speed
 DEFAULT_HOMING_SPEED = 2000
 
-#Default sleep time.
+# Default sleep time
 DEFAULT_SLEEP_TIME = 0.1  # let's not make it too low to not make the communication bus too busy
 
 
@@ -84,7 +84,7 @@ class CommandLinearAccelStepper(CommandDevice):
 
         acceleration (int): Speed of acceleration, default set to DEFAULT_ACCELERATION (2000)
 
-        homing_speed (int): Himing speed of the device, default set to DEFAULT_HOMING_SPEED (2000)
+        homing_speed (int): Homing speed of the device, default set to DEFAULT_HOMING_SPEED (2000)
 
         enabled_acceleration (bool): Acceleration enabled, default set to True.
 
@@ -242,14 +242,14 @@ class CommandLinearAccelStepper(CommandDevice):
 
     def enable_revert_switch(self):
         """
-        Enables switch revertion on the device.
+        Enables switch reversion on the device.
         """
         self.reverted_switch = True
         self.send(COMMANDLINEARACCELSTEPPER_ENABLE_SWITCH)
 
     def disable_revert_switch(self):
         """
-        Disables switch revertion on the device.
+        Disables switch reversion on the device.
         """
         self.reverted_switch = False
         self.send(COMMANDLINEARACCELSTEPPER_DISABLE_SWITCH)
@@ -450,7 +450,7 @@ class CommandLinearAccelStepper(CommandDevice):
         Handles the command for acceleration.
 
         Args:
-            *arg: Variable arguement.
+            *arg: Variable argument.
         """
         if arg[0]:
             self.acceleration = float(arg[0])

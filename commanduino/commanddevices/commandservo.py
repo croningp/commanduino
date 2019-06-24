@@ -11,14 +11,14 @@ from .commanddevice import CommandDevice
 import logging
 module_logger = logging.getLogger(__name__)
 
-#Bonjour Information
+# Bonjour Information
 BONJOUR_ID = 'SERVO'
 CLASS_NAME = 'CommandServo'
 
-#Incoming
+# Incoming
 CMD_ANSWER_ANGLE = 'A'
 
-#Outgoing
+# Outgoing
 CMD_SET_ANGLE = 'W'
 CMD_REQUEST_ANGLE = 'R'
 
@@ -36,14 +36,14 @@ class CommandServo(CommandDevice):
         
         self.clamp = lambda n, minimum, maximum: max(min(maximum, n), minimum)
 
-    #Sets the limits of the device
+    # Sets the limits of the device
     def set_limit(self, minimum, maximum):
         self.limit = True
         if minimum > 0 and maximum < 180:
             self.min_limit = minimum
             self.max_limit = maximum
 
-    #Removes limits
+    # Removes limits
     def remove_limit(self):
         self.limit = False
 
@@ -56,7 +56,7 @@ class CommandServo(CommandDevice):
             angle (float): Angle to set the device to.
 
         """
-        if(self.limit):
+        if self.limit is True:
             angle = self.clamp(angle, self.min_limit, self.max_limit)
             self.send(CMD_SET_ANGLE, int(angle))
         else:

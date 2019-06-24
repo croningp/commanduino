@@ -14,14 +14,14 @@ import logging
 module_logger = logging.getLogger(__name__)
 
 
-#Bonjour Information
+# Bonjour Information
 BONJOUR_ID = 'DIGITALREAD'
 CLASS_NAME = 'CommandDigitalRead'
 
-#Incoming
+# Incoming
 CMD_ANSWER_STATE = 'S'
 
-#Outgoing
+# Outgoing
 CMD_REQUEST_STATE = 'R'
 
 

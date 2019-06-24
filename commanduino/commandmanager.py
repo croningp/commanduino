@@ -19,13 +19,13 @@ import time
 import sys
 from serial import SerialException
 
-#default initialisation timeout.
+# Default initialisation timeout
 DEFAULT_INIT_TIMEOUT = 1
 
-#Default amount of times to attempt initialisation
+# Default amount of times to attempt initialisation
 DEFAULT_INIT_N_REPEATS = 5
 
-#Default timeout value.
+# Default timeout value
 DEFAULT_BONJOUR_TIMEOUT = 0.1
 
 COMMAND_BONJOUR = 'BONJOUR'
@@ -71,10 +71,10 @@ class CommandManager(object):
                 cmdHdl.start()
             except (SerialException, OSError):
                 if 'required' in config and config['required'] is True:
-                    self.logger.error('Port {} was not found and it is required! Aborting...'.format(config['port']))
+                    self.logger.error(f"Port {config['port']} was not found and it is required! Aborting...")
                     sys.exit(1)
                 else:
-                    self.logger.warning('Port {} was not found'.format(config['port']))
+                    self.logger.warning(f"Port {config['port']} was not found")
                     continue
             try:
                 elapsed = self.wait_serial_device_for_init(cmdHdl)
@@ -146,7 +146,7 @@ class CommandManager(object):
             cmdHdl (CommandHandler): CommandHandler object to add/remove commands.
 
         Returns:
-            elapsed (flaot): Time waited for initialisation.
+            elapsed (float): Time waited for initialisation.
 
         Raises:
             InitError: CommandManager on the port was not initialised.
@@ -231,7 +231,7 @@ class CommandManager(object):
         Args:
             cls (CommandManager): The instantiating class.
 
-            config (Dict): Dictionary contianing the configuration data.
+            config (Dict): Dictionary containing the configuration data.
 
         """
         serialcommand_configs = config['ios']

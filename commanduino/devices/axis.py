@@ -2,7 +2,7 @@
 
 .. module:: Axis
    :platform: Unix
-   :synopsis: Represets an Axis which devices can move along
+   :synopsis: Represents an Axis which devices can move along
 
 .. moduleauthor:: Jonathan Grizou <Jonathan.Grizou@gla.ac.uk>
 
@@ -18,12 +18,12 @@ class Axis(object):
     Args:
         linear_actuator: The linear actuator which moves along the axis.
 
-        unit_per_step (int): Amount of units to move per step, default set to 1
+        unit_per_step Union(int, float): Amount of units to move per step, default set to 1
 
-        min_position (int): Minimum position of the axis (in unit), default set
+        min_position Union(int, float): Minimum position of the axis (in unit), default set
                             to 0
 
-        max_position (str): The maximum position of the axis (in unit), cast to
+        max_position Union(int, float, str): The maximum position of the axis (in unit), cast to
                             (float)
 
     """
@@ -138,7 +138,7 @@ class Axis(object):
         Moves the linear actuator to a set position.
 
         Args:
-            position_in_unit (int): Position to move to.
+            position_in_unit (Union(int, list)): Position to move to.
 
             wait (bool): Wait until the actuator is idle, default set to True.
 
@@ -276,7 +276,7 @@ class MultiAxis(object):
         Moves the axes to a set position.
 
         Args:
-            position_array_in_unit (int): The position to move to.
+            position_array_in_unit (Union(int, tuple)): The position to move to.
 
             wait (bool): Wait until the axes are idle, default set to True.
 
@@ -294,7 +294,7 @@ class MultiAxis(object):
         Moves the axes.
 
         Args:
-            position_array_in_unit (int): The amount to move.
+            position_array_in_unit (list): The amount to move.
 
             wait (bool): Wait until the axes are idle, default set to True.
 

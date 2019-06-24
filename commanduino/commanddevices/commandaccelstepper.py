@@ -2,7 +2,7 @@
 
 .. module:: CommandAccelStepper
    :platform: Unix
-   :synopsis: Represens an Accelerator Stepper Arduino device.
+   :synopsis: Represents an Accelerator Stepper Arduino device.
 
 .. moduleauthor:: Graham Keenan <1105045k@student.gla.ac.uk>
 
@@ -15,11 +15,11 @@ import time
 import logging
 module_logger = logging.getLogger(__name__)
 
-#Bonjour information
+# Bonjour information
 BONJOUR_ID = 'ACCELSTEPPER'
 CLASS_NAME = 'CommandAccelStepper'
 
-#Incoming Commands
+# Incoming Commands
 COMMANDACCELSTEPPER_SET_POSITION = "SP"
 COMMANDACCELSTEPPER_SET_SPEED = "SS"
 COMMANDACCELSTEPPER_SET_MAXSPEED = "SMS"
@@ -42,7 +42,7 @@ COMMANDACCELSTEPPER_REQUEST_MAXSPEED = "RIMS"
 COMMANDACCELSTEPPER_REQUEST_ACCELERATION = "RIA"
 
 
-#Outgoing Commands
+# Outgoing Commands
 COMMANDACCELSTEPPER_MOVING = "M"
 COMMANDACCELSTEPPER_DIST = "D"
 COMMANDACCELSTEPPER_TARGET = "T"
@@ -52,17 +52,18 @@ COMMANDACCELSTEPPER_SPEED = "IS"
 COMMANDACCELSTEPPER_MAXSPEED = "IMS"
 COMMANDACCELSTEPPER_ACCELERATION = "IA"
 
-#Default speed
+# Default speed
 DEFAULT_SPEED = 5000
 
-#Default maximum speed
+# Default maximum speed
 DEFAULT_MAX_SPEED = 5000
 
-#Default acceleration
+# Default acceleration
 DEFAULT_ACCELERATION = 2000
 
-#Default sleep time
+# Default sleep time
 DEFAULT_SLEEP_TIME = 0.1
+
 
 class CommandAccelStepper(CommandDevice):
     """
@@ -87,7 +88,7 @@ class CommandAccelStepper(CommandDevice):
         CommandDevice.__init__(self)
         self.register_all_requests()
         self.init_speed = speed
-        self.init_max_speed = speed
+        self.init_max_speed = max_speed
         self.init_acceleration = acceleration
         self.enabled_acceleration = enabled_acceleration
         self.reverted_direction = reverted_direction
@@ -195,7 +196,7 @@ class CommandAccelStepper(CommandDevice):
         """
         self.wait_until_idle()
         self.send(COMMANDACCELSTEPPER_ENABLE_ACC)
-        #Bug in the stepper motor
+        # Bug in the stepper motor
         self.stop()
         self.enabled_acceleration = True
 
@@ -205,7 +206,7 @@ class CommandAccelStepper(CommandDevice):
         """
         self.wait_until_idle()
         self.send(COMMANDACCELSTEPPER_DISABLE_ACC)
-        #Bug in the Stepper motor
+        # Bug in the stepper motor
         self.stop()
         self.enabled_acceleration = False
 
