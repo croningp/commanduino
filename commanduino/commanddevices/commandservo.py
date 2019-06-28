@@ -27,21 +27,31 @@ class CommandServo(CommandDevice):
     """
     Servo Arduino device.
     """
-    def __init__(self):
+    def __init__(self, initial_angle=90, min_limit=0, max_limit=180):
         CommandDevice.__init__(self)
         self.register_all_requests()
         self.min_limit = 0
         self.max_limit = 0
         self.limit = False
+
+        # From config
+        self.set_limit(minimum=min_limit, maximum=max_limit)  # If limits other than 0-180 are set than self.limit=True
+        self.initial_angle = initial_angle
         
         self.clamp = lambda n, minimum, maximum: max(min(maximum, n), minimum)
 
+    def init(self):
+        self.set_angle(self.initial_angle)
+
     # Sets the limits of the device
     def set_limit(self, minimum, maximum):
-        self.limit = True
         if minimum > 0 and maximum < 180:
             self.min_limit = minimum
             self.max_limit = maximum
+            self.limit = True
+            return True
+        else:
+            return False
 
     # Removes limits
     def remove_limit(self):
