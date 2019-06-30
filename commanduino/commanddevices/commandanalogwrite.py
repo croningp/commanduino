@@ -12,11 +12,11 @@ from .commanddevice import CommandDevice
 import logging
 module_logger = logging.getLogger(__name__)
 
-#Bonjour Information
+# Bonjour Information
 BONJOUR_ID = 'ANALOGWRITE'
 CLASS_NAME = 'CommandAnalogWrite'
 
-#Outgoing (Write)
+# Outgoing (Write)
 CMD_SET_LEVEL = 'W'
 
 

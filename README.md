@@ -5,7 +5,7 @@ Link to the documentation: [Commanduino](https://croningp.github.io/commanduino/
 This is the commanduino library for controlling Arduino hardware via a python interface. By using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries in conjunction with commanduino, you can essentially control any supported Arduino device through Python.
 
 ## How This Library Works
-The Commanduino library is a python library which is used to communicate with Arduino devices via Python, as oppossed to hardcoding the desired behaviour onto the Arduino itself. This works by using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries. Commanduino acts as a friendlier "front-end" for the devices.
+The Commanduino library is a python library which is used to communicate with Arduino devices via Python, as opposed to hardcoding the desired behaviour onto the Arduino itself. This works by using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries. Commanduino acts as a friendlier "front-end" for the devices.
 
 ### Arduino-CommandTools Library
 This library is responsible for the code controlling each Arduino device. A CommandManger within the library controls the initialisation of the devices. To achieve total control of the device, the arduino functionality (the commands you would enter in an Arduino sketch, for example) are wrapped in methods which are called when specific commands are sent (These are specific to each device and are implemented in the library). The actual arduino sketch will instantiate a CommandManager object which will manage the incoming/outgoingcommands.  These commands are handled by the Arduino-CommandHandler library which manages the communications between the Arduino device and the controlling computer via serial communication.  
@@ -22,14 +22,14 @@ This would move a stepper motor with ID "stepper1" 2000 steps.
 ```
 
 ### Commanduino
-Commanduino is a Python interface for this interaction. It uses its own version of the CommandManager and CommandHandler, which initialise and communicate with the Arduino hardware via the Arduino-CommandTools & Arduino-CommandHandler libraries. Each Arduino device is implemented in python with commands and functions that mirror those in the Arduino-CommandTools. This allows python to directly communicate with the hardware. The commanduino implementation of the CommandManager deals with the communications to the hardware. To use the CommandManager, one simply needs to createa config file with the device information and instantiate a CommandManager object which then reads the setup information from the config file. This will give you control of the device in Python. See the [Examples](#Using The Library) section for more information.
+Commanduino is a Python interface for this interaction. It uses its own version of the CommandManager and CommandHandler, which initialise and communicate with the Arduino hardware via the Arduino-CommandTools & Arduino-CommandHandler libraries. Each Arduino device is implemented in python with commands and functions that mirror those in the Arduino-CommandTools. This allows python to directly communicate with the hardware. The commanduino implementation of the CommandManager deals with the communications to the hardware. To use the CommandManager, one simply needs to create a config file with the device information and instantiate a CommandManager object which then reads the setup information from the config file. This will give you control of the device in Python. See the [Examples](#Using The Library) section for more information.
 
-### Hierarchial Design of Commanduino
+### Hierarchical Design of Commanduino
 The following diagram shows the design of Commanduino, highlighting the layers of communication.
 
 ![Alt text](https://cloud.githubusercontent.com/assets/13821621/20561408/6886aa92-b176-11e6-8987-4d69ce578e6a.png "Commanduino Hierarchy")
 
-Links to relavent GitHub Repositories:
+Links to relevant GitHub Repositories:
 * Python:
 	* [Command Handler/Serial Command Handler](https://github.com/croningp/commanduino/blob/master/commanduino/commandhandler.py)
 	* [Command Manager](https://github.com/croningp/commanduino/blob/master/commanduino/commandmanager.py)
@@ -41,7 +41,7 @@ Links to relavent GitHub Repositories:
 	* [Command Devices](https://github.com/croningp/Arduino-CommandTools)
 
 ## Tutorial
-The following will serve as a tutorial on how to use this libary. An example is provided which will demonstrate using the library with a supported device (Servo Motor).
+The following will serve as a tutorial on how to use this library. An example is provided which will demonstrate using the library with a supported device (Servo Motor).
 
 ### List of Currently Supported Devices
 * AccelStepper Motor
@@ -161,11 +161,11 @@ cmdMng = CommandManager.from_configfile('./demo.json')
 
 for i in range(2):
     cmdMng.servo1.set_angle(60)
-    print cmdMng.servo1.get_angle()
+    print(cmdMng.servo1.get_angle())
     time.sleep(1)
 
     cmdMng.servo1.set_angle(120)
-    print cmdMng.servo1.get_angle()
+    print(cmdMng.servo1.get_angle())
     time.sleep(1)
 
 ```

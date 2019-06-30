@@ -7,7 +7,7 @@ cmdMng = CommandManager.from_configfile('./basics.json')
 
 quit = False
 while not quit:
-    msg = raw_input()
+    msg = input()
     if msg == "QUIT":
         isRunning = False
         quit = True

@@ -1,13 +1,12 @@
 import time
 import logging
-logging.basicConfig(level=logging.INFO)
-
-
 from commanduino import CommandManager
+
+logging.basicConfig(level=logging.INFO)
 
 cmdMng = CommandManager.from_configfile('./demo.json')
 
 
 for i in range(10):
-    print cmdMng.A1.get_level()
+    print(cmdMng.A1.get_level())
     time.sleep(1)

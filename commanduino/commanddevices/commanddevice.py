@@ -12,10 +12,10 @@ from ..lock import Lock
 
 from .._logger import create_logger
 
-#Defualt timeout value
+# Defualt timeout value
 DEFAULT_TIMEOUT = 1
 
-#Bonjour Information
+# Bonjour Information
 BONJOUR_ID = 'TEMPLATE'
 CLASS_NAME = 'CommandDevice'
 
@@ -35,7 +35,7 @@ class DeviceTimeOutError(Exception):
         self.elapsed = elapsed
 
     def __str__(self):
-        return '{device_name} did not respond within {elapsed}s'.format(device_name=self.device_name, elapsed=round(self.elapsed, 3))
+        return f"{self.device_name} did not respond within {self.elapsed:.3} s"
 
 
 class CommandTimeOutError(Exception):
@@ -55,7 +55,7 @@ class CommandTimeOutError(Exception):
         self.command_name = command_name
 
     def __str__(self):
-        return '{device_name} did not respond to {command_name} within {elapsed}s'.format(device_name=self.device_name, command_name=self.command_name, elapsed=round(self.elapsed, 3))
+        return f"{self.device_name} did not respond to {self.command_name} within {self.elapsed:.3} s"
 
 
 class CommandDevice(object):
@@ -70,7 +70,7 @@ class CommandDevice(object):
 
     def init(self):
         """
-        .. note:: This function is called once the write function is set. Do your setup here by sending command to the devices
+        .. note:: This function is called once the write function is set. Device setup (sending commands) goes here
         """
         pass
 

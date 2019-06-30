@@ -13,19 +13,19 @@ import threading
 
 from ._logger import create_logger
 
-#Default delimiter to separate commands
+# Default delimiter to separate commands
 DEFAULT_DELIM = ','
 
-#Default terminal character of a command
+# Default terminal character of a command
 DEFAULT_TERM = ';'
 
-##Default decimal
+# Default decimal
 DEFAULT_CMD_DECIMAL = 2
 
-#Default baudrate for communication
+# Default baudrate for communication
 DEFAULT_BAUDRATE = 115200
 
-#Default timeout time
+# Default timeout time
 DEFAULT_TIMEOUT = 0.01
 
 
@@ -358,14 +358,14 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Closes the serial communication between the PC and Arduino Board, due to an exception occurence.
+        Closes the serial communication between the PC and Arduino Board, due to an exception occurrence.
 
         Args:
             exc_type (str): The exception type.
 
             exc_value: The value of the exception.
 
-            traceback (str): The position in the code where the exception occured.
+            traceback (str): The position in the code where the exception occurred.
 
         """
         self.close()
