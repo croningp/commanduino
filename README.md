@@ -177,7 +177,7 @@ That's all there is to it!
 
 ## Authors
 
-[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/) and [Graham Keenan](https://github.com/ShinRa26) while working in the [Cronin Group](http://www.chem.gla.ac.uk/cronin/).
+[Jonathan Grizou](http://www.chem.gla.ac.uk/cronin/members/Jonathan/), [Graham Keenan](https://github.com/ShinRa26) and [Dario Cambie](http://www.chem.gla.ac.uk/cronin/members/DCambie/) while working in the [Cronin Group](http://www.chem.gla.ac.uk/cronin/).
 
 ## License
 
