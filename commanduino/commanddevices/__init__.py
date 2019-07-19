@@ -37,9 +37,13 @@ add_to_bonjour_register('LINEARACCELSTEPPER', CommandLinearAccelStepper)
 from .commandaccelstepper import CommandAccelStepper
 add_to_bonjour_register('ACCELSTEPPER', CommandAccelStepper)
 
-# servo
+# Temperature sensors SHT1X
 from .commandsht1x import CommandSHT1X
 add_to_bonjour_register('SHT1X', CommandSHT1X)
+
+# Temperature sensors SHT31
+from .commandsht31 import CommandSHT31
+add_to_bonjour_register('SHT31', CommandSHT31)
 
 # Dallas temperature sensors
 from .commanddallas import CommandDallas
