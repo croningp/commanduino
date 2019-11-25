@@ -118,8 +118,8 @@ void loop()
 	* The `"ios"` represents the USB auto-detection of the Arduino Board
 	* `/dev/tty.usbmodem1411` represents a Mac USB port
 	* `/dev/ttyACM0/1/2 etc.` represents the Linux USB ports
+	* `COM[number]` represents the Windows USB ports
 	* The library will automatically search these ports for connected Arduino devices
-	* Windows support coming Soon&trade;
 
 ```json
 {
