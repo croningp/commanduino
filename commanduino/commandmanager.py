@@ -266,6 +266,45 @@ class CommandManager(object):
             self.logger.warning('Received unknown command "{}"'.format(cmd))
 
 
+class VirtualCommandManager(CommandManager):
+    def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
+        self.logger = create_logger(self.__class__.__name__)
+
+        self.init_n_repeats = init_n_repeats
+        self.init_lock = Lock(init_timeout)
+
+        self.serialcommandhandlers = []
+        self.initialised = True
+        self.register_all_devices(devices_dict)
+        self.set_devices_as_attributes()
+        self.initialised = True
+
+    def register_device(self, device_name, device_info):
+        """
+        Registers an individual Arduino device.
+
+        Args:
+            device_name (str): Name of the device.
+
+            device_info (Dict): Dictionary containing the device information.
+
+        Raises:
+            DeviceRegisterError: Device is not in the device register.
+
+            BonjourError: Device has not been found.
+
+        """
+        command_id = device_info['command_id']
+        if 'config' in device_info:
+            device_config = device_info['config']
+        else:
+            device_config = {}
+
+        from commanduino.commanddevices import CommandVirtual
+
+        self.devices[device_name] = CommandVirtual()
+
+
 class InitError(Exception):
     """
     Exception for when the manager fails to initialise.
