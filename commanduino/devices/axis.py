@@ -99,7 +99,7 @@ class Axis(object):
         casted_position = min(self.max_position, position_in_unit)
         casted_position = max(self.min_position, casted_position)
         if casted_position != position_in_unit:
-            self.logger.warn("The position requested ({}) is outside the axis boundary!".format(position_in_unit))
+            self.logger.warning("The position requested ({}) is outside the axis boundary!".format(position_in_unit))
         return casted_position
 
     def is_moving(self):
