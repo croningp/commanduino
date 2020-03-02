@@ -5,10 +5,10 @@ Link to the documentation: [Commanduino](https://croningp.github.io/commanduino/
 This is the commanduino library for controlling Arduino hardware via a python interface. By using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries in conjunction with commanduino, you can essentially control any supported Arduino device through Python.
 
 ## How This Library Works
-The Commanduino library is a python library which is used to communicate with Arduino devices via Python, as opposed to hardcoding the desired behaviour onto the Arduino itself. This works by using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries. Commanduino acts as a friendlier "front-end" for the devices.
+The commanduino library is a python library which is used to communicate with Arduino devices via Python, as opposed to hardcoding the desired behaviour onto the Arduino itself. This works by using the [Arduino-CommandTools](https://github.com/croningp/Arduino-CommandTools) and [Arduino-CommandHandler](https://github.com/croningp/Arduino-CommandHandler) libraries. Commanduino acts as a friendlier "front-end" for the devices.
 
 ### Arduino-CommandTools Library
-This library is responsible for the code controlling each Arduino device. A CommandManger within the library controls the initialisation of the devices. To achieve total control of the device, the arduino functionality (the commands you would enter in an Arduino sketch, for example) are wrapped in methods which are called when specific commands are sent (These are specific to each device and are implemented in the library). The actual arduino sketch will instantiate a CommandManager object which will manage the incoming/outgoingcommands.  These commands are handled by the Arduino-CommandHandler library which manages the communications between the Arduino device and the controlling computer via serial communication.  
+This library is responsible for the code controlling each Arduino device. A CommandManger within the library controls the initialisation of the devices. To achieve total control of the device, the arduino functionality (the commands you would enter in an Arduino sketch, for example) are wrapped in methods which are called when specific commands are sent (These are specific to each device and are implemented in the library). The actual Arduino sketch will instantiate a CommandManager object which will manage the incoming/outgoing commands.  These commands are handled by the Arduino-CommandHandler library which manages the communications between the Arduino device and the controlling computer via serial communication.  
 To test the devices, the commands can be sent to the device via the Serial Monitor present within the Arduino IDE. 
 
 ```
@@ -51,6 +51,7 @@ The following will serve as a tutorial on how to use this library. An example is
 * Digital Write capabilities
 * Linear Accel Stepper Actuator
 * SHT1X Temperature Sensor
+* SHT31 Temperature Sensor
 * Servo Motor
 
 This list will be continually updated so keep checking back regularly for more supported devices.
