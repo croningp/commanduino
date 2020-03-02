@@ -49,6 +49,9 @@ add_to_bonjour_register('SHT31', CommandSHT31)
 from .commanddallas import CommandDallas
 add_to_bonjour_register('DALLAS', CommandDallas)
 
+# virtual
+from .commandvirtual import CommandVirtual
+
 # automated way, seems to only works in develop mode :(
 
 # import os
