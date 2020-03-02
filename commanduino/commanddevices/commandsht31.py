@@ -37,13 +37,11 @@ class CommandSHT31(CommandDevice):
             self.handle_humidity_command)
 
     def handle_celsius_command(self, *arg):
-        print(str(arg))
         if arg[0]:
             self.celsius = float(arg[0])
             self.celsius_lock.ensure_released()
 
     def handle_humidity_command(self, *arg):
-        print(str(arg))
         if arg[0]:
             self.humidity = float(arg[0])
             self.humidity_lock.ensure_released()
