@@ -39,18 +39,18 @@ void loop() {
       cmdHdl.initCmd();
       cmdHdl.addCmdString("PRESS");
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonState);
+      cmdHdl.addCmdInt(buttonState);
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonPushCounter);
+      cmdHdl.addCmdInt(buttonPushCounter);
       cmdHdl.addCmdTerm();
       cmdHdl.sendCmdSerial();
     } else {
       cmdHdl.initCmd();
       cmdHdl.addCmdString("RELEASE");
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonState);
+      cmdHdl.addCmdInt(buttonState);
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonPushCounter);
+      cmdHdl.addCmdInt(buttonPushCounter);
       cmdHdl.addCmdTerm();
       cmdHdl.sendCmdSerial();
     }
@@ -64,7 +64,7 @@ void sendCurrentState() {
   cmdHdl.initCmd();
   cmdHdl.addCmdString("STATE");
   cmdHdl.addCmdDelim();
-  cmdHdl.addCmdInt32(buttonState);
+  cmdHdl.addCmdInt(buttonState);
   cmdHdl.addCmdTerm();
   cmdHdl.sendCmdSerial();
 }
@@ -73,7 +73,7 @@ void sendNumberOfPush() {
   cmdHdl.initCmd();
   cmdHdl.addCmdString("NPUSH");
   cmdHdl.addCmdDelim();
-  cmdHdl.addCmdInt32(buttonPushCounter);
+  cmdHdl.addCmdInt(buttonPushCounter);
   cmdHdl.addCmdTerm();
   cmdHdl.sendCmdSerial();
 }
