@@ -7,6 +7,7 @@
 
 """
 from .commandhandler import SerialCommandHandler
+from .commandhandler import TCPIPCommandHandler
 
 from .commanddevices.register import create_and_setup_device
 from .commanddevices.register import DEFAULT_REGISTER
@@ -41,7 +42,7 @@ class CommandManager(object):
     Manages varying amounts of Command Handler objects.
 
     Args:
-        serialcommand_configs (Tuple): Collection of serial command configurations.
+        command_configs (Tuple): Collection of command configurations.
 
         devices_dict (Dict): Dictionary containing the list of devices.
 
@@ -56,19 +57,19 @@ class CommandManager(object):
 
         InitError: CommandManager on port was not initialised.
     """
-    def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
+    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
         self.logger = create_logger(self.__class__.__name__)
 
         self.initialised = False
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
 
-        self.serialcommandhandlers = []
-        for idx, config in enumerate(serialcommand_configs):
+        self.commandhandlers = []
+        for _, config in enumerate(command_configs):
             try:
-                cmdHdl = SerialCommandHandler.from_config(config)
-                cmdHdl.add_default_handler(self.unrecognized)
-                cmdHdl.start()
+                handler = SerialCommandHandler.from_config(config)
+                handler.add_default_handler(self.unrecognized)
+                handler.start()
             except (SerialException, OSError):
                 if 'required' in config and config['required'] is True:
                     self.logger.error(f"Port {config['port']} was not found and it is required! Aborting...")
@@ -77,11 +78,11 @@ class CommandManager(object):
                     self.logger.warning(f"Port {config['port']} was not found")
                     continue
             try:
-                elapsed = self.wait_serial_device_for_init(cmdHdl)
-                self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=cmdHdl._serial.port, init_time=round(elapsed, 3)))
+                elapsed = self.wait_device_for_init(handler)
+                self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=handler._serial.port, init_time=round(elapsed, 3)))
             except InitError:
-                self.logger.warning('CommandManager on port "{port}" has not initialized'.format(port=cmdHdl._serial.port))
-            self.serialcommandhandlers.append(cmdHdl)
+                self.logger.warning('CommandManager on port "{port}" has not initialized'.format(port=handler._serial.port))
+            self.commandhandlers.append(handler)
 
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
@@ -107,29 +108,29 @@ class CommandManager(object):
         if arg[0] and bool(int(arg[0])):
             self.init_lock.ensure_released()
 
-    def request_init(self, serialcommandhandler):
+    def request_init(self, handler):
         """
-        Requests initialisation over serial communication.
+        Requests initialisation over communication link.
 
         Args:
-            serialcommandhandler (SerialCommandHandler): Serial Command Handler object for communication.
+            handler (CommandHandler): Command Handler object for communication.
 
         """
-        serialcommandhandler.send(COMMAND_IS_INIT)
+        handler.send(COMMAND_IS_INIT)
 
-    def request_and_wait_for_init(self, serialcommandhandler):
+    def request_and_wait_for_init(self, handler):
         """
         Requests initialisation and waits until it obtains a threading lock.
 
         Args:
-            serialcommandhandler (SerialCommandHandler): Serial Command Handler object for communication.
+            cmdh (CommandHandler): Command Handler object for communication.
 
         """
         start_time = time.time()
 
         self.init_lock.acquire()
-        for i in range(self.init_n_repeats):
-            self.request_init(serialcommandhandler)
+        for _ in range(self.init_n_repeats):
+            self.request_init(handler)
             is_init, _ = self.init_lock.wait_until_released()
             if is_init:
                 break
@@ -138,12 +139,12 @@ class CommandManager(object):
         elapsed = time.time() - start_time
         return is_init, elapsed
 
-    def wait_serial_device_for_init(self, cmdHdl):
+    def wait_device_for_init(self, handler):
         """
-        Waits for initialisation using serial communication.
+        Waits for initialisation using communication link.
 
         Args:
-            cmdHdl (CommandHandler): CommandHandler object to add/remove commands.
+            handler (CommandHandler): Command Handler object to add/remove commands.
 
         Returns:
             elapsed (float): Time waited for initialisation.
@@ -152,14 +153,14 @@ class CommandManager(object):
             InitError: CommandManager on the port was not initialised.
 
         """
-        self.logger.debug('Waiting for init on port "{port}"...'.format(port=cmdHdl._serial.port))
+        self.logger.debug('Waiting for init on port "{port}"...'.format(port=handler._serial.port))
 
-        cmdHdl.add_command(COMMAND_INIT, self.handle_init)
-        is_init, elapsed = self.request_and_wait_for_init(cmdHdl)
-        cmdHdl.remove_command(COMMAND_INIT, self.handle_init)
+        handler.add_command(COMMAND_INIT, self.handle_init)
+        is_init, elapsed = self.request_and_wait_for_init(handler)
+        handler.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed
-        raise InitError(cmdHdl._serial.port)
+        raise InitError(handler._serial.port)
 
     # removing all stuff related to reset because it does not compile on all boards
     # def send_reset(self, serialcommandhandler):
@@ -209,14 +210,14 @@ class CommandManager(object):
             device_config = {}
 
         try:
-            bonjour_service = CommandBonjour(self.serialcommandhandlers)
-            cmdHdl, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
+            bonjour_service = CommandBonjour(self.commandhandlers)
+            handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
             self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
             try:
-                device = create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config)
+                device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
                 self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
             except DeviceRegisterError:
-                device = create_and_setup_device(cmdHdl, command_id, DEFAULT_REGISTER, device_config)
+                device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
                 self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
             self.devices[device_name] = device
 
@@ -234,9 +235,9 @@ class CommandManager(object):
             config (Dict): Dictionary containing the configuration data.
 
         """
-        serialcommand_configs = config['ios']
+        command_configs = config['ios']
         devices = config['devices']
-        return cls(serialcommand_configs, devices)
+        return cls(command_configs, devices)
 
     @classmethod
     def from_configfile(cls, configfile):
@@ -267,13 +268,13 @@ class CommandManager(object):
 
 
 class VirtualCommandManager(CommandManager):
-    def __init__(self, serialcommand_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
+    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
         self.logger = create_logger(self.__class__.__name__)
 
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
 
-        self.serialcommandhandlers = []
+        self.commandhandlers = []
         self.initialised = True
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
@@ -311,6 +312,7 @@ class InitError(Exception):
     """
     def __init__(self, port):
         self.port = port
+        super().__init__()
 
     def __str__(self):
         return 'Manager on port {self.port} did not initialize'.format(self=self)
@@ -321,15 +323,15 @@ class CommandBonjour(object):
     Represents a Command Manager for Bonjour devices.
 
     Args:
-        serialcommandhandlers: Collection of SerialCommandHandler objects.
+        commandhandlers: Collection of CommandHandler objects.
 
         timeout (float): Time to wait before timeout, default set to DEFAULT_BONJOUR_TIMEOUT (0.1)
 
     """
-    def __init__(self, serialcommandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
+    def __init__(self, commandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
         self.logger = create_logger(self.__class__.__name__)
 
-        self.serialcommandhandlers = serialcommandhandlers
+        self.commandhandlers = commandhandlers
         self.lock = Lock(timeout)
         self.init_bonjour_info()
 
@@ -352,26 +354,26 @@ class CommandBonjour(object):
             self.device_bonjour_id_valid = True
             self.lock.ensure_released()
 
-    def send_bonjour(self, serialcommandhandler, command_id):
+    def send_bonjour(self, handler, command_id):
         """
         Sends a message to the device.
 
         .. todo:: Fix this up
 
         Args:
-            serialcommandhandler (SerialCommandHandler): The Serial Command Handler object.
+            handler (CommandHandler): The Command Handler object.
 
             command_id (str): The ID of the command.
 
         """
-        serialcommandhandler.send(command_id, COMMAND_BONJOUR)
+        handler.send(command_id, COMMAND_BONJOUR)
 
-    def get_bonjour_id(self, serialcommandhandler, command_id):
+    def get_bonjour_id(self, handler, command_id):
         """
         Obtains the device's bonjour ID.
 
         Args:
-            serialcommandhandler (SerialCommandHandler): The Serial Command Handler object.
+            handler (CommandHandler): The Command Handler object.
 
             command_id (str): The ID of the command.
 
@@ -385,7 +387,7 @@ class CommandBonjour(object):
         """
         self.lock.acquire()
         self.init_bonjour_info()
-        self.send_bonjour(serialcommandhandler, command_id)
+        self.send_bonjour(handler, command_id)
         is_valid, elapsed = self.lock.wait_until_released()
         self.lock.ensure_released()
         return self.device_bonjour_id, is_valid, elapsed
@@ -398,23 +400,23 @@ class CommandBonjour(object):
             command_id (str): The ID of the command.
 
         Returns:
-            cmdHdl (SerialCommandHandler): The Serial Command Handler.
+            handler (CommandHandler): TheCommand Handler object.
 
             bonjour_id (str): The Bonjour ID.
 
             elapsed (float): Time elapsed since request.
 
         """
-        for cmdHdl in self.serialcommandhandlers:
-            self.logger.debug('Scanning for "{id}" on port "{port}"...'.format(id=command_id, port=cmdHdl._serial.port))
+        for handler in self.commandhandlers:
+            self.logger.debug('Scanning for "{id}" on port "{port}"...'.format(id=command_id, port=handler._serial.port))
 
-            cmdHdl.add_relay(command_id, cmdHdl.handle)
-            cmdHdl.add_command(COMMAND_BONJOUR, self.handle_bonjour)
-            bonjour_id, is_valid, elapsed = self.get_bonjour_id(cmdHdl, command_id)
-            cmdHdl.remove_command(COMMAND_BONJOUR, self.handle_bonjour)
-            cmdHdl.remove_relay(command_id, cmdHdl.handle)
+            handler.add_relay(command_id, handler.handle)
+            handler.add_command(COMMAND_BONJOUR, self.handle_bonjour)
+            bonjour_id, is_valid, elapsed = self.get_bonjour_id(handler, command_id)
+            handler.remove_command(COMMAND_BONJOUR, self.handle_bonjour)
+            handler.remove_relay(command_id, handler.handle)
             if is_valid:
-                return cmdHdl, bonjour_id, elapsed
+                return handler, bonjour_id, elapsed
         raise BonjourError(command_id)
 
 
@@ -424,6 +426,7 @@ class BonjourError(Exception):
     """
     def __init__(self, command_id):
         self.command_id = command_id
+        super().__init__()
 
     def __str__(self):
         return '{self.command_id} seems to not be existing/available'.format(self=self)
