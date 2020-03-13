@@ -9,6 +9,7 @@
 """
 import time
 import serial
+import socket
 import threading
 
 from ._logger import create_logger
@@ -419,3 +420,153 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         """
         while not self.interrupted.locked():
             time.sleep(sleep_time)
+
+
+class TCPIPCommandHandler(threading.Thread, CommandHandler):
+    """
+    Represents the Command Handler which will handle commands to/from the Arduino hardware via TCP/IP socket.
+
+    Args:
+        port (str): The TCP/UDP port to communicate over.
+
+        address (str): The IP address of the device.
+
+        protocol (str): Either tcp or udp, default set to TCP.
+
+        timeout (float): The time to wait for timeout, default set to DEFAULT_TIMEOUT (0.01)
+
+        delim (chr): The delimiting character of a command, default set to DEFAULT_DELIM (',')
+
+        term (chr): The terminal character of a command, default set to DEFAULT_TERM (';')
+
+        cmd_decimal (int): The decimal of the command, default set to DEFAULT_CMD_DECIMAL (2)
+
+    """
+    def __init__(self, port, address, protocol="TCP", timeout=DEFAULT_TIMEOUT, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.interrupted = threading.Event()
+        self.interrupted.clear()
+
+        self.logger = create_logger(self.__class__.__name__)
+
+        CommandHandler.__init__(self, delim, term, cmd_decimal)
+
+        self._connection = None
+
+        self.open(port, address, protocol.upper(), timeout)
+
+    def open(self, port, address, protocol, timeout):
+        """
+        Opens the TCP/IP communication between the PC and Arduino board.
+
+        Args:
+            port (str): The port to communicate over.
+
+            address (str): The IP address of the device.
+
+            protocol (str): Protocol to use - TCP or UDP
+
+            timeout (float): The time to wait for timeout.
+
+        """
+        self.logger.debug('Opening connection to %s:%s (%s)', address, port, protocol)
+
+        try:
+            if protocol == "TCP":
+                self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            elif protocol == "UDP":
+                self._connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            else:
+                raise ValueError("Unknown transport layer protocol <{}> provided!".format(protocol))
+            self._connection.connect((address, int(port)))
+            # Receive timeout in seconds.
+            # This has to be done after opening the connection to avoid connect() error on non-blocking socket
+            self._connection.settimeout(timeout)
+        except TimeoutError as e:
+            raise RuntimeError("Remote host doesn't respond!") from e
+        except (OSError, TypeError) as e:
+            raise RuntimeError("Can't open socket!") from e
+
+    def close(self):
+        """
+        Closes the communication between the PC and Arduino board.
+        """
+        self._connection.close()
+        self.logger.debug("Connection closed.")
+
+    def __del__(self):
+        """
+        Closes the serial communication between the PC and Arduino board.
+        """
+        self.close()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Closes the serial communication between the PC and Arduino Board, due to an exception occurrence.
+
+        Args:
+            exc_type (str): The exception type.
+
+            exc_value: The value of the exception.
+
+            traceback (str): The position in the code where the exception occurred.
+
+        """
+        self.close()
+
+    def stop(self):
+        """
+        Releases the lock when signalled via an interrupt.
+        """
+        self.interrupted.set()
+
+    def run(self):
+        """
+        Starts the Handler processing commands.
+        """
+        while not self.interrupted.is_set():
+            self.process_data()
+        self.close()
+
+    def send(self, command_id, *arg):
+        """
+        Sends a command over the TCP/IP connection.
+
+        Args:
+            command_id (str): The ID of the command.
+
+            *arg: Variable argument.
+
+        """
+        self.write(self.forge_command(command_id, *arg))
+
+    def write(self, msg):
+        """
+        Writes raw data into the socket.
+
+        Args:
+            msg (str): The message to send.
+
+        """
+        self.logger.debug('Sending "%s" to "%s"', msg, self._connection.getpeername())
+        self._connection.send(msg.encode())
+
+    def process_data(self):
+        """
+        Gets the data from socket to be processed.
+        """
+        try:
+            self.process_char(self._connection.recv(1))
+        except socket.timeout:
+            pass
+
+    def wait_until_running(self):
+        """
+        Waits until the current thread is running.
+
+        Args:
+            sleep_time (float): The time to wait for, default set to 0.01
+
+        """
+        self.interrupted.wait()

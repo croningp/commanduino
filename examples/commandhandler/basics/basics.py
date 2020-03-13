@@ -1,20 +1,20 @@
-from commanduino.commandhandler import SerialCommandHandler
+from commanduino.commandhandler import (SerialCommandHandler, TCPIPCommandHandler)
 
 
 def defaultPrint(cmd):
     print(cmd)
 
 
-cmdHdl = SerialCommandHandler('/dev/ttyACM0')
-cmdHdl.add_default_handler(defaultPrint)
+#cmdHdl = SerialCommandHandler(port="COM3")
+cmdHdl = TCPIPCommandHandler(port="5000", address="192.168.1.80")
 cmdHdl.start()
 
-quit = False
+q = False
 while not quit:
     msg = input()
     if msg == "QUIT":
         isRunning = False
-        quit = True
+        q = True
     else:
         cmdHdl.write(msg)
 
