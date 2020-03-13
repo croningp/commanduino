@@ -41,6 +41,32 @@ class CommandHandler(object):
         cmd_decimal (int): Decimal of the command, default set to DEFAULT_CMD_DECIMAL(2)
 
     """
+
+    @classmethod
+    def from_config(cls, serialcommand_config):
+        """
+        Obtains the details of the handler from a configuration.
+
+        Args:
+            cls (Class): THe instantiating class.
+
+            serialcommand_config (Dict): Dictionary containing the configuration details.
+
+        Returns:
+            SerialCommandHandler: New SerialCommandHandler object with details set from a configuration setup.
+
+        """
+        port = serialcommand_config['port']
+
+        optionals = ['baudrate', 'timeout', 'delim', 'term']
+
+        kwargs = {}
+        for key in optionals:
+            if key in serialcommand_config:
+                kwargs[key] = serialcommand_config[key]
+
+        return cls(port, **kwargs)
+
     def __init__(self, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL):
         self.logger = create_logger(self.__class__.__name__)
 
@@ -84,16 +110,6 @@ class CommandHandler(object):
         """
         for a_char in a_string:
             self.process_char(a_char)
-
-    def process_serial(self, a_serial):
-        """
-        Processes the serial communication to obtain data to be processed.
-
-        Args:
-            a_serial (int): The serial to read from.
-
-        """
-        self.process_char(a_serial.read(1))
 
     def handle(self, cmd):
         """
@@ -299,31 +315,6 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
 
         self.open(port, baudrate, timeout)
 
-    @classmethod
-    def from_config(cls, serialcommand_config):
-        """
-        Obtains the details of the handler from a configuration.
-
-        Args:
-            cls (Class): THe instantiating class.
-
-            serialcommand_config (Dict): Dictionary containing the configuration details.
-
-        Returns:
-            SerialCommandHandler: New SerialCommandHandler object with details set from a configuration setup.
-
-        """
-        port = serialcommand_config['port']
-
-        optionals = ['baudrate', 'timeout', 'delim', 'term']
-
-        kwargs = {}
-        for key in optionals:
-            if key in serialcommand_config:
-                kwargs[key] = serialcommand_config[key]
-
-        return cls(port, **kwargs)
-
     def open(self, port, baudrate, timeout):
         """
         Opens the serial communication between the PC and Arduino board.
@@ -407,6 +398,16 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         """
         self.logger.debug('Sending "{}" on port "{}"'.format(msg, self._serial.port))
         self._serial.write(msg.encode())
+
+    def process_serial(self, a_serial):
+        """
+        Processes the serial communication to obtain data to be processed.
+
+        Args:
+            a_serial (int): The serial to read from.
+
+        """
+        self.process_char(a_serial.read(1))
 
     def wait_until_running(self, sleep_time=0.01):
         """
