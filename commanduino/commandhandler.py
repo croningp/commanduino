@@ -44,32 +44,26 @@ class CommandHandler(object):
     """
 
     @classmethod
-    def from_config(cls, serialcommand_config):
+    def from_config(cls, config):
         """
         Obtains the details of the handler from a configuration.
 
         Args:
             cls (Class): THe instantiating class.
 
-            serialcommand_config (Dict): Dictionary containing the configuration details.
+            config (Dict): Dictionary containing the configuration details.
 
         Returns:
             SerialCommandHandler: New SerialCommandHandler object with details set from a configuration setup.
 
         """
-        port = serialcommand_config['port']
+        return cls(**config)
 
-        optionals = ['baudrate', 'timeout', 'delim', 'term']
-
-        kwargs = {}
-        for key in optionals:
-            if key in serialcommand_config:
-                kwargs[key] = serialcommand_config[key]
-
-        return cls(port, **kwargs)
-
-    def __init__(self, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL):
+    def __init__(self, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL, **kwargs):
         self.logger = create_logger(self.__class__.__name__)
+
+        # Something descriptive to reference the handler in logs.
+        self.name = self.__class__.__name__
 
         self.delim = delim  # character separating args in a message
         self.term = term  # character ending a message
@@ -313,7 +307,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         self.logger = create_logger(self.__class__.__name__)
 
         CommandHandler.__init__(self, delim, term, cmd_decimal)
-
+        self.name = port
         self.open(port, baudrate, timeout)
 
     def open(self, port, baudrate, timeout):
@@ -451,6 +445,8 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         self.logger = create_logger(self.__class__.__name__)
 
         CommandHandler.__init__(self, delim, term, cmd_decimal)
+
+        self.name = address + ":" + port
 
         self._connection = None
 

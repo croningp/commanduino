@@ -12,7 +12,7 @@ int lastButtonState = 0;     // previous state of the button
 
 void setup() {
   // initialize the button pin as a input:
-  pinMode(buttonPin, INPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
 
   // initialize serial communication:
   Serial.begin(115200);
@@ -55,7 +55,7 @@ void loop() {
       cmdHdl.sendCmdSerial();
     }
     // Delay a little bit to avoid bouncing
-    delay(50);
+    delay(100);
   }
   lastButtonState = buttonState;
 }
