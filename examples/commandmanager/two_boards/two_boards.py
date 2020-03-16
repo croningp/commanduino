@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 # in your two board please load the arduino example OF:
 # - CommandServo
 # - CommandLinearAccelStepper
-cmdMng = CommandManager.from_configfile('./two_boards.json')
+cmdMng = CommandManager.from_configfile('./examples/commandmanager/two_boards/two_boards.json')
 
 s1 = cmdMng.devices['servo1']
 s2 = cmdMng.devices['servo2']
