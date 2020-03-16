@@ -66,22 +66,34 @@ class CommandManager(object):
 
         self.commandhandlers = []
         for _, config in enumerate(command_configs):
+            if "type" in config:
+                handler_type = config["type"]
+                config.pop("type")
+            else:
+                self.logger.warning("No command handler type provided in configuration. Falling back to serial.")
+                handler_type = "serial"
+            device_name = config.get("address", "") + ":" + config.get("port", "")
             try:
-                handler = SerialCommandHandler.from_config(config)
+                if handler_type == "serial":
+                    handler = SerialCommandHandler.from_config(config)
+                    self.logger.info("Created serial-based command handler for %s.", device_name)
+                elif handler_type == "tcpip":
+                    handler = TCPIPCommandHandler.from_config(config)
+                    self.logger.info("Created socket-based command handler for %s.", device_name)
                 handler.add_default_handler(self.unrecognized)
                 handler.start()
-            except (SerialException, OSError):
+            except (SerialException, OSError, TypeError):
                 if 'required' in config and config['required'] is True:
-                    self.logger.error(f"Port {config['port']} was not found and it is required! Aborting...")
+                    self.logger.error("I/O device %s (type %s) was not found and it is required! Aborting...", device_name, handler_type)
                     sys.exit(1)
                 else:
-                    self.logger.warning(f"Port {config['port']} was not found")
+                    self.logger.warning("I/O device %s (type %s) was not found", device_name, handler_type)
                     continue
             try:
                 elapsed = self.wait_device_for_init(handler)
-                self.logger.info('Found CommandManager on port "{port}", init time was {init_time} seconds'.format(port=handler._serial.port, init_time=round(elapsed, 3)))
+                self.logger.info('Found CommandManager at %s, init time was %s seconds', device_name,  round(elapsed, 3))
             except InitError:
-                self.logger.warning('CommandManager on port "{port}" has not initialized'.format(port=handler._serial.port))
+                self.logger.warning('CommandManager at %s has not initialized', device_name)
             self.commandhandlers.append(handler)
 
         self.register_all_devices(devices_dict)
@@ -153,14 +165,14 @@ class CommandManager(object):
             InitError: CommandManager on the port was not initialised.
 
         """
-        self.logger.debug('Waiting for init on port "{port}"...'.format(port=handler._serial.port))
+        self.logger.debug('Waiting for device at %s to init...', handler.name)
 
         handler.add_command(COMMAND_INIT, self.handle_init)
         is_init, elapsed = self.request_and_wait_for_init(handler)
         handler.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed
-        raise InitError(handler._serial.port)
+        raise InitError(handler.name)
 
     # removing all stuff related to reset because it does not compile on all boards
     # def send_reset(self, serialcommandhandler):
@@ -310,12 +322,12 @@ class InitError(Exception):
     """
     Exception for when the manager fails to initialise.
     """
-    def __init__(self, port):
-        self.port = port
+    def __init__(self, addr):
+        self.addr = addr
         super().__init__()
 
     def __str__(self):
-        return 'Manager on port {self.port} did not initialize'.format(self=self)
+        return (f"Manager at {self.addr} did not initialize.")
 
 
 class CommandBonjour(object):
@@ -408,7 +420,7 @@ class CommandBonjour(object):
 
         """
         for handler in self.commandhandlers:
-            self.logger.debug('Scanning for "{id}" on port "{port}"...'.format(id=command_id, port=handler._serial.port))
+            self.logger.debug('Scanning for "%s" at "%s"...', command_id, handler.name)
 
             handler.add_relay(command_id, handler.handle)
             handler.add_command(COMMAND_BONJOUR, self.handle_bonjour)

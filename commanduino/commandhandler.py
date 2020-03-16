@@ -480,9 +480,9 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
             # This has to be done after opening the connection to avoid connect() error on non-blocking socket
             self._connection.settimeout(timeout)
         except TimeoutError as e:
-            raise RuntimeError("Remote host doesn't respond!") from e
+            raise OSError("Remote host doesn't respond!") from e
         except (OSError, TypeError) as e:
-            raise RuntimeError("Can't open socket!") from e
+            raise OSError("Can't open socket!") from e
 
     def close(self):
         """
