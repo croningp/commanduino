@@ -4,7 +4,7 @@ from commanduino import CommandManager
 
 logging.basicConfig(level=logging.INFO)
 
-cmdMng = CommandManager.from_configfile('./demo.json')
+cmdMng = CommandManager.from_configfile('./examples/commanddevices/commandanalogread/demo.json')
 
 
 for i in range(10):

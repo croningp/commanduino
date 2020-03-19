@@ -1,2 +1,3 @@
 *.pyc
 commanduino.egg-info
+.vscode/*

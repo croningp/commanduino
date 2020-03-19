@@ -4,7 +4,7 @@ from commanduino import CommandManager
 
 logging.basicConfig(level=logging.INFO)
 
-cmdMng = CommandManager.from_configfile('./demo.json')
+cmdMng = CommandManager.from_configfile('./examples/commanddevices/commandsht1x/demo.json')
 
 for i in range(10):
     F = cmdMng.sht15.get_fahrenheit()

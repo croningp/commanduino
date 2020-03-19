@@ -12,7 +12,7 @@ int lastButtonState = 0;     // previous state of the button
 
 void setup() {
   // initialize the button pin as a input:
-  pinMode(buttonPin, INPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
 
   // initialize serial communication:
   Serial.begin(115200);
@@ -39,23 +39,23 @@ void loop() {
       cmdHdl.initCmd();
       cmdHdl.addCmdString("PRESS");
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonState);
+      cmdHdl.addCmdInt(buttonState);
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonPushCounter);
+      cmdHdl.addCmdInt(buttonPushCounter);
       cmdHdl.addCmdTerm();
       cmdHdl.sendCmdSerial();
     } else {
       cmdHdl.initCmd();
       cmdHdl.addCmdString("RELEASE");
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonState);
+      cmdHdl.addCmdInt(buttonState);
       cmdHdl.addCmdDelim();
-      cmdHdl.addCmdInt32(buttonPushCounter);
+      cmdHdl.addCmdInt(buttonPushCounter);
       cmdHdl.addCmdTerm();
       cmdHdl.sendCmdSerial();
     }
     // Delay a little bit to avoid bouncing
-    delay(50);
+    delay(100);
   }
   lastButtonState = buttonState;
 }
@@ -64,7 +64,7 @@ void sendCurrentState() {
   cmdHdl.initCmd();
   cmdHdl.addCmdString("STATE");
   cmdHdl.addCmdDelim();
-  cmdHdl.addCmdInt32(buttonState);
+  cmdHdl.addCmdInt(buttonState);
   cmdHdl.addCmdTerm();
   cmdHdl.sendCmdSerial();
 }
@@ -73,7 +73,7 @@ void sendNumberOfPush() {
   cmdHdl.initCmd();
   cmdHdl.addCmdString("NPUSH");
   cmdHdl.addCmdDelim();
-  cmdHdl.addCmdInt32(buttonPushCounter);
+  cmdHdl.addCmdInt(buttonPushCounter);
   cmdHdl.addCmdTerm();
   cmdHdl.sendCmdSerial();
 }

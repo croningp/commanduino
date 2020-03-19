@@ -1,0 +1,19 @@
+{
+  "ios" : [
+    {
+      "type": "serial",
+      "port": "COM3"
+    }
+  ],
+  "devices": {
+    "pin1": {
+      "command_id": "P1"
+    },
+    "pin2": {
+      "command_id": "P2"
+    },
+    "pin3": {
+      "command_id": "P3"
+    }
+  }
+}
