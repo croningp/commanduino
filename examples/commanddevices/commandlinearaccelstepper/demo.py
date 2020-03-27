@@ -5,7 +5,7 @@ from commanduino import CommandManager
 logging.basicConfig(level=logging.INFO)
 
 
-cmdMng = CommandManager.from_configfile('./demo.json')
+cmdMng = CommandManager.from_configfile('./examples/commanddevices/commandlinearaccelstepper/demo.json')
 
 stepper = cmdMng.stepper
 
