@@ -197,7 +197,7 @@ class CommandManager(object):
 
         """
         self.devices = {}
-        for device_name, device_info in list(devices_dict.items()):
+        for device_name, device_info in devices_dict.items():
             self.register_device(device_name, device_info)
 
     def register_device(self, device_name, device_info):
@@ -215,7 +215,17 @@ class CommandManager(object):
             BonjourError: Device has not been found.
 
         """
-        command_id = device_info['command_id']
+
+        # First, check that device config dict has command_id
+        try:
+            command_id = device_info['command_id']
+        except KeyError:
+            self.logger.error("Device '%s' missing a command_id entry!", device_name)
+            return None
+        # Command ID must not be empty
+        if command_id == "":
+            self.logger.error("Device '%s' has empty command_id entry!", device_name)
+            return None
         if 'config' in device_info:
             device_config = device_info['config']
         else:
