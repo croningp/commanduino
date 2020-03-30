@@ -225,6 +225,7 @@ class CommandManager(object):
         # Command ID must not be empty
         if command_id == "":
             self.logger.error("Device '%s' has empty command_id entry!", device_name)
+            return None
         if 'config' in device_info:
             device_config = device_info['config']
         else:
