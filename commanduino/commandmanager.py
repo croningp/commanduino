@@ -68,6 +68,8 @@ class CommandManager(object):
         for config_entry in command_configs:
             # Create handler from config & initialize device
             self.add_command_handler(config_entry)
+
+        self.devices = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
@@ -247,7 +249,6 @@ class CommandManager(object):
             devices_dict (Dict): Dictionary containing all devices.
 
         """
-        self.devices = {}
         for device_name, device_info in devices_dict.items():
             self.register_device(device_name, device_info)
 
