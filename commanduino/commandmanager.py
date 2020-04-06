@@ -145,10 +145,7 @@ class CommandManager(object):
         for name, dev in self.devices.copy().items():
             if handler_to_remove is dev.write.__self__:
                 self.logger.info("Removing dependent device %s", name)
-                # Remove device attribute
-                delattr(self, name)
-                # Remove reference from device list
-                self.devices.pop(name)
+                self.unregister_device(name)
         # Remove handler
         self.logger.info("Removing command handler...")
         self.commandhandlers.remove(handler_to_remove)
@@ -297,6 +294,15 @@ class CommandManager(object):
 
         except BonjourError:
             self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
+
+    def unregister_device(self, device_name):
+        """
+        Removes device attribute & reference from devices dictionary
+        """
+        # Remove device attribute from self
+        delattr(self, device_name)
+        # Remove reference from device list
+        self.devices.pop(device_name)
 
     @classmethod
     def from_config(cls, config):
