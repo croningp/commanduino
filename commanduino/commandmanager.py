@@ -82,20 +82,23 @@ class CommandManager(object):
             handler_config (Dict): Handler configuration dictionary.
         """
         handler = None
+        # Make a copy not to mutate original dict - might be re-used
+        # by upper-level code for object re-creation.
+        handler_config = handler_config.copy()
         # Check if type is present, if not - log and fall back to serial
         # for backwards compatibility reasons.
         if "type" in handler_config:
             handler_type = handler_config["type"]
             # Remove connection type from config dict copy - not needed any more
-            # Copying is needed not to mutate original dict - might be re-used
-            # by upper-level code for object re-creation.
-            handler_config = handler_config.copy()
             handler_config.pop("type")
         else:
             self.logger.warning("No command handler type provided in configuration. Falling back to serial.")
             handler_type = "serial"
         # Get full name - for use in logging
         device_name = handler_config.get("address", "") + ":" + handler_config.get("port", "")
+        # Check if handler is required & remove the key from dict
+        required = handler_config.get("required", False)
+        handler_config.pop("required", None)
         try:
             if handler_type == "serial":
                 handler = SerialCommandHandler.from_config(handler_config)
@@ -106,7 +109,7 @@ class CommandManager(object):
             handler.add_default_handler(self.unrecognized)
             handler.start()
         except (SerialException, OSError, TypeError) as e:
-            if 'required' in handler_config and handler_config['required'] is True:
+            if required:
                 self.logger.error("I/O device %s (type %s) was not found and it is required! Aborting...", device_name, handler_type)
                 self.logger.error("Additional error message: %s", e)
                 sys.exit(1)
