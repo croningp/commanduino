@@ -49,6 +49,10 @@ add_to_bonjour_register('SHT31', CommandSHT31)
 from .commanddallas import CommandDallas
 add_to_bonjour_register('DALLAS', CommandDallas)
 
+# PCA9548A I2C multiplexer
+from .commandpca9548a import CommandPCA9548A
+add_to_bonjour_register('PCA9548A', CommandPCA9548A)
+
 # virtual
 from .commandvirtual import CommandVirtual
 
