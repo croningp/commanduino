@@ -46,7 +46,7 @@ class CommandManager(object):
 
         devices_dict (Dict): Dictionary containing the list of devices.
 
-        init_timeout (int): Initialisation timeout, default se tto DEFAULT_INIT_TIMEOUT (1).
+        init_timeout (int): Initialisation timeout, default set to DEFAULT_INIT_TIMEOUT (1).
 
         init_n_repeats (int): Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).
 
@@ -65,40 +65,93 @@ class CommandManager(object):
         self.init_lock = Lock(init_timeout)
 
         self.commandhandlers = []
-        for _, config in enumerate(command_configs):
-            if "type" in config:
-                handler_type = config["type"]
-                config.pop("type")
-            else:
-                self.logger.warning("No command handler type provided in configuration. Falling back to serial.")
-                handler_type = "serial"
-            device_name = config.get("address", "") + ":" + config.get("port", "")
-            try:
-                if handler_type == "serial":
-                    handler = SerialCommandHandler.from_config(config)
-                    self.logger.info("Created serial-based command handler for %s.", device_name)
-                elif handler_type == "tcpip":
-                    handler = TCPIPCommandHandler.from_config(config)
-                    self.logger.info("Created socket-based command handler for %s.", device_name)
-                handler.add_default_handler(self.unrecognized)
-                handler.start()
-            except (SerialException, OSError, TypeError):
-                if 'required' in config and config['required'] is True:
-                    self.logger.error("I/O device %s (type %s) was not found and it is required! Aborting...", device_name, handler_type)
-                    sys.exit(1)
-                else:
-                    self.logger.warning("I/O device %s (type %s) was not found", device_name, handler_type)
-                    continue
-            try:
-                elapsed = self.wait_device_for_init(handler)
-                self.logger.info('Found CommandManager at %s, init time was %s seconds', device_name,  round(elapsed, 3))
-            except InitError:
-                self.logger.warning('CommandManager at %s has not initialized', device_name)
-            self.commandhandlers.append(handler)
+        for config_entry in command_configs:
+            # Create handler from config & initialize device
+            self.add_command_handler(config_entry)
 
+        self.devices = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
+
+    def add_command_handler(self, handler_config):
+        """Creates command handler from the configuration dictionary, tests connection
+        and appends instance to self.commandhandlers
+
+        Args:
+            handler_config (Dict): Handler configuration dictionary.
+        """
+        handler = None
+        # Make a copy not to mutate original dict - might be re-used
+        # by upper-level code for object re-creation.
+        handler_config = handler_config.copy()
+        # Check if type is present, if not - log and fall back to serial
+        # for backwards compatibility reasons.
+        if "type" in handler_config:
+            handler_type = handler_config["type"]
+            # Remove connection type from config dict copy - not needed any more
+            handler_config.pop("type")
+        else:
+            self.logger.warning("No command handler type provided in configuration. Falling back to serial.")
+            handler_type = "serial"
+        # Get full name - for use in logging
+        device_name = handler_config.get("address", "") + ":" + handler_config.get("port", "")
+        # Check if handler is required & remove the key from dict
+        required = handler_config.get("required", False)
+        handler_config.pop("required", None)
+        try:
+            if handler_type == "serial":
+                handler = SerialCommandHandler.from_config(handler_config)
+                self.logger.info("Created serial-based command handler for %s.", device_name)
+            elif handler_type == "tcpip":
+                handler = TCPIPCommandHandler.from_config(handler_config)
+                self.logger.info("Created socket-based command handler for %s.", device_name)
+            handler.add_default_handler(self.unrecognized)
+            handler.start()
+        except (SerialException, OSError, TypeError) as e:
+            if required:
+                self.logger.error("I/O device %s (type %s) was not found and it is required! Aborting...", device_name, handler_type)
+                self.logger.error("Additional error message: %s", e)
+                sys.exit(1)
+            else:
+                self.logger.warning("I/O device %s (type %s) was not found", device_name, handler_type)
+                self.logger.warning("Additional error message: %s", e)
+
+        # Initialize device
+        if handler is not None:
+            try:
+                elapsed = self.wait_device_for_init(handler)
+                self.logger.info('Found Arduino CommandManager at %s, init time was %s seconds', device_name, round(elapsed, 3))
+            except InitError:
+                self.logger.warning('Arduino CommandManager at %s has not initialized', device_name)
+                return
+            # Update handlers list
+            self.commandhandlers.append(handler)
+
+    def remove_command_handler(self, handler_to_remove):
+        """
+        Deletes the command handler object & removes a reference to it from
+        class dictionary. Then deletes the devices bound to the handler being deleted.
+
+        The method to detect which devices depend on the handler being deleted
+        may seem wanky because it is.
+        However, it is the only possible method as every device internal
+        CommanHandler doesn't hold a reference to an actual command handler.
+        The only thing having this reference is the device's write() function
+        which gets updated on create_and_setup_device()
+        """
+        if handler_to_remove not in self.commandhandlers:
+            self.logger.warning("Command handler %s not found!", handler_to_remove)
+            return
+        self.logger.info("Removing devices...")
+        # Find the dependent devices to remove
+        for name, dev in self.devices.copy().items():
+            if handler_to_remove is dev.write.__self__:
+                self.logger.info("Removing dependent device %s", name)
+                self.unregister_device(name)
+        # Remove handler
+        self.logger.info("Removing command handler...")
+        self.commandhandlers.remove(handler_to_remove)
 
     def set_devices_as_attributes(self):
         """
@@ -106,7 +159,7 @@ class CommandManager(object):
         """
         for device_name, device in list(self.devices.items()):
             if hasattr(self, device_name):
-                self.logger.warning("Device named {device_name} is already a reserved attribute, please change name or do not use this pump in attribute mode, rather use pumps[{device_name}]".format(device_name=device_name))
+                self.logger.warning("Device named {device_name} is already a reserved attribute, please change name or do not use this device in attribute mode, rather use devices[{device_name}]".format(device_name=device_name))
             else:
                 setattr(self, device_name, device)
 
@@ -196,7 +249,6 @@ class CommandManager(object):
             devices_dict (Dict): Dictionary containing all devices.
 
         """
-        self.devices = {}
         for device_name, device_info in devices_dict.items():
             self.register_device(device_name, device_info)
 
@@ -245,6 +297,15 @@ class CommandManager(object):
 
         except BonjourError:
             self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
+
+    def unregister_device(self, device_name):
+        """
+        Removes device attribute & reference from devices dictionary
+        """
+        # Remove device attribute from self
+        delattr(self, device_name)
+        # Remove reference from device list
+        self.devices.pop(device_name)
 
     @classmethod
     def from_config(cls, config):
