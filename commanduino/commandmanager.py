@@ -13,6 +13,8 @@ from .commanddevices.register import create_and_setup_device
 from .commanddevices.register import DEFAULT_REGISTER
 from .commanddevices.register import DeviceRegisterError
 
+from .exceptions import CommanduinoInitError
+
 from .lock import Lock
 from ._logger import create_logger
 
@@ -122,11 +124,11 @@ class CommandManager(object):
             try:
                 elapsed = self.wait_device_for_init(handler)
                 self.logger.info('Found Arduino CommandManager at %s, init time was %s seconds', device_name, round(elapsed, 3))
-            except InitError:
+            except CommanduinoInitError:
                 self.logger.warning('Arduino CommandManager at %s has not initialized', device_name)
-                return
-            # Update handlers list
-            self.commandhandlers.append(handler)
+            else:
+                # Update handlers list
+                self.commandhandlers.append(handler)
 
     def remove_command_handler(self, handler_to_remove):
         """
@@ -225,7 +227,7 @@ class CommandManager(object):
         handler.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed
-        raise InitError(handler.name)
+        raise CommanduinoInitError(handler.name)
 
     # removing all stuff related to reset because it does not compile on all boards
     # def send_reset(self, serialcommandhandler):
@@ -387,18 +389,6 @@ class VirtualCommandManager(CommandManager):
         from commanduino.commanddevices import CommandVirtual
 
         self.devices[device_name] = CommandVirtual()
-
-
-class InitError(Exception):
-    """
-    Exception for when the manager fails to initialise.
-    """
-    def __init__(self, addr):
-        self.addr = addr
-        super().__init__()
-
-    def __str__(self):
-        return (f"Manager at {self.addr} did not initialize.")
 
 
 class CommandBonjour(object):
