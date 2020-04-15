@@ -8,7 +8,7 @@
 
 """
 
-from .._logger import create_logger
+import logging
 
 
 class Axis(object):
@@ -30,7 +30,7 @@ class Axis(object):
 
     def __init__(self, linear_actuator, unit_per_step=1, min_position=0,
                  max_position=float('inf')):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
         self.linear_actuator = linear_actuator
         self.unit_per_step = float(unit_per_step)
         self.min_position = float(min_position)
