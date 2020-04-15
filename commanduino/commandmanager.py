@@ -188,7 +188,7 @@ class CommandManager(object):
         Requests initialisation and waits until it obtains a threading lock.
 
         Args:
-            cmdh (CommandHandler): Command Handler object for communication.
+            handler (CommandHandler): Command Handler object for communication.
 
         """
         start_time = time.time()

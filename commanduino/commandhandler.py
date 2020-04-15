@@ -560,9 +560,5 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
     def wait_until_running(self):
         """
         Waits until the current thread is running.
-
-        Args:
-            sleep_time (float): The time to wait for, default set to 0.01
-
         """
         self.interrupted.wait()
