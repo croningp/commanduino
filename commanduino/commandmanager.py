@@ -359,6 +359,7 @@ class VirtualCommandManager(CommandManager):
 
         self.commandhandlers = []
         self.initialised = True
+        self.devices = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
