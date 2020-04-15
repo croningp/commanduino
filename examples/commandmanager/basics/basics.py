@@ -18,7 +18,7 @@ while True:
         # Invert next state for this pin
         p1 = not p1
     elif msg == "P2":
-        # Or directly as a CommandManager attribure
+        # Or directly as a CommandManager attribute
         cmdMng.pin2.set_level(int(p2))
         p2 = not p2
     elif msg == "P3":

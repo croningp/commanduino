@@ -12,7 +12,7 @@ from ..lock import Lock
 
 from .._logger import create_logger
 
-# Defualt timeout value
+# Default timeout value
 DEFAULT_TIMEOUT = 1
 
 # Bonjour Information
