@@ -16,4 +16,3 @@ from .commandhandler import CommandHandler
 from .commandhandler import SerialCommandHandler
 
 from .commandmanager import CommandManager
-from .commandmanager import VirtualCommandManager
