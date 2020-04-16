@@ -488,7 +488,8 @@ class BonjourError(Exception):
 
 
 class VirtualAttribute():
-
+    """ Callable attribute for virtual device
+    """
     def __call__(self, *args, **kwargs):
         # Make nice arguments string for logging
         args = ", ".join([str(arg) for arg in args])
@@ -504,7 +505,8 @@ class VirtualAttribute():
 
 
 class VirtualDevice():
-
+    """ Virtual device mock to replace normal devices in simulation mode
+    """
     def __getattr__(self, name):
 
         # Check if we already have this attribute defined,
@@ -531,7 +533,7 @@ class VirtualDevice():
     def __init__(self, name=None, device_info = None):
 
         # Setup logger
-        self.__dict__["logger"] = create_logger(self.__class__.__name__)
+        self.__dict__["logger"] = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         # Populate device configuration, if present
         # These are static non-callable attributes
