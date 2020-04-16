@@ -11,8 +11,7 @@ import time
 import serial
 import socket
 import threading
-
-from ._logger import create_logger
+import logging
 
 # Default delimiter to separate commands
 DEFAULT_DELIM = ','
@@ -60,7 +59,7 @@ class CommandHandler(object):
         return cls(**config)
 
     def __init__(self, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL, **kwargs):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         # Something descriptive to reference the handler in logs.
         self.name = self.__class__.__name__
@@ -302,7 +301,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         self.daemon = True
         self.interrupted = threading.Lock()
 
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         CommandHandler.__init__(self, delim, term, cmd_decimal)
         self.name = port
@@ -440,7 +439,7 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         self.interrupted = threading.Event()
         self.interrupted.clear()
 
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         CommandHandler.__init__(self, delim, term, cmd_decimal)
 
