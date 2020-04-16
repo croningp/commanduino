@@ -267,16 +267,19 @@ class CommandManager(object):
         try:
             bonjour_service = CommandBonjour(self.commandhandlers)
             handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
-            self.logger.info(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) found on {handler.name}")
+            self.logger.debug(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) found on {handler.name}")
         except CMBonjourTimeout:
             raise CMDeviceDiscoveryTimeout(f"Device '{device_name}' (ID=<{command_id}>) has not been found!") from None
 
         # Initialise device
         try:
             device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
-            self.logger.info(f"Device '{device_name}' found in the register, creating it!")
+            self.logger.info(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) detected in {elapsed:.3}s"
+                             f" on {handler.name} and present in the register, creating it!")
         except CMDeviceRegisterError:
             device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
+            self.logger.warning(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) detected on "
+                                f"{handler.name} and NOT found in the register! Initialized as blank minimal object!")
             self.logger.warning(f"Device '{device_name}' NOT found in the register! Initialized as blank minimal object")
         self.devices[device_name] = device
 
