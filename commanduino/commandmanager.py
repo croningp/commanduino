@@ -57,17 +57,23 @@ class CommandManager(object):
 
         InitError: CommandManager on port was not initialised.
     """
-    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
+    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS, simulation=False):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
+
+        self._simulation = simulation
 
         self.initialised = False
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
 
         self.commandhandlers = []
-        for config_entry in command_configs:
-            # Create handler from config & initialize device
-            self.add_command_handler(config_entry)
+        if not self._simulation:
+            for config_entry in command_configs:
+                # Create handler from config & initialize device
+                self.add_command_handler(config_entry)
+        else:
+            self.logger.info("Simulation mode, skipping handlers creation.")
+            self.commandhandlers = command_configs
 
         self.devices = {}
         self.register_all_devices(devices_dict)
@@ -283,20 +289,24 @@ class CommandManager(object):
         else:
             device_config = {}
 
-        try:
-            bonjour_service = CommandBonjour(self.commandhandlers)
-            handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
-            self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
+        if not self._simulation:
             try:
-                device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
-                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
-            except DeviceRegisterError:
-                device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
-                self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
+                bonjour_service = CommandBonjour(self.commandhandlers)
+                handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
+                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
+                try:
+                    device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
+                    self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
+                except DeviceRegisterError:
+                    device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
+                    self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
+                self.devices[device_name] = device
+            except BonjourError:
+                self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
+        else:
+            device = VirtualDevice(device_name, device_config)
             self.devices[device_name] = device
 
-        except BonjourError:
-            self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
 
     def unregister_device(self, device_name):
         """
@@ -320,7 +330,8 @@ class CommandManager(object):
         """
         command_configs = config['ios']
         devices = config['devices']
-        return cls(command_configs, devices)
+        sim = config.get("simulation", False)
+        return cls(command_configs, devices, simulation=sim)
 
     @classmethod
     def from_configfile(cls, configfile):
@@ -348,46 +359,6 @@ class CommandManager(object):
         # Do not print out unrecognized error during init. as those are "normal" when multiple Arduinos are connected
         if self.initialised:
             self.logger.warning('Received unknown command "{}"'.format(cmd))
-
-
-class VirtualCommandManager(CommandManager):
-    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
-        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
-
-        self.init_n_repeats = init_n_repeats
-        self.init_lock = Lock(init_timeout)
-
-        self.commandhandlers = []
-        self.initialised = True
-        self.devices = {}
-        self.register_all_devices(devices_dict)
-        self.set_devices_as_attributes()
-        self.initialised = True
-
-    def register_device(self, device_name, device_info):
-        """
-        Registers an individual Arduino device.
-
-        Args:
-            device_name (str): Name of the device.
-
-            device_info (Dict): Dictionary containing the device information.
-
-        Raises:
-            DeviceRegisterError: Device is not in the device register.
-
-            BonjourError: Device has not been found.
-
-        """
-        command_id = device_info['command_id']
-        if 'config' in device_info:
-            device_config = device_info['config']
-        else:
-            device_config = {}
-
-        from commanduino.commanddevices import CommandVirtual
-
-        self.devices[device_name] = CommandVirtual()
 
 
 class InitError(Exception):
@@ -514,3 +485,59 @@ class BonjourError(Exception):
 
     def __str__(self):
         return '{self.command_id} seems to not be existing/available'.format(self=self)
+
+
+class VirtualAttribute():
+    """ Callable attribute for virtual device
+    """
+    def __call__(self, *args, **kwargs):
+        # Make nice arguments string for logging
+        args = ", ".join([str(arg) for arg in args])
+        if kwargs:
+            args += ","
+        kwargs = ", ".join([str(k)+"="+str(v) for k,v in kwargs.items()])
+        self.logger.info("Virtual call %s(%s%s)", self.name, args, kwargs)
+
+    def __init__(self, name, logger):
+        self.name = name
+        self.logger = logger
+        self.logger.info("Created virtual method %s()", name)
+
+
+class VirtualDevice():
+    """ Virtual device mock to replace normal devices in simulation mode
+    """
+    def __getattr__(self, name):
+
+        # Check if we already have this attribute defined,
+        # e.g. from device_config during __init__()
+        # or previous __setattr__() calls
+        if name in self.__dict__:
+            return self.__dict__[name]
+        # Otherwise create a virtual callable
+        self.__dict__[name] = VirtualAttribute(name, self.__dict__["logger"])
+        return self.__dict__[name]
+
+    def __setattr__(self, name, value):
+
+        # Check if we already have this attribute defined,
+        # e.g. from device_config during __init__()
+        # or previous __setattr__() calls
+        if name not in self.__dict__:
+            self.__dict__["logger"].info("Creating virtual attribute %s=%s", name, value)
+        elif callable(self.__dict__[name]):
+            self.logger.warning("Redefining virtual method %s with virtual attribute", self.__dict__[name])
+
+        self.__dict__[name] = value
+
+    def __init__(self, name=None, device_info = None):
+
+        # Setup logger
+        self.__dict__["logger"] = logging.getLogger(__name__).getChild(self.__class__.__name__)
+
+        # Populate device configuration, if present
+        # These are static non-callable attributes
+        if device_info is not None:
+            for k, v in device_info.items():
+                self.__dict__[k] = v
+        self.__dict__["logger"].info("Created virtual device %s", name)
