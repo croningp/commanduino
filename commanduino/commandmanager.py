@@ -11,15 +11,15 @@ from .commandhandler import TCPIPCommandHandler
 
 from .commanddevices.register import create_and_setup_device
 from .commanddevices.register import DEFAULT_REGISTER
-from .commanddevices.register import DeviceRegisterError
 
-from .exceptions import CommanduinoInitError
+from .exceptions import CMManagerConfigurationError, CMHandlerConfigurationError, CMHandlerDiscoveryTimeout,\
+    CMDeviceConfigurationError, CMBonjourTimeout, CMDeviceDiscoveryTimeout, CMDeviceRegisterError
 
 from .lock import Lock
 from ._logger import create_logger
 
 import time
-import sys
+import json
 from serial import SerialException
 
 # Default initialisation timeout
@@ -80,7 +80,6 @@ class CommandManager(object):
         Args:
             handler_config (Dict): Handler configuration dictionary.
         """
-        handler = None
         # Make a copy not to mutate original dict - might be re-used
         # by upper-level code for object re-creation.
         handler_config = handler_config.copy()
@@ -98,6 +97,7 @@ class CommandManager(object):
         # Check if handler is required & remove the key from dict
         required = handler_config.get("required", False)
         handler_config.pop("required", None)
+
         try:
             if handler_type == "serial":
                 handler = SerialCommandHandler.from_config(handler_config)
@@ -105,24 +105,21 @@ class CommandManager(object):
             elif handler_type == "tcpip":
                 handler = TCPIPCommandHandler.from_config(handler_config)
                 self.logger.info("Created socket-based command handler for %s.", device_name)
-            handler.add_default_handler(self.unrecognized)
-            handler.start()
         except (SerialException, OSError, TypeError) as e:
             if required:
-                self.logger.error("I/O device %s (type %s) was not found and it is required! Aborting...", device_name, handler_type)
-                self.logger.error("Additional error message: %s", e)
-                sys.exit(1)
+                raise CMHandlerConfigurationError(f"Error initializing device {device_name}: {e}") from None
             else:
-                self.logger.warning("I/O device %s (type %s) was not found", device_name, handler_type)
+                self.logger.warning(f"I/O device {device_name} (type {handler_type}) was not found")
                 self.logger.warning("Additional error message: %s", e)
-
-        # Initialize device
-        if handler is not None:
+        else:
+            # Add callback,start handler and initialize it
+            handler.add_default_handler(self.unrecognized)
+            handler.start()
             try:
                 elapsed = self.wait_device_for_init(handler)
-                self.logger.info('Found Arduino CommandManager at %s, init time was %s seconds', device_name, round(elapsed, 3))
-            except CommanduinoInitError:
-                self.logger.warning('Arduino CommandManager at %s has not initialized', device_name)
+                self.logger.info(f"Found Arduino CommandManager at {device_name}, init time was {elapsed:.3} seconds")
+            except CMHandlerDiscoveryTimeout:
+                self.logger.warning(f"Arduino CommandManager at {device_name} has not initialized")
             else:
                 # Update handlers list
                 self.commandhandlers.append(handler)
@@ -135,7 +132,7 @@ class CommandManager(object):
         The method to detect which devices depend on the handler being deleted
         may seem wanky because it is.
         However, it is the only possible method as every device internal
-        CommanHandler doesn't hold a reference to an actual command handler.
+        CommandHandler doesn't hold a reference to an actual command handler.
         The only thing having this reference is the device's write() function
         which gets updated on create_and_setup_device()
         """
@@ -158,7 +155,9 @@ class CommandManager(object):
         """
         for device_name, device in list(self.devices.items()):
             if hasattr(self, device_name):
-                self.logger.warning("Device named {device_name} is already a reserved attribute, please change name or do not use this device in attribute mode, rather use devices[{device_name}]".format(device_name=device_name))
+                self.logger.warning(f"Device named {device_name} is already a reserved attribute! "
+                                    f"Please change name or do not use this device in attribute mode, "
+                                    f"rather use devices[{device_name}]")
             else:
                 setattr(self, device_name, device)
 
@@ -214,7 +213,7 @@ class CommandManager(object):
             elapsed (float): Time waited for initialisation.
 
         Raises:
-            InitError: CommandManager on the port was not initialised.
+            CMHandlerDiscoveryTimeout: CommandManager on the port was not initialised.
 
         """
         self.logger.debug('Waiting for device at %s to init...', handler.name)
@@ -235,7 +234,10 @@ class CommandManager(object):
 
         """
         for device_name, device_info in devices_dict.items():
-            self.register_device(device_name, device_info)
+            try:
+                self.register_device(device_name, device_info)
+            except CMDeviceConfigurationError as e:
+                self.logger.error(e)
 
     def register_device(self, device_name, device_info):
         """
@@ -247,41 +249,40 @@ class CommandManager(object):
             device_info (Dict): Dictionary containing the device information.
 
         Raises:
-            DeviceRegisterError: Device is not in the device register.
+            CMDeviceRegisterError: Device is not in the device register.
 
-            BonjourError: Device has not been found.
+            CMBonjourError: Device has not been found.
 
         """
 
-        # First, check that device config dict has command_id
-        try:
-            command_id = device_info['command_id']
-        except KeyError:
-            self.logger.error("Device '%s' missing a command_id entry!", device_name)
-            return None
-        # Command ID must not be empty
+        # Command ID must contain a valid string
+        command_id = device_info.get('command_id', "")
         if command_id == "":
-            self.logger.error("Device '%s' has empty command_id entry!", device_name)
-            return None
-        if 'config' in device_info:
-            device_config = device_info['config']
-        else:
-            device_config = {}
+            raise CMDeviceConfigurationError(f"Invalid or missing 'command_id' in {device_name} configuration!")
 
+        # Configuration is optional
+        device_config = device_info.get("config", {})
+
+        # Look for device via bonjour on all handlers
         try:
             bonjour_service = CommandBonjour(self.commandhandlers)
             handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
-            self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in {bonjour_time}s'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
-            try:
-                device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
-                self.logger.info('Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
-            except DeviceRegisterError:
-                device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
-                self.logger.warning('Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(name=device_name, id=command_id, type=bonjour_id))
-            self.devices[device_name] = device
+            self.logger.info(f"Device {device_name} with id {command_id} and type {bonjour_id} found in {elapsed:.3} s")
+        except CMBonjourTimeout:
+            raise CMDeviceDiscoveryTimeout(f"Device {device_name} with id {command_id} has not been found!")
 
-        except BonjourError:
-            self.logger.warning('Device "{name}" with id "{id}" has not been found'.format(name=device_name, id=command_id))
+        # Initialise device
+        try:
+            device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
+            self.logger.info(
+                'Device "{name}" with id "{id}" and of type "{type}" found in the register, creating it'.format(
+                    name=device_name, id=command_id, type=bonjour_id, bonjour_time=round(elapsed, 3)))
+        except CMDeviceRegisterError:
+            device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
+            self.logger.warning(
+                'Device "{name}" with id "{id}" and of type "{type}" is not in the device register, creating a blank minimal device instead'.format(
+                    name=device_name, id=command_id, type=bonjour_id))
+        self.devices[device_name] = device
 
     def unregister_device(self, device_name):
         """
@@ -303,8 +304,11 @@ class CommandManager(object):
             config (Dict): Dictionary containing the configuration data.
 
         """
-        command_configs = config['ios']
-        devices = config['devices']
+        try:
+            command_configs = config["ios"]
+            devices = config["devices"]
+        except KeyError as e:
+            raise CMManagerConfigurationError(f"Invalid configuration provided: missing {e} in dict!") from None
         return cls(command_configs, devices)
 
     @classmethod
@@ -318,9 +322,13 @@ class CommandManager(object):
             configfile (File): The configuration file.
 
         """
-        import json
-        with open(configfile) as f:
-            return cls.from_config(json.load(f))
+        try:
+            with open(configfile) as f:
+                config_dict = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
+            # Printing "e" as well as it holds info on the line/column where the error occurred
+            raise CMManagerConfigurationError(f"The JSON file provided {configfile} is invalid!\n{e}") from None
+        return cls.from_config(config_dict)
 
     def unrecognized(self, cmd):
         """
@@ -359,9 +367,9 @@ class VirtualCommandManager(CommandManager):
             device_info (Dict): Dictionary containing the device information.
 
         Raises:
-            DeviceRegisterError: Device is not in the device register.
+            CMDeviceRegisterError: Device is not in the device register.
 
-            BonjourError: Device has not been found.
+            CMBonjourError: Device has not been found.
 
         """
         command_id = device_info['command_id']
@@ -474,16 +482,4 @@ class CommandBonjour(object):
             handler.remove_relay(command_id, handler.handle)
             if is_valid:
                 return handler, bonjour_id, elapsed
-        raise BonjourError(command_id)
-
-
-class BonjourError(Exception):
-    """
-    Exception for when Bonjour device is not available/not found.
-    """
-    def __init__(self, command_id):
-        self.command_id = command_id
-        super().__init__()
-
-    def __str__(self):
-        return '{self.command_id} seems to not be existing/available'.format(self=self)
+        raise CMBonjourTimeout(command_id)

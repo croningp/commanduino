@@ -9,7 +9,7 @@
 """
 from ..commandhandler import CommandHandler
 from ..lock import Lock
-from ..exceptions import CommanduinoCommandTimeOutError
+from ..exceptions import CMDeviceReplyTimeout
 
 from .._logger import create_logger
 
@@ -157,6 +157,6 @@ class CommandDevice(object):
             if is_valid:
                 return getattr(self, variable_name)
             else:
-                raise CommanduinoCommandTimeOutError(self.cmdHdl.cmd_header, request_command, elapsed)
+                raise CMDeviceReplyTimeout(self.cmdHdl.cmd_header, request_command, elapsed)
 
         setattr(self, get_function_name, get)

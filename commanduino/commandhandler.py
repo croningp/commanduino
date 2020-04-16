@@ -210,7 +210,7 @@ class CommandHandler(object):
         Adds a default handler to the device.
 
         Args:
-            callback_function (str): A copy of the command to "callback".
+            callback_function (callable): A copy of the command to "callback".
 
         """
         if callback_function not in self.default_handlers:
