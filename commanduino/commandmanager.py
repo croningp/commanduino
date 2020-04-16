@@ -14,10 +14,10 @@ from .commanddevices.register import DEFAULT_REGISTER
 from .commanddevices.register import DeviceRegisterError
 
 from .lock import Lock
-from ._logger import create_logger
 
 import time
 import sys
+import logging
 from serial import SerialException
 
 # Default initialisation timeout
@@ -58,7 +58,7 @@ class CommandManager(object):
         InitError: CommandManager on port was not initialised.
     """
     def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self.initialised = False
         self.init_n_repeats = init_n_repeats
@@ -352,7 +352,7 @@ class CommandManager(object):
 
 class VirtualCommandManager(CommandManager):
     def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
@@ -413,7 +413,7 @@ class CommandBonjour(object):
 
     """
     def __init__(self, commandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self.commandhandlers = commandhandlers
         self.lock = Lock(timeout)
