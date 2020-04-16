@@ -53,25 +53,3 @@ def create_and_setup_device(cmdHdl, command_id, bonjour_id, device_config):
         return device
     else:
         raise DeviceRegisterError(bonjour_id)
-
-
-class DeviceRegisterError(Exception):
-    """
-    Exception for handling when the Bonjour ID is not in the register of the device.
-    """
-    def __init__(self, bonjour_id):
-        self.bonjour_id = bonjour_id
-
-    def __str__(self):
-        return '{self.bonjour_id} is not in the register of device'.format(self=self)
-
-
-class DeviceBonjourRegisterError(Exception):
-    """
-    Exception for handling when the Arduino device does not contain Bonjour ID and Class Name information.
-    """
-    def __init__(self, command_module_name):
-        self.command_module_name = command_module_name
-
-    def __str__(self):
-        return '{self.command_module_name} does not contain BONJOUR_ID and CLASS_NAME information'.format(self=self)
