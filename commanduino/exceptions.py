@@ -1,5 +1,5 @@
 """
-.. module:: excpetions
+.. module:: exceptions
    :platform: Unix
    :synopsis: Holds all the curstom exceptions used in Commanduino.
 """
