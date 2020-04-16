@@ -28,6 +28,9 @@ class CommandVirtual(CommandDevice):
     def get_celsius(self):
         pass
 
+    def get_fahrenheit(self):
+        pass
+
     def get_current_position(self):
         return 0
 
@@ -58,6 +61,9 @@ class CommandVirtual(CommandDevice):
     def set_acceleration(self, steps_per_second_per_second):
         pass
 
+    def get_angle(self):
+        return 0
+
     def set_angle(self, angle):
         pass
 
@@ -65,6 +71,9 @@ class CommandVirtual(CommandDevice):
         pass
 
     def set_level(self, level):
+        pass
+
+    def get_level(self):
         pass
 
     def set_limit(self, minimum=0, maximum=180):
@@ -86,4 +95,7 @@ class CommandVirtual(CommandDevice):
         pass
 
     def wait_until_idle(self):
+        pass
+
+    def set_current_position(self, position):
         pass
