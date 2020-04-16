@@ -275,7 +275,7 @@ class CommandManager(object):
         try:
             device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
             self.logger.info(f"Device '{device_name}' created! (ID=<{command_id}> type=<{bonjour_id}> handler="
-                             f"<{handler.name}> detection time {elapsed:.3f} s)"
+                             f"<{handler.name}> detection time {elapsed:.3f} s)")
         except CMDeviceRegisterError:
             device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
             self.logger.warning(f"Device '{device_name}' NOT found in the register! Initialized as blank minimal object"
