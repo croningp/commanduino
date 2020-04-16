@@ -72,7 +72,7 @@ class CommandAccelStepper(CommandDevice):
     Args:
         speed (int): Speed of the device, default set to DEFAULT_SPEED (5000).
 
-        max_speed (int): Maximum speed of the device, default set to DEFUALT_MAX_SPEED (5000).
+        max_speed (int): Maximum speed of the device, default set to DEFAULT_MAX_SPEED (5000).
 
         acceleration (int): Speed of acceleration, default set to DEFAULT_ACCELERATION (2000).
 

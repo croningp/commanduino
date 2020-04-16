@@ -75,7 +75,7 @@ DEFAULT_SLEEP_TIME = 0.1  # let's not make it too low to not make the communicat
 
 class CommandLinearAccelStepper(CommandDevice):
     """
-    Linear Aceclerator Stepper Arduino device.
+    Linear Accelerator Stepper Arduino device.
 
     Args:
         speed (int): Speed of the device, default set to DEFAULT_SPEED (5000)
