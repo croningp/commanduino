@@ -10,7 +10,7 @@
 from ..commandhandler import CommandHandler
 from ..lock import Lock
 
-from .._logger import create_logger
+import logging
 
 # Default timeout value
 DEFAULT_TIMEOUT = 1
@@ -63,7 +63,7 @@ class CommandDevice(object):
     Base class to represent the different Arduino devices.
     """
     def __init__(self):
-        self.logger = create_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self.cmdHdl = CommandHandler()
         self.cmdHdl.add_default_handler(self.unrecognized)
