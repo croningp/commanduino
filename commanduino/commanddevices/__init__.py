@@ -48,7 +48,3 @@ add_to_bonjour_register('SHT31', CommandSHT31)
 # Dallas temperature sensors
 from .commanddallas import CommandDallas
 add_to_bonjour_register('DALLAS', CommandDallas)
-
-# virtual
-from .commandvirtual import CommandVirtual
-
