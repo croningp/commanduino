@@ -35,9 +35,6 @@ COMMAND_BONJOUR = 'BONJOUR'
 COMMAND_IS_INIT = 'ISINIT'
 COMMAND_INIT = 'INIT'
 
-# removing all stuff related to reset because it does not compile on all boards
-# COMMAND_RESET = 'RESET'
-
 
 class CommandManager(object):
     """
@@ -227,21 +224,7 @@ class CommandManager(object):
         handler.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed
-        raise CommanduinoInitError(handler.name)
-
-    # removing all stuff related to reset because it does not compile on all boards
-    # def send_reset(self, serialcommandhandler):
-    #     serialcommandhandler.send(COMMAND_RESET)
-    #
-    # def reset_and_wait_for_init(self, cmdHdl):
-    #     self.send_reset(cmdHdl)
-    #     self.wait_serial_device_for_init(cmdHdl)
-    #
-    # def reset_all_and_wait_for_init(self):
-    #     for cmdHdl in self.serialcommandhandlers:
-    #         self.send_reset(cmdHdl)
-    #     for cmdHdl in self.serialcommandhandlers:
-    #         self.wait_serial_device_for_init(cmdHdl)
+        raise CMHandlerDiscoveryTimeout(handler.name)
 
     def register_all_devices(self, devices_dict):
         """
