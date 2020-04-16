@@ -105,7 +105,7 @@ class CommandManager(object):
             elif handler_type == "tcpip":
                 handler = TCPIPCommandHandler.from_config(handler_config)
                 self.logger.info("Created socket-based command handler for %s.", device_name)
-        except (SerialException, OSError, TypeError) as e:
+        except (SerialException, OSError, TypeError, ValueError) as e:
             if required:
                 raise CMHandlerConfigurationError(f"Error initializing device {device_name}: {e}") from None
             else:
@@ -274,13 +274,12 @@ class CommandManager(object):
         # Initialise device
         try:
             device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
-            self.logger.info(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) detected in {elapsed:.3}s"
-                             f" on {handler.name} and present in the register, creating it!")
+            self.logger.info(f"Device '{device_name}' created! (ID=<{command_id}> type=<{bonjour_id}> handler="
+                             f"<{handler.name}> detection time {elapsed:.3f} s)"
         except CMDeviceRegisterError:
             device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
-            self.logger.warning(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) detected on "
-                                f"{handler.name} and NOT found in the register! Initialized as blank minimal object!")
-            self.logger.warning(f"Device '{device_name}' NOT found in the register! Initialized as blank minimal object")
+            self.logger.warning(f"Device '{device_name}' NOT found in the register! Initialized as blank minimal object"
+                                f"! (ID=<{command_id}> type=<{bonjour_id}> handler=<{handler.name}>)")
         self.devices[device_name] = device
 
     def unregister_device(self, device_name):
