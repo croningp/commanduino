@@ -1,7 +1,7 @@
 """
 .. module:: exceptions
    :platform: Unix
-   :synopsis: Holds all the curstom exceptions used in Commanduino.
+   :synopsis: Holds all the custom exceptions used in Commanduino.
 """
 
 
@@ -75,7 +75,7 @@ class CMDeviceReplyTimeout(CMTimeout):
         self.command_name = command_name
 
     def __str__(self):
-        return '{device_name} did not respond to {command_name} within {elapsed}s'.format(device_name=self.device_name, command_name=self.command_name, elapsed=round(self.elapsed, 3))
+        return f"{self.device_name} did not respond to {self.command_name} within {self.elapsed:.3} s"
 
 
 class CMDeviceRegisterError(CMError):
