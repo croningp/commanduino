@@ -269,7 +269,7 @@ class CommandManager(object):
             handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
             self.logger.info(f"Device {device_name} with id {command_id} and type {bonjour_id} found in {elapsed:.3} s")
         except CMBonjourTimeout:
-            raise CMDeviceDiscoveryTimeout(f"Device {device_name} with id {command_id} has not been found!")
+            raise CMDeviceDiscoveryTimeout(f"Device {device_name} with id {command_id} has not been found!") from None
 
         # Initialise device
         try:
