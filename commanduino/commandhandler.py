@@ -85,9 +85,7 @@ class CommandHandler(object):
 
         """
         if a_char:
-            a_char = a_char.decode('utf-8')
-            self.logger.debug('Processing "{}"'.format(a_char),
-                              extra={'buffer': self.buffer})
+            a_char = a_char.decode(encoding="utf-8", errors="ignore")
             if a_char == self.term:
                 self.handle(self.buffer)
                 self.buffer = ''
@@ -209,7 +207,7 @@ class CommandHandler(object):
         Adds a default handler to the device.
 
         Args:
-            callback_function (str): A copy of the command to "callback".
+            callback_function (callable): A copy of the command to "callback".
 
         """
         if callback_function not in self.default_handlers:

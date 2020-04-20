@@ -9,7 +9,6 @@
 """
 
 from .commanddevice import CommandDevice
-from .commanddevice import DeviceTimeOutError
 
 import time
 

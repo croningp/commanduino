@@ -9,6 +9,7 @@
 """
 from ..commandhandler import CommandHandler
 from ..lock import Lock
+from ..exceptions import CMDeviceReplyTimeout
 
 import logging
 
@@ -18,44 +19,6 @@ DEFAULT_TIMEOUT = 1
 # Bonjour Information
 BONJOUR_ID = 'TEMPLATE'
 CLASS_NAME = 'CommandDevice'
-
-
-class DeviceTimeOutError(Exception):
-    """
-    Exception for when the device does not response within a set timeframe.
-
-    Args:
-        device_name (str): Name of the device.
-
-        elapsed (float): Time elapsed until the exception was thrown.
-
-    """
-    def __init__(self, device_name, elapsed):
-        self.device_name = device_name
-        self.elapsed = elapsed
-
-    def __str__(self):
-        return f"{self.device_name} did not respond within {self.elapsed:.3} s"
-
-
-class CommandTimeOutError(Exception):
-    """
-    Exception for when the device does not respond to a command after a set timeframe.
-
-    Args:
-        device_name (str): The name of the device.
-
-        command_name (str): The name of the command.
-
-        elapsed (float): Time elapsed until the exception was thrown.
-    """
-    def __init__(self, device_name, command_name, elapsed):
-        self.device_name = device_name
-        self.elapsed = elapsed
-        self.command_name = command_name
-
-    def __str__(self):
-        return f"{self.device_name} did not respond to {self.command_name} within {self.elapsed:.3} s"
 
 
 class CommandDevice(object):
@@ -194,6 +157,6 @@ class CommandDevice(object):
             if is_valid:
                 return getattr(self, variable_name)
             else:
-                raise CommandTimeOutError(self.cmdHdl.cmd_header, request_command, elapsed)
+                raise CMDeviceReplyTimeout(self.cmdHdl.cmd_header, request_command, elapsed)
 
         setattr(self, get_function_name, get)
