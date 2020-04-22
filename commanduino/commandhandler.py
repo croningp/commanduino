@@ -13,6 +13,8 @@ import socket
 import threading
 import logging
 
+from .exceptions import CMHandlerConfigurationError, CMTimeout, CMCommunicationError
+
 # Default delimiter to separate commands
 DEFAULT_DELIM = ','
 
@@ -323,7 +325,11 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
                           extra={'port': port,
                                  'baudrate': baudrate,
                                  'timeout': timeout})
-        self._serial = serial.Serial(port, baudrate, timeout=timeout)
+        try:
+            self._serial = serial.Serial(port, baudrate, timeout=timeout)
+        except (serial.SerialException, TypeError, ValueError) as e:
+            raise CMHandlerConfigurationError(str(e))
+
 
     def close(self):
         """
@@ -365,7 +371,10 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         """
         self.interrupted.acquire()
         while self.interrupted.locked():
-            self.process_serial(self._serial)
+            try:
+                self.process_serial(self._serial)
+            except (serial.SerialException, serial.SerialTimeoutException) as e:
+                raise CMTimeout(f"Error reading from serial port! {e}") from None
         self.close()
 
     def send(self, command_id, *arg):
@@ -389,7 +398,10 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
 
         """
         self.logger.debug('Sending "{}" on port "{}"'.format(msg, self._serial.port))
-        self._serial.write(msg.encode())
+        try:
+            self._serial.write(msg.encode())
+        except serial.SerialException as e:
+            raise CMCommunicationError("Error writing to serial port! {e}") from None
 
     def process_serial(self, a_serial):
         """
@@ -471,15 +483,15 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
             elif protocol == "UDP":
                 self._connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             else:
-                raise ValueError("Unknown transport layer protocol <{}> provided!".format(protocol))
+                raise CMHandlerConfigurationError(f"Unknown transport layer protocol <{protocol}> provided!")
             self._connection.connect((address, int(port)))
             # Receive timeout in seconds.
             # This has to be done after opening the connection to avoid connect() error on non-blocking socket
             self._connection.settimeout(timeout)
         except TimeoutError as e:
-            raise OSError("Remote host doesn't respond!") from e
-        except (OSError, TypeError) as e:
-            raise OSError("Can't open socket!") from e
+            raise CMHandlerConfigurationError(f"Socket timeout! {e}")
+        except (OSError, TypeError, ValueError) as e:
+            raise CMHandlerConfigurationError(f"Can't open socket! {e}")
 
     def close(self):
         """
@@ -532,7 +544,11 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
             *arg: Variable argument.
 
         """
-        self.write(self.forge_command(command_id, *arg))
+        try:
+            self.write(self.forge_command(command_id, *arg))
+        except OSError as e:
+            raise CMCommunicationError("Error writing to socket! {e}") from None
+
 
     def write(self, msg):
         """
@@ -553,6 +569,8 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
             self.process_char(self._connection.recv(1))
         except socket.timeout:
             pass
+        except OSError as e:
+            raise CMCommunicationError("Error reading from socket! {e}")
 
     def wait_until_running(self):
         """
