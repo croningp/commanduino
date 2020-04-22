@@ -12,15 +12,20 @@ from .commandhandler import TCPIPCommandHandler
 from .commanddevices.register import create_and_setup_device
 from .commanddevices.register import DEFAULT_REGISTER
 
-from .exceptions import CMManagerConfigurationError, CMHandlerConfigurationError, CMHandlerDiscoveryTimeout,\
-    CMDeviceConfigurationError, CMBonjourTimeout, CMDeviceDiscoveryTimeout, CMDeviceRegisterError
+from .exceptions import (CMManagerConfigurationError,
+                        CMHandlerConfigurationError,
+                        CMHandlerDiscoveryTimeout,
+                        CMDeviceConfigurationError,
+                        CMBonjourTimeout,
+                        CMDeviceDiscoveryTimeout,
+                        CMDeviceRegisterError,
+                        CMCommunicationError)
 
 from .lock import Lock
 
 import time
 import json
 import logging
-from serial import SerialException
 
 # Default initialisation timeout
 DEFAULT_INIT_TIMEOUT = 1
@@ -48,13 +53,6 @@ class CommandManager(object):
         init_timeout (int): Initialisation timeout, default set to DEFAULT_INIT_TIMEOUT (1).
 
         init_n_repeats (int): Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).
-
-    Raises:
-        OSError: Port was not found.
-
-        SerialException: Port was not found.
-
-        InitError: CommandManager on port was not initialised.
     """
     def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS, simulation=False):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
@@ -115,7 +113,7 @@ class CommandManager(object):
             elif handler_type == "tcpip":
                 handler = TCPIPCommandHandler.from_config(handler_config)
                 self.logger.info("Created socket-based command handler for %s.", device_name)
-        except (SerialException, OSError, TypeError, ValueError) as e:
+        except CMHandlerConfigurationError as e:
             if required:
                 raise CMHandlerConfigurationError(f"Error initializing device {device_name}: {e}") from None
             else:
@@ -232,7 +230,10 @@ class CommandManager(object):
         self.logger.debug('Waiting for device at %s to init...', handler.name)
 
         handler.add_command(COMMAND_INIT, self.handle_init)
-        is_init, elapsed = self.request_and_wait_for_init(handler)
+        try:
+            is_init, elapsed = self.request_and_wait_for_init(handler)
+        except CMCommunicationError:
+            raise CMHandlerDiscoveryTimeout(handler.name)
         handler.remove_command(COMMAND_INIT, self.handle_init)
         if is_init:
             return elapsed

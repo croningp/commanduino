@@ -9,6 +9,23 @@ class CMError(Exception):
     """ Base catch-all"""
 
 
+class CMDeviceRegisterError(CMError):
+    """
+    When the Bonjour ID is not in the register of the device.
+    """
+    def __init__(self, bonjour_id):
+        self.bonjour_id = bonjour_id
+
+    def __str__(self):
+        return '{self.bonjour_id} is not in the register of device'.format(self=self)
+
+
+class CMCommunicationError(CMError):
+    """
+    Can't communicate to device - broken connection or device doesn't reply
+    """
+
+
 # CONFIGURATION ERRORS
 class CMConfigurationError(CMError):
     """ Base error for wrong configuration """
@@ -76,14 +93,3 @@ class CMDeviceReplyTimeout(CMTimeout):
 
     def __str__(self):
         return f"{self.device_name} did not respond to {self.command_name} within {self.elapsed:.3} s"
-
-
-class CMDeviceRegisterError(CMError):
-    """
-    When the Bonjour ID is not in the register of the device.
-    """
-    def __init__(self, bonjour_id):
-        self.bonjour_id = bonjour_id
-
-    def __str__(self):
-        return '{self.bonjour_id} is not in the register of device'.format(self=self)
