@@ -84,6 +84,10 @@ class CommandManager(object):
         Args:
             handler_config (Dict): Handler configuration dictionary.
         """
+        if self._simulation:
+            self.logger.info("Simulation mode, skipping handlers addition.")
+            self.commandhandlers.append(handler_config)
+            return None
         # Make a copy not to mutate original dict - might be re-used
         # by upper-level code for object re-creation.
         handler_config = handler_config.copy()
@@ -140,6 +144,9 @@ class CommandManager(object):
         The only thing having this reference is the device's write() function
         which gets updated on create_and_setup_device()
         """
+        if self._simulation:
+                self.logger.info("Simulation mode, skipping handlers removal.")
+                return None
         if handler_to_remove not in self.commandhandlers:
             self.logger.warning("Command handler %s not found!", handler_to_remove)
             return
