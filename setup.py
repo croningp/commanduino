@@ -1,8 +1,9 @@
-from commanduino._version import __version__
-
 from setuptools import find_packages, setup
+
+VERSION = '0.1.11'
+
 setup(name="commanduino",
-      version=__version__,
+      version=VERSION,
       description="A library to interact with an arduino board running Arduino-CommandHandler and derivatives",
       author="Jonathan Grizou",
       author_email='jonathan.grizou@gmail.com',
