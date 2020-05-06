@@ -9,5 +9,9 @@ setup(name="commanduino",
       author_email='jonathan.grizou@gmail.com',
       platforms=["any"],
       url="https://github.com/croningp/commanduino",
-      packages=find_packages(), install_requires=['pyserial']
+      packages=find_packages(),
+      package_data={
+            "commanduino": ["*.pyi", "py.typed"]
+      },
+      include_package_data=True,
       )
