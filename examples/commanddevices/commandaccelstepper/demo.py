@@ -15,7 +15,6 @@ stepper.set_current_position(0)
 
 stepper.enable_acceleration()
 stepper.set_acceleration(1000)
-stepper.set_speed(5000)
 stepper.set_running_speed(5000)
 stepper.set_max_speed(10000)
 
