@@ -12,6 +12,7 @@ import serial
 import socket
 import threading
 import logging
+from typing import Callable, Dict, List, Union
 
 from .exceptions import CMHandlerConfigurationError, CMTimeout, CMCommunicationError
 
@@ -36,31 +37,32 @@ class CommandHandler(object):
     Represents the Command Handler which will handle commands to/from the Arduino hardware.
 
     Args:
-        delim (chr): Delimiter of the command, default set to DEFAULT_DELIM(',')
+        delim: Delimiter of the command, default set to DEFAULT_DELIM(',')
 
-        term (chr): Terminal character of the command, set to DEFAULT_TERM(';')
+        term: Terminal character of the command, set to DEFAULT_TERM(';')
 
-        cmd_decimal (int): Decimal of the command, default set to DEFAULT_CMD_DECIMAL(2)
+        cmd_decimal: Decimal of the command, default set to DEFAULT_CMD_DECIMAL(2)
 
     """
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: Dict) -> CommandHandler:
         """
         Obtains the details of the handler from a configuration.
 
         Args:
-            cls (Class): THe instantiating class.
+            cls: The instantiating class.
 
-            config (Dict): Dictionary containing the configuration details.
+            config: Dictionary containing the configuration details.
 
         Returns:
-            SerialCommandHandler: New SerialCommandHandler object with details set from a configuration setup.
+            CommandHandler: New CommandHandler object with details set from a configuration setup.
 
         """
         return cls(**config)
 
-    def __init__(self, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL, **kwargs):
+    def __init__(self, delim: str = DEFAULT_DELIM, term: str = DEFAULT_TERM, cmd_decimal: int = DEFAULT_CMD_DECIMAL,
+                 **kwargs):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         # Something descriptive to reference the handler in logs.
@@ -71,46 +73,36 @@ class CommandHandler(object):
 
         self.buffer = ''  # string that will hold the received data
 
-        self.handlers = {}
-        self.relays = {}
-        self.default_handlers = []
+        self.handlers: Dict[str, List[Callable]] = {}
+        self.relays: Dict[str, List[Callable]] = {}
+        self.default_handlers: List[Callable] = []
 
         self.cmd_header = ''
         self.cmd_decimal = cmd_decimal
 
-    def process_char(self, a_char):
+    def process_char(self, a_char: bytes) -> None:
         """
-        Processes a single character of a command.
+        Processes a single character of a command and adds it to the receiving buffer.
+        If the terminator character is found, process the buffer.
 
         Args:
-            a_char (chr): The character to be processed
+            a_char: The character to be processed
 
         """
         if a_char:
-            a_char = a_char.decode(encoding="utf-8", errors="ignore")
-            if a_char == self.term:
+            decoded_char = a_char.decode(encoding="utf-8", errors="ignore")
+            if decoded_char == self.term:
                 self.handle(self.buffer)
                 self.buffer = ''
             else:
-                self.buffer += a_char
+                self.buffer += decoded_char
 
-    def process_string(self, a_string):
-        """
-        Processes a full string in the command.
-
-        Args:
-            a_string (str): The string to be processed.
-
-        """
-        for a_char in a_string:
-            self.process_char(a_char)
-
-    def handle(self, cmd):
+    def handle(self, cmd: str):
         """
         Handles a full command to/from the Arduino hardware.
 
         Args:
-            cmd (str): The command to be handled.
+            cmd: The command to be handled.
 
         """
         cmd = cmd.strip().strip(self.term)
@@ -136,24 +128,24 @@ class CommandHandler(object):
             for clb in self.default_handlers:
                 clb(cmd)  # give back what was received
 
-    def build_remaining(self, cmd_list):
+    def build_remaining(self, cmd_list: List[str]) -> str:
         """
         Builds an Arduino command from a list of partial commands.
 
         Args:
-            cmd_list (List): The list of command constituents.
+            cmd_list: The list of command constituents.
 
         """
         return self.delim.join(cmd_list[1:]) + self.term
 
-    def add_command(self, command_id, callback_function):
+    def add_command(self, command_id: str, callback_function: Callable) -> None:
         """
-        Adds an Arduino command to the Handler.
+        Adds an Arduino command to the handler.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
-            callback_function (str): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if command_id not in self.handlers:
@@ -161,28 +153,28 @@ class CommandHandler(object):
         if callback_function not in self.handlers[command_id]:
             self.handlers[command_id].append(callback_function)
 
-    def remove_command(self, command_id, callback_function):
+    def remove_command(self, command_id: str, callback_function: Callable) -> None:
         """
         Removes an Arduino command from the Handler.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
-            callback_function (str): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if command_id in self.handlers:
             if callback_function in self.handlers[command_id]:
                 self.handlers[command_id].remove(callback_function)
 
-    def add_relay(self, command_id, callback_function):
+    def add_relay(self, command_id: str, callback_function: Callable) -> None:
         """
         Adds a relay to the Handler.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
-            callback_function (str): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if command_id not in self.relays:
@@ -190,75 +182,75 @@ class CommandHandler(object):
         if callback_function not in self.relays[command_id]:
             self.relays[command_id].append(callback_function)
 
-    def remove_relay(self, command_id, callback_function):
+    def remove_relay(self, command_id: str, callback_function: Callable) -> None:
         """
         Removes a relay form the Handler.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
-            callback_function (str): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if command_id in self.relays:
             if callback_function in self.relays[command_id]:
                 self.relays[command_id].remove(callback_function)
 
-    def add_default_handler(self, callback_function):
+    def add_default_handler(self, callback_function: Callable) -> None:
         """
         Adds a default handler to the device.
 
         Args:
-            callback_function (callable): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if callback_function not in self.default_handlers:
             self.default_handlers.append(callback_function)
 
-    def remove_default_handler(self, callback_function):
+    def remove_default_handler(self, callback_function: Callable) -> None:
         """
         Removes a default handler from the device.
 
         Args:
-            callback_function (str): A copy of the command to "callback".
+            callback_function: A copy of the command to "callback".
 
         """
         if callback_function in self.default_handlers:
             self.default_handlers.remove(callback_function)
 
     #
-    def set_command_header(self, cmd_header, addDelim=True):
+    def set_command_header(self, cmd_header: str, add_delim: bool = True) -> None:
         """
         Sets the header of the Arduino command.
 
         Args:
-            cmd_header (chr): The header of the command.
+            cmd_header: The header of the command.
 
-            addDelim (bool): Adds a delimiter to the command, default set to True.
+            add_delim: Adds a delimiter to the command, default set to True.
 
         """
         self.cmd_header = cmd_header
-        if addDelim:
+        if add_delim:
             self.cmd_header += self.delim
         self.logger.debug('Set command header to "{}"'.format(self.cmd_header))
 
-    def set_command_decimal(self, cmd_decimal):
+    def set_command_decimal(self, cmd_decimal: int) -> None:
         """
         Sets the decimal of the Arduino command.
 
         Args:
-            cmd_decimal (int): The decimal of the command.
+            cmd_decimal: The decimal of the command.
 
         """
         self.cmd_decimal = cmd_decimal
         self.logger.debug('Set decimal to "{}"'.format(self.cmd_decimal))
 
-    def forge_command(self, command_id, *args):
+    def forge_command(self, command_id: str, *args) -> str:
         """
         Creates a full Arduino command.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
             *args: Variable length argument list.
 
@@ -285,20 +277,21 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
     Represents the Command Handler which will handle commands to/from the Arduino hardware via Serial Communication.
 
     Args:
-        port (str): The port to communicate over.
+        port: The port to communicate over.
 
-        baudrate (int): The baudrate of the serial communication, default set to DEFAULT_BAUDRATE (115200)
+        baudrate: The baudrate of the serial communication, default set to DEFAULT_BAUDRATE (115200)
 
-        timeout (float): The time to wait for timeout, default set to DEFAULT_TIMEOUT (0.01)
+        timeout: The time to wait for timeout, default set to DEFAULT_TIMEOUT (0.01)
 
-        delim (chr): The delimiting character of a command, default set to DEFAULT_DELIM (',')
+        delim: The delimiting character of a command, default set to DEFAULT_DELIM (',')
 
-        term (chr): The terminal character of a command, default set to DEFAULT_TERM (';')
+        term: The terminal character of a command, default set to DEFAULT_TERM (';')
 
-        cmd_decimal (int): The decimal of the command, default set to DEFAULT_CMD_DECIMAL (2)
+        cmd_decimal: The decimal of the command, default set to DEFAULT_CMD_DECIMAL (2)
 
     """
-    def __init__(self, port, baudrate=DEFAULT_BAUDRATE, timeout=DEFAULT_TIMEOUT, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL):
+    def __init__(self, port: str, baudrate: int = DEFAULT_BAUDRATE, timeout: float = DEFAULT_TIMEOUT,
+                 delim: str = DEFAULT_DELIM, term: str = DEFAULT_TERM, cmd_decimal: int = DEFAULT_CMD_DECIMAL):
         threading.Thread.__init__(self)
         self.daemon = True
         self.interrupted = threading.Lock()
@@ -309,16 +302,16 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         self.name = port
         self.open(port, baudrate, timeout)
 
-    def open(self, port, baudrate, timeout):
+    def open(self, port: str, baudrate: int, timeout: float) -> None:
         """
         Opens the serial communication between the PC and Arduino board.
 
         Args:
-            port (str): The port to communicate over.
+            port: The port to communicate over.
 
-            baudrate (int): The baudrate of serial communication.
+            baudrate: The baudrate of serial communication.
 
-            timeout (float): The time to wait for timeout.
+            timeout: The time to wait for timeout.
 
         """
         self.logger.debug('Opening port {}'.format(port),
@@ -330,8 +323,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         except (serial.SerialException, TypeError, ValueError) as e:
             raise CMHandlerConfigurationError(str(e))
 
-
-    def close(self):
+    def close(self) -> None:
         """
         Closes the serial communication between the PC and Arduino board.
         """
@@ -359,13 +351,13 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         """
         self.close()
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Releases the lock when signalled via an interrupt.
         """
         self.interrupted.release()
 
-    def run(self):
+    def run(self) -> None:
         """
         Starts the Handler processing commands.
         """
@@ -377,7 +369,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
                 raise CMTimeout(f"Error reading from serial port! {e}") from None
         self.close()
 
-    def send(self, command_id, *arg):
+    def send(self, command_id: str, *arg) -> None:
         """
         Sends a command over the serial communication.
 
@@ -389,7 +381,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         """
         self.write(self.forge_command(command_id, *arg))
 
-    def write(self, msg):
+    def write(self, msg: str) -> None:
         """
         Writes a message over the serial communication.
 
@@ -401,19 +393,19 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         try:
             self._serial.write(msg.encode())
         except serial.SerialException as e:
-            raise CMCommunicationError("Error writing to serial port! {e}") from None
+            raise CMCommunicationError(f"Error writing to serial port! {e}") from None
 
-    def process_serial(self, a_serial):
+    def process_serial(self, a_serial: serial.Serial) -> None:
         """
         Processes the serial communication to obtain data to be processed.
 
         Args:
-            a_serial (int): The serial to read from.
+            a_serial: The serial to read from.
 
         """
         self.process_char(a_serial.read(1))
 
-    def wait_until_running(self, sleep_time=0.01):
+    def wait_until_running(self, sleep_time: float = 0.01) -> None:
         """
         Waits until the current thread is running.
 
@@ -430,22 +422,23 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
     Represents the Command Handler which will handle commands to/from the Arduino hardware via TCP/IP socket.
 
     Args:
-        port (str): The TCP/UDP port to communicate over.
+        port: The TCP/UDP port to communicate over.
 
-        address (str): The IP address of the device.
+        address: The IP address of the device.
 
-        protocol (str): Either tcp or udp, default set to TCP.
+        protocol: Either tcp or udp, default set to TCP.
 
-        timeout (float): The time to wait for timeout, default set to DEFAULT_TIMEOUT (0.01)
+        timeout: The time to wait for timeout, default set to DEFAULT_TIMEOUT (0.01)
 
-        delim (chr): The delimiting character of a command, default set to DEFAULT_DELIM (',')
+        delim: The delimiting character of a command, default set to DEFAULT_DELIM (',')
 
-        term (chr): The terminal character of a command, default set to DEFAULT_TERM (';')
+        term: The terminal character of a command, default set to DEFAULT_TERM (';')
 
-        cmd_decimal (int): The decimal of the command, default set to DEFAULT_CMD_DECIMAL (2)
+        cmd_decimal: The decimal of the command, default set to DEFAULT_CMD_DECIMAL (2)
 
     """
-    def __init__(self, port, address, protocol="TCP", timeout=DEFAULT_TIMEOUT, delim=DEFAULT_DELIM, term=DEFAULT_TERM, cmd_decimal=DEFAULT_CMD_DECIMAL):
+    def __init__(self, port: str, address: str, protocol: str = "TCP", timeout: float = DEFAULT_TIMEOUT,
+                 delim: str = DEFAULT_DELIM, term: str = DEFAULT_TERM, cmd_decimal: int = DEFAULT_CMD_DECIMAL):
         threading.Thread.__init__(self)
         self.daemon = True
         self.interrupted = threading.Event()
@@ -457,22 +450,22 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
 
         self.name = address + ":" + port
 
-        self._connection = None
+        self._connection: socket.socket = None  # type: ignore
 
         self.open(port, address, protocol.upper(), timeout)
 
-    def open(self, port, address, protocol, timeout):
+    def open(self, port: str, address: str, protocol: str, timeout: float):
         """
         Opens the TCP/IP communication between the PC and Arduino board.
 
         Args:
-            port (str): The port to communicate over.
+            port: The port to communicate over.
 
-            address (str): The IP address of the device.
+            address: The IP address of the device.
 
-            protocol (str): Protocol to use - TCP or UDP
+            protocol: Protocol to use - TCP or UDP
 
-            timeout (float): The time to wait for timeout.
+            timeout: The time to wait for timeout.
 
         """
         self.logger.debug('Opening connection to %s:%s (%s)', address, port, protocol)
@@ -493,7 +486,7 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         except (OSError, TypeError, ValueError) as e:
             raise CMHandlerConfigurationError(f"Can't open socket! {e}")
 
-    def close(self):
+    def close(self) -> None:
         """
         Closes the communication between the PC and Arduino board.
         """
@@ -520,13 +513,13 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         """
         self.close()
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Releases the lock when signalled via an interrupt.
         """
         self.interrupted.set()
 
-    def run(self):
+    def run(self) -> None:
         """
         Starts the Handler processing commands.
         """
@@ -534,12 +527,12 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
             self.process_data()
         self.close()
 
-    def send(self, command_id, *arg):
+    def send(self, command_id: str, *arg) -> None:
         """
         Sends a command over the TCP/IP connection.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
             *arg: Variable argument.
 
@@ -547,21 +540,20 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         try:
             self.write(self.forge_command(command_id, *arg))
         except OSError as e:
-            raise CMCommunicationError("Error writing to socket! {e}") from None
+            raise CMCommunicationError(f"Error writing to socket! {e}") from None
 
-
-    def write(self, msg):
+    def write(self, msg: str) -> None:
         """
         Writes raw data into the socket.
 
         Args:
-            msg (str): The message to send.
+            msg: The message to send.
 
         """
         self.logger.debug('Sending "%s" to "%s"', msg, self._connection.getpeername())
         self._connection.send(msg.encode())
 
-    def process_data(self):
+    def process_data(self) -> None:
         """
         Gets the data from socket to be processed.
         """
@@ -570,10 +562,14 @@ class TCPIPCommandHandler(threading.Thread, CommandHandler):
         except socket.timeout:
             pass
         except OSError as e:
-            raise CMCommunicationError("Error reading from socket! {e}")
+            raise CMCommunicationError(f"Error reading from socket! {e}")
 
-    def wait_until_running(self):
+    def wait_until_running(self) -> None:
         """
         Waits until the current thread is running.
         """
         self.interrupted.wait()
+
+
+# Typing variable for either Serial or TCPIP CommandHandler
+GenericCommandHandler = Union[SerialCommandHandler, TCPIPCommandHandler]
