@@ -52,9 +52,3 @@ add_to_bonjour_register('DALLAS', CommandDallas)
 # PCA9548A I2C multiplexer
 from .commandpca9548a import CommandPCA9548A
 add_to_bonjour_register('PCA9548A', CommandPCA9548A)
-
-from typing import Union
-GenericCommandDevice = Union[CommandDevice, CommandDigitalRead, CommandDigitalWrite, CommandAnalogRead, CommandAnalogWrite,
-                             CommandServo, CommandLinearAccelStepper, CommandAccelStepper, CommandSHT1X, CommandSHT31,
-                             CommandDallas, CommandPCA9548A]
-
