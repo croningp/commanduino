@@ -27,8 +27,7 @@ import time
 import json
 import logging
 
-from typing import Tuple, Dict, List, Union
-from commanduino.commanddevices import GenericCommandDevice
+from typing import Dict, List, Tuple
 from commanduino.commandhandler import GenericCommandHandler
 
 # Default initialisation timeout
@@ -58,7 +57,7 @@ class CommandManager(object):
 
         init_n_repeats: Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).
     """
-    def __init__(self, command_configs: Tuple[Dict], devices_dict: Dict, init_timeout: float = DEFAULT_INIT_TIMEOUT,
+    def __init__(self, command_configs: List[Dict], devices_dict: Dict, init_timeout: float = DEFAULT_INIT_TIMEOUT,
                  init_n_repeats: int = DEFAULT_INIT_N_REPEATS, simulation: bool = False):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
