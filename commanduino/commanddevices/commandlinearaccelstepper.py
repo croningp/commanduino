@@ -169,7 +169,7 @@ class CommandLinearAccelStepper(CommandDevice):
         """
         self.send(COMMANDLINEARACCELSTEPPER_SET_POSITION, steps)
 
-    def set_speed(self, steps_per_second):
+    def _set_speed(self, steps_per_second):
         """
         Sets the speed of the device.
 
@@ -262,7 +262,7 @@ class CommandLinearAccelStepper(CommandDevice):
 
         """
         homing_speed = self.apply_reverted_direction(self.homing_speed)
-        self.set_speed(-homing_speed)
+        self._set_speed(-homing_speed)
         self.send(COMMANDLINEARACCELSTEPPER_HOME)
         if wait:
             self.wait_until_idle()
@@ -279,7 +279,7 @@ class CommandLinearAccelStepper(CommandDevice):
         """
         # if not self.enabled_acceleration:
         running_speed = self.apply_reverted_direction(self.running_speed)
-        self.set_speed(running_speed)
+        self._set_speed(running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE_TO, steps)
         if wait:
@@ -297,7 +297,7 @@ class CommandLinearAccelStepper(CommandDevice):
         """
         # if not self.enabled_acceleration:
         running_speed = self.apply_reverted_direction(self.running_speed)
-        self.set_speed(running_speed)
+        self._set_speed(running_speed)
         steps = self.apply_reverted_direction(steps)
         self.send(COMMANDLINEARACCELSTEPPER_MOVE, steps)
         if wait:
