@@ -14,4 +14,5 @@ setup(name="commanduino",
             "commanduino": ["*.pyi", "py.typed"]
       },
       include_package_data=True,
+      install_requires=['pyserial']
       )
