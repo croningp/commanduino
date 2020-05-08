@@ -1,0 +1,15 @@
+{
+    "simulation":true,
+    "ios":[
+        {
+            "type":"tcpip",
+            "address":"192.168.1.80",
+            "port":"5000"
+        }
+    ],
+  "devices": {
+    "i2c_mux":{
+      "command_id":"MUX"
+        }
+  }
+}
