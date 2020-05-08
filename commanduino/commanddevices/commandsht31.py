@@ -22,7 +22,6 @@ class CommandSHT31(CommandDevice):
         CommandDevice.__init__(self)
         self.register_all_requests()
 
-    ##
     def register_all_requests(self):
         self.register_request(
             CMD_REQUEST_CELSIUS,
