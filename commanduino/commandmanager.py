@@ -13,19 +13,23 @@ from .commanddevices.register import create_and_setup_device
 from .commanddevices.register import DEFAULT_REGISTER
 
 from .exceptions import (CMManagerConfigurationError,
-                        CMHandlerConfigurationError,
-                        CMHandlerDiscoveryTimeout,
-                        CMDeviceConfigurationError,
-                        CMBonjourTimeout,
-                        CMDeviceDiscoveryTimeout,
-                        CMDeviceRegisterError,
-                        CMCommunicationError)
+                         CMHandlerConfigurationError,
+                         CMHandlerDiscoveryTimeout,
+                         CMDeviceConfigurationError,
+                         CMBonjourTimeout,
+                         CMDeviceDiscoveryTimeout,
+                         CMDeviceRegisterError,
+                         CMCommunicationError)
 
 from .lock import Lock
 
 import time
 import json
 import logging
+
+from typing import Tuple, Dict, List, Union
+from commanduino.commanddevices import GenericCommandDevice
+from commanduino.commandhandler import GenericCommandHandler
 
 # Default initialisation timeout
 DEFAULT_INIT_TIMEOUT = 1
@@ -46,15 +50,16 @@ class CommandManager(object):
     Manages varying amounts of Command Handler objects.
 
     Args:
-        command_configs (Tuple): Collection of command configurations.
+        command_configs: Collection of command configurations.
 
-        devices_dict (Dict): Dictionary containing the list of devices.
+        devices_dict: Dictionary containing the list of devices.
 
-        init_timeout (int): Initialisation timeout, default set to DEFAULT_INIT_TIMEOUT (1).
+        init_timeout: Initialisation timeout, default set to DEFAULT_INIT_TIMEOUT (1).
 
-        init_n_repeats (int): Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).
+        init_n_repeats: Number of times to attempt initialisation, default set to DEFAULT_INIT_N_REPEATS (5).
     """
-    def __init__(self, command_configs, devices_dict, init_timeout=DEFAULT_INIT_TIMEOUT, init_n_repeats=DEFAULT_INIT_N_REPEATS, simulation=False):
+    def __init__(self, command_configs: Tuple[Dict], devices_dict: Dict, init_timeout: float = DEFAULT_INIT_TIMEOUT,
+                 init_n_repeats: int = DEFAULT_INIT_N_REPEATS, simulation: bool = False):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self._simulation = simulation
@@ -63,30 +68,30 @@ class CommandManager(object):
         self.init_n_repeats = init_n_repeats
         self.init_lock = Lock(init_timeout)
 
-        self.commandhandlers = []
+        self.commandhandlers: List[GenericCommandHandler] = []
         if not self._simulation:
             for config_entry in command_configs:
                 # Create handler from config & initialize device
                 self.add_command_handler(config_entry)
         else:
             self.logger.info("Simulation mode, skipping handlers creation.")
-            self.commandhandlers = command_configs
+            self.commandhandlers = command_configs  # type: ignore
 
-        self.devices = {}
+        self.devices: Dict[str, GenericCommandDevice] = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
 
-    def add_command_handler(self, handler_config):
+    def add_command_handler(self, handler_config: Dict) -> None:
         """Creates command handler from the configuration dictionary, tests connection
         and appends instance to self.commandhandlers
 
         Args:
-            handler_config (Dict): Handler configuration dictionary.
+            handler_config: Handler configuration dictionary.
         """
         if self._simulation:
             self.logger.info("Simulation mode, skipping handlers addition.")
-            self.commandhandlers.append(handler_config)
+            self.commandhandlers.append(handler_config)  # type: ignore
             return None
         # Make a copy not to mutate original dict - might be re-used
         # by upper-level code for object re-creation.
@@ -120,7 +125,8 @@ class CommandManager(object):
                 self.logger.warning(f"I/O device {device_name} (type {handler_type}) was not found")
                 self.logger.warning("Additional error message: %s", e)
         else:
-            # Add callback,start handler and initialize it
+            # If CommandHandler creation succeeded, add callback, start handler and initialize it
+            assert isinstance(handler, (SerialCommandHandler, TCPIPCommandHandler))
             handler.add_default_handler(self.unrecognized)
             handler.start()
             try:
@@ -132,7 +138,7 @@ class CommandManager(object):
                 # Update handlers list
                 self.commandhandlers.append(handler)
 
-    def remove_command_handler(self, handler_to_remove):
+    def remove_command_handler(self, handler_to_remove: GenericCommandHandler) -> None:
         """
         Deletes the command handler object & removes a reference to it from
         class dictionary. Then deletes the devices bound to the handler being deleted.
@@ -145,22 +151,23 @@ class CommandManager(object):
         which gets updated on create_and_setup_device()
         """
         if self._simulation:
-                self.logger.info("Simulation mode, skipping handlers removal.")
-                return None
+            self.logger.info("Simulation mode, skipping handlers removal.")
+            return None
         if handler_to_remove not in self.commandhandlers:
             self.logger.warning("Command handler %s not found!", handler_to_remove)
             return
         self.logger.info("Removing devices...")
-        # Find the dependent devices to remove
+        # Find the dependent devices to remove (i.e. the devices using that handler)
         for name, dev in self.devices.copy().items():
-            if handler_to_remove is dev.write.__self__:
+            # write.__self__ is the CommandHandler instance owning the write function set to CommandDevice.write
+            if handler_to_remove is dev.write.__self__:  # type: ignore
                 self.logger.info("Removing dependent device %s", name)
                 self.unregister_device(name)
         # Remove handler
         self.logger.info("Removing command handler...")
         self.commandhandlers.remove(handler_to_remove)
 
-    def set_devices_as_attributes(self):
+    def set_devices_as_attributes(self) -> None:
         """
         Sets the list of devices as attributes.
         """
@@ -172,7 +179,7 @@ class CommandManager(object):
             else:
                 setattr(self, device_name, device)
 
-    def handle_init(self, *arg):
+    def handle_init(self, *arg) -> None:
         """
         Handles the initialisation of the Manager, ensuring that the threading locks are released.
 
@@ -182,22 +189,22 @@ class CommandManager(object):
         if arg[0] and bool(int(arg[0])):
             self.init_lock.ensure_released()
 
-    def request_init(self, handler):
+    def request_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> None:
         """
         Requests initialisation over communication link.
 
         Args:
-            handler (CommandHandler): Command Handler object for communication.
+            handler: Command Handler object for communication.
 
         """
         handler.send(COMMAND_IS_INIT)
 
-    def request_and_wait_for_init(self, handler):
+    def request_and_wait_for_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> Tuple[bool, float]:
         """
         Requests initialisation and waits until it obtains a threading lock.
 
         Args:
-            handler (CommandHandler): Command Handler object for communication.
+            handler: Command Handler object for communication.
 
         """
         start_time = time.time()
@@ -213,15 +220,15 @@ class CommandManager(object):
         elapsed = time.time() - start_time
         return is_init, elapsed
 
-    def wait_device_for_init(self, handler):
+    def wait_device_for_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> float:
         """
         Waits for initialisation using communication link.
 
         Args:
-            handler (CommandHandler): Command Handler object to add/remove commands.
+            handler: Command Handler object to add/remove commands.
 
         Returns:
-            elapsed (float): Time waited for initialisation.
+            elapsed: Time waited for initialisation.
 
         Raises:
             CMHandlerDiscoveryTimeout: CommandManager on the port was not initialised.
@@ -239,12 +246,12 @@ class CommandManager(object):
             return elapsed
         raise CMHandlerDiscoveryTimeout(handler.name)
 
-    def register_all_devices(self, devices_dict):
+    def register_all_devices(self, devices_dict: Dict) -> None:
         """
         Registers all available Arduino devices.
 
         Args:
-            devices_dict (Dict): Dictionary containing all devices.
+            devices_dict: Dictionary containing all devices.
 
         """
         for device_name, device_info in devices_dict.items():
@@ -253,14 +260,14 @@ class CommandManager(object):
             except CMDeviceConfigurationError as e:
                 self.logger.error(e)
 
-    def register_device(self, device_name, device_info):
+    def register_device(self, device_name: str, device_info: Dict) -> None:
         """
         Registers an individual Arduino device.
 
         Args:
-            device_name (str): Name of the device.
+            device_name: Name of the device.
 
-            device_info (Dict): Dictionary containing the device information.
+            device_info: Dictionary containing the device information.
 
         Raises:
             CMDeviceRegisterError: Device is not in the device register.
@@ -283,8 +290,8 @@ class CommandManager(object):
                 bonjour_service = CommandBonjour(self.commandhandlers)
                 handler, bonjour_id, elapsed = bonjour_service.detect_device(command_id)
                 self.logger.debug(f"Device '{device_name}' (ID=<{command_id}> type=<{bonjour_id}>) found on {handler.name}")
-            except CMBonjourTimeout as e:
-                raise CMDeviceDiscoveryTimeout(f"Device '{device_name}' (ID=<{command_id}>) has not been found!") from e
+            except CMBonjourTimeout:
+                raise CMDeviceDiscoveryTimeout(f"Device '{device_name}' (ID=<{command_id}>) has not been found!") from None
 
             # Initialise device
             try:
@@ -300,7 +307,7 @@ class CommandManager(object):
             device = VirtualDevice(device_name, device_config)
             self.devices[device_name] = device
 
-    def unregister_device(self, device_name):
+    def unregister_device(self, device_name: str) -> None:
         """
         Removes device attribute & reference from devices dictionary
         """
@@ -310,7 +317,7 @@ class CommandManager(object):
         self.devices.pop(device_name)
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config) -> CommandManager:
         """
         Obtains the necessary information from a configuration setup.
 
@@ -329,7 +336,7 @@ class CommandManager(object):
         return cls(command_configs, devices, simulation=sim)
 
     @classmethod
-    def from_configfile(cls, configfile):
+    def from_configfile(cls, configfile: str) -> CommandManager:
         """
         Obtains the configuration data from a configuration file.
 
@@ -347,7 +354,7 @@ class CommandManager(object):
             raise CMManagerConfigurationError(f"The JSON file provided {configfile} is invalid!\n{e}") from None
         return cls.from_config(config_dict)
 
-    def unrecognized(self, cmd):
+    def unrecognized(self, cmd: str) -> None:
         """
         Received command is unrecognised.
 
@@ -367,24 +374,27 @@ class CommandBonjour(object):
     Args:
         commandhandlers: Collection of CommandHandler objects.
 
-        timeout (float): Time to wait before timeout, default set to DEFAULT_BONJOUR_TIMEOUT (0.1)
+        timeout: Time to wait before timeout, default set to DEFAULT_BONJOUR_TIMEOUT (0.1)
 
     """
-    def __init__(self, commandhandlers, timeout=DEFAULT_BONJOUR_TIMEOUT):
+    def __init__(self, commandhandlers: List[Union[SerialCommandHandler, TCPIPCommandHandler]],
+                 timeout: float = DEFAULT_BONJOUR_TIMEOUT):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
         self.commandhandlers = commandhandlers
         self.lock = Lock(timeout)
-        self.init_bonjour_info()
+        # Init bonjour info
+        self.device_bonjour_id = ''
+        self.device_bonjour_id_valid = False
 
-    def init_bonjour_info(self):
+    def clear_bonjour_info(self) -> None:
         """
         Initialises the Bonjour information.
         """
         self.device_bonjour_id = ''
         self.device_bonjour_id_valid = False
 
-    def handle_bonjour(self, *arg):
+    def handle_bonjour(self, *arg) -> None:
         """
         Handles the Bonjour initialisation.
 
@@ -396,57 +406,57 @@ class CommandBonjour(object):
             self.device_bonjour_id_valid = True
             self.lock.ensure_released()
 
-    def send_bonjour(self, handler, command_id):
+    def send_bonjour(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler], command_id: str) -> None:
         """
         Sends a message to the device.
 
         .. todo:: Fix this up
 
         Args:
-            handler (CommandHandler): The Command Handler object.
+            handler: The Command Handler object.
 
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
         """
         handler.send(command_id, COMMAND_BONJOUR)
 
-    def get_bonjour_id(self, handler, command_id):
+    def get_bonjour_id(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler], command_id: str) -> Tuple[str, bool, float]:
         """
         Obtains the device's bonjour ID.
 
         Args:
-            handler (CommandHandler): The Command Handler object.
+            handler: The Command Handler object.
 
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
         Returns:
-            self.device_bonjour_id (str): The Bonjour ID.
+            self.device_bonjour_id: The Bonjour ID.
 
-            is_valid (bool): Validity of the ID.
+            is_valid: Validity of the ID.
 
-            elapsed (float): Time elapsed since request.
+            elapsed: Time elapsed since request.
 
         """
         self.lock.acquire()
-        self.init_bonjour_info()
+        self.clear_bonjour_info()
         self.send_bonjour(handler, command_id)
         is_valid, elapsed = self.lock.wait_until_released()
         self.lock.ensure_released()
         return self.device_bonjour_id, is_valid, elapsed
 
-    def detect_device(self, command_id):
+    def detect_device(self, command_id: str) -> Tuple[GenericCommandHandler, str, float]:
         """
         Attempts to detect the Bonjour device.
 
         Args:
-            command_id (str): The ID of the command.
+            command_id: The ID of the command.
 
         Returns:
-            handler (CommandHandler): TheCommand Handler object.
+            handler: TheCommand Handler object.
 
-            bonjour_id (str): The Bonjour ID.
+            bonjour_id: The Bonjour ID.
 
-            elapsed (float): Time elapsed since request.
+            elapsed: Time elapsed since request.
 
         """
         for handler in self.commandhandlers:
@@ -462,7 +472,7 @@ class CommandBonjour(object):
         raise CMBonjourTimeout(command_id)
 
 
-class VirtualAttribute():
+class VirtualAttribute:
     """ Callable attribute for virtual device
     """
     def __call__(self, *args, **kwargs):
@@ -479,7 +489,7 @@ class VirtualAttribute():
         self.logger.info("Created virtual method %s()", name)
 
 
-class VirtualDevice():
+class VirtualDevice:
     """ Virtual device mock to replace normal devices in simulation mode
     """
     def __getattr__(self, name):
