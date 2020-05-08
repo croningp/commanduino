@@ -46,7 +46,7 @@ class CommandHandler(object):
     """
 
     @classmethod
-    def from_config(cls, config: Dict) -> CommandHandler:
+    def from_config(cls, config: Dict) -> 'CommandHandler':
         """
         Obtains the details of the handler from a configuration.
 

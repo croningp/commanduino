@@ -316,7 +316,7 @@ class CommandManager(object):
         self.devices.pop(device_name)
 
     @classmethod
-    def from_config(cls, config) -> CommandManager:
+    def from_config(cls, config) -> 'CommandManager':
         """
         Obtains the necessary information from a configuration setup.
 
@@ -335,7 +335,7 @@ class CommandManager(object):
         return cls(command_configs, devices, simulation=sim)
 
     @classmethod
-    def from_configfile(cls, configfile: str, simulation: bool = False) -> CommandManager:
+    def from_configfile(cls, configfile: str, simulation: bool = False) -> 'CommandManager':
         """
         Obtains the configuration data from a configuration file.
 
