@@ -189,7 +189,7 @@ class CommandManager(object):
         if arg[0] and bool(int(arg[0])):
             self.init_lock.ensure_released()
 
-    def request_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> None:
+    def request_init(self, handler: GenericCommandHandler) -> None:
         """
         Requests initialisation over communication link.
 
@@ -199,7 +199,7 @@ class CommandManager(object):
         """
         handler.send(COMMAND_IS_INIT)
 
-    def request_and_wait_for_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> Tuple[bool, float]:
+    def request_and_wait_for_init(self, handler: GenericCommandHandler) -> Tuple[bool, float]:
         """
         Requests initialisation and waits until it obtains a threading lock.
 
@@ -220,7 +220,7 @@ class CommandManager(object):
         elapsed = time.time() - start_time
         return is_init, elapsed
 
-    def wait_device_for_init(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler]) -> float:
+    def wait_device_for_init(self, handler: GenericCommandHandler) -> float:
         """
         Waits for initialisation using communication link.
 
@@ -381,7 +381,7 @@ class CommandBonjour(object):
         timeout: Time to wait before timeout, default set to DEFAULT_BONJOUR_TIMEOUT (0.1)
 
     """
-    def __init__(self, commandhandlers: List[Union[SerialCommandHandler, TCPIPCommandHandler]],
+    def __init__(self, commandhandlers: List[GenericCommandHandler],
                  timeout: float = DEFAULT_BONJOUR_TIMEOUT):
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)
 
@@ -410,7 +410,7 @@ class CommandBonjour(object):
             self.device_bonjour_id_valid = True
             self.lock.ensure_released()
 
-    def send_bonjour(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler], command_id: str) -> None:
+    def send_bonjour(self, handler: GenericCommandHandler, command_id: str) -> None:
         """
         Sends a message to the device.
 
@@ -424,7 +424,7 @@ class CommandBonjour(object):
         """
         handler.send(command_id, COMMAND_BONJOUR)
 
-    def get_bonjour_id(self, handler: Union[SerialCommandHandler, TCPIPCommandHandler], command_id: str) -> Tuple[str, bool, float]:
+    def get_bonjour_id(self, handler: GenericCommandHandler, command_id: str) -> Tuple[str, bool, float]:
         """
         Obtains the device's bonjour ID.
 
