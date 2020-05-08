@@ -329,7 +329,7 @@ class CommandManager(object):
         return cls(command_configs, devices, simulation=sim)
 
     @classmethod
-    def from_configfile(cls, configfile, simulation=False):
+    def from_configfile(cls, configfile, simulation=None):
         """
         Obtains the configuration data from a configuration file.
 
@@ -347,8 +347,9 @@ class CommandManager(object):
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             # Printing "e" as well as it holds info on the line/column where the error occurred
             raise CMManagerConfigurationError(f"The JSON file provided {configfile} is invalid!\n{e}") from None
-        # Parameter overrides config file for simulation
-        config_dict["simulation"] = simulation
+        # Parameter overrides config file only if provided
+        if simulation is not None:
+            config_dict["simulation"] = simulation
         return cls.from_config(config_dict)
 
     def unrecognized(self, cmd):
