@@ -28,6 +28,7 @@ CMD_SET_STATE = 'W'
 # Max channels on the mux
 MAX_CHANNELS = 8
 
+
 class CommandPCA9548A(CommandDevice):
     """
     PCA9548A Arduino device.
@@ -39,7 +40,6 @@ class CommandPCA9548A(CommandDevice):
         CommandDevice.__init__(self)
         self.register_all_requests()
 
-    ##
     def register_all_requests(self):
         """
         Registers all requests.
