@@ -23,6 +23,8 @@ from .exceptions import (CMManagerConfigurationError,
 
 from .lock import Lock
 
+from .commanddevices import CommandDevice
+
 import time
 import json
 import logging
@@ -77,7 +79,7 @@ class CommandManager(object):
             self.logger.info("Simulation mode, skipping handlers creation.")
             self.commandhandlers = command_configs  # type: ignore
 
-        self.devices: Dict[str, GenericCommandDevice] = {}
+        self.devices: Dict[str, CommandDevice] = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
