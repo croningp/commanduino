@@ -28,7 +28,7 @@ from .commanddevices import CommandDevice
 import time
 import json
 import logging
-from typing import Optional
+from typing import Optional, Any
 
 from typing import Dict, List, Tuple
 from commanduino.commandhandler import GenericCommandHandler
@@ -79,7 +79,7 @@ class CommandManager(object):
             self.logger.info("Simulation mode, skipping handlers creation.")
             self.commandhandlers = command_configs  # type: ignore
 
-        self.devices: Dict[str, CommandDevice] = {}
+        self.devices: Dict[str, Any] = {}
         self.register_all_devices(devices_dict)
         self.set_devices_as_attributes()
         self.initialised = True
