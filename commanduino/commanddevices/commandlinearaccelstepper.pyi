@@ -1,8 +1,4 @@
-import logging
-from typing import Callable
 from . import CommandDevice
-from ..lock import Lock
-from ..commandhandler import GenericCommandHandler
 
 class CommandLinearAccelStepper(CommandDevice):
     def __init__(self, speed: int, max_speed: int, acceleration: int, homing_speed: int,
