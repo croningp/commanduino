@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-VERSION = '0.1.11'
+VERSION = '0.1.12'
 
 setup(name="commanduino",
       version=VERSION,
@@ -9,5 +9,10 @@ setup(name="commanduino",
       author_email='jonathan.grizou@gmail.com',
       platforms=["any"],
       url="https://github.com/croningp/commanduino",
-      packages=find_packages(), install_requires=['pyserial']
+      packages=find_packages(),
+      package_data={
+            "commanduino": ["*.pyi", "py.typed"]
+      },
+      include_package_data=True,
+      install_requires=['pyserial']
       )
