@@ -31,7 +31,7 @@ class CommandDigitalWrite(CommandDevice):
     def __init__(self):
         CommandDevice.__init__(self)
 
-    def set_level(self, level):
+    def set_level(self, level: int) -> None:
         """
         Sets the level of the device.
 
