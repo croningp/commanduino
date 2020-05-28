@@ -57,3 +57,4 @@ class CommandBME280(CommandDevice):
         if arg[0]:
             self.humidity = float(arg[0])
             self.humidity_lock.ensure_released()
+            
