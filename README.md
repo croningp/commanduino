@@ -53,6 +53,7 @@ The following will serve as a tutorial on how to use this library. An example is
 * SHT1X Temperature Sensor
 * SHT31 Temperature Sensor
 * Servo Motor
+* BME280 Pressure Sensor
 
 This list will be continually updated so keep checking back regularly for more supported devices.
 
