@@ -485,9 +485,9 @@ class VirtualAttribute:
     def __call__(self, *args, **kwargs):
         # Make nice arguments string for logging
         args = ", ".join([str(arg) for arg in args])
-        if kwargs:
+        if args and kwargs:
             args += ","
-        kwargs = ", ".join([str(k)+"="+str(v) for k,v in kwargs.items()])
+        kwargs = ", ".join([str(k)+"="+str(v) for k, v in kwargs.items()])
         self.logger.info("Virtual call %s(%s%s)", self.name, args, kwargs)
 
     def __init__(self, name, logger):
