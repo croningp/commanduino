@@ -366,7 +366,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
             try:
                 self.process_serial(self._serial)
             except (serial.SerialException, serial.SerialTimeoutException) as e:
-                raise CMTimeout(f"Error reading from serial port! {e}") from None
+                raise CMTimeout(f"Error reading from serial port {self._serial.port}! {e}") from None
         self.close()
 
     def send(self, command_id: str, *arg) -> None:
@@ -393,7 +393,7 @@ class SerialCommandHandler(threading.Thread, CommandHandler):
         try:
             self._serial.write(msg.encode())
         except serial.SerialException as e:
-            raise CMCommunicationError(f"Error writing to serial port! {e}") from None
+            raise CMCommunicationError(f"Error writing to serial port {self._serial.port}! {e}") from None
 
     def process_serial(self, a_serial: serial.Serial) -> None:
         """
