@@ -298,7 +298,7 @@ class CommandManager(object):
             # Initialise device
             try:
                 device = create_and_setup_device(handler, command_id, bonjour_id, device_config)
-                self.logger.info(f"Device '{device_name}' created! (ID=<{command_id}> type=<{bonjour_id}> handler="
+                self.logger.debug(f"Device '{device_name}' created! (ID=<{command_id}> type=<{bonjour_id}> handler="
                                  f"<{handler.name}> detection time {elapsed:.3f} s)")
             except CMDeviceRegisterError:
                 device = create_and_setup_device(handler, command_id, DEFAULT_REGISTER, device_config)
@@ -516,7 +516,7 @@ class VirtualDevice:
         # e.g. from device_config during __init__()
         # or previous __setattr__() calls
         if name not in self.__dict__:
-            self.__dict__["logger"].info("Creating virtual attribute %s=%s", name, value)
+            self.__dict__["logger"].debug("Creating virtual attribute %s=%s", name, value)
         elif callable(self.__dict__[name]):
             self.logger.warning("Redefining virtual method %s with virtual attribute", self.__dict__[name])
 
