@@ -11,7 +11,7 @@ setup(name="commanduino",
       url="https://github.com/croningp/commanduino",
       packages=find_packages(),
       package_data={
-            "commanduino": ["*.pyi", "py.typed"]
+            "commanduino": ["commanddevices/*.pyi", "py.typed"]
       },
       include_package_data=True,
       install_requires=['pyserial']
