@@ -11,8 +11,6 @@
 import time
 
 from .commanddevice import CommandDevice
-from ..exceptions import CMError
-
 
 # Bonjour Information
 BONJOUR_ID = 'TCS34725'
@@ -31,6 +29,7 @@ CMD_SET_GAIN = 'G'
 # Accepted values
 INTEGRATION_TIMES = [2.4, 24, 50, 101, 154, 700]
 GAINS = [1, 4, 16, 60]
+
 
 class CommandTCS34725(CommandDevice):
     """
@@ -74,18 +73,16 @@ class CommandTCS34725(CommandDevice):
     def init(self):
         """ Initializes the sensor. 
         
-        Raises:
-            CMError - in case of missing sensor communication (either sensor is not connected
-                or not responding, please see the product datasheet for possible reasons).
+        Refer to self.initialization_code for checking if the initialization was successful.
         """
 
         self.get_initialization_code()
 
-        if not self.initialization_code: # assuming 0 on failure
-            raise CMError("Sensor is not connected or not responding!")
-
+        if self.initialization_code != 1:
+            self.logger.error("Unable to connect to sensor!")
+        
         # wait for sensor to stabilize
-        time.sleep(1)
+        time.sleep(self._integration_time * self._gain)
 
     def handle_get_rgbc(self, *arg):
         """ Handles the rgbc read command. """
