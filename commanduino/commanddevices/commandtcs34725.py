@@ -74,6 +74,13 @@ class CommandTCS34725(CommandDevice):
         """ Initializes the sensor. 
         
         Refer to self.initialization_code for checking if the initialization was successful.
+
+        <sensor>.initialization_code is None - the device wasn't initialized, call get_initialization_code()
+        <sensor>.initialization_code == 1 - the device is found and the communication was established successfully
+        <sensor>.initialization_code == 0 - the device was not found or the communication cannot be established, please
+            check the device datasheet for possible reasons
+
+        Call get_initialization_code() to try again.
         """
 
         self.get_initialization_code()
