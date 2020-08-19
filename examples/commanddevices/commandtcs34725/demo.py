@@ -49,6 +49,3 @@ for i in range(3):
     C = cmdMng.demo.get_rgbc()
     end_time = time.time()
     print("RGBC = R {0}, G {1}, B {2}, C {3}, time {4}".format(*C, end_time-start_time))
-
-if __name__ == '__main__':
-    pass
