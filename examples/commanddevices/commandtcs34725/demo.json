@@ -1,0 +1,12 @@
+{
+    "ios": [
+        {
+            "port": "COM4"
+        }
+    ],
+    "devices": {
+        "demo": {
+            "command_id": "TCS"
+        }
+    }
+}
