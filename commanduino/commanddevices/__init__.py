@@ -53,5 +53,10 @@ add_to_bonjour_register('DALLAS', CommandDallas)
 from .commandpca9548a import CommandPCA9548A
 add_to_bonjour_register('PCA9548A', CommandPCA9548A)
 
+# RGB sensor TCS34725 
 from .commandtcs34725 import CommandTCS34725
 add_to_bonjour_register('TCS34725', CommandTCS34725)
+
+# Pressure sensors BME280
+from .commandbme280 import CommandBME280
+add_to_bonjour_register('BME280', CommandBME280)
