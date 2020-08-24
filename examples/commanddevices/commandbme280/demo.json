@@ -1,0 +1,21 @@
+{
+  "ios" : [
+    {
+      "port": "/dev/tty.usbmodem14301"
+    },
+    {
+      "port": "/dev/ttyACM0"
+    },
+    {
+      "port": "/dev/ttyACM1"
+    },
+    {
+      "port": "/dev/ttyACM2"
+    }
+  ],
+  "devices": {
+    "bme280": {
+      "command_id": "BME280"
+    }
+  }
+}
