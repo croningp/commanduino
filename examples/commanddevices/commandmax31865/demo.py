@@ -1,5 +1,5 @@
 """
-An example module to work with the MAX31685 RGB sensor as Arduino device.
+An example module to work with the MAX31685 RTD amplifier board sensor.
 """
 
 import time
