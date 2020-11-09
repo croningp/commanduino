@@ -1,0 +1,9 @@
+from typing import Tuple
+
+from .commanddevice import CommandDevice
+
+
+class CommandTCS34725(CommandDevice):
+    def initialization_code(self) -> None: ...
+    def get_temp(self) -> float: ...
+    def get_error_code(self) -> int: ...

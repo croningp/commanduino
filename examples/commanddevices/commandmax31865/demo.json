@@ -1,0 +1,12 @@
+{
+    "ios": [
+        {
+            "port": "COM3"
+        }
+    ],
+    "devices": {
+        "rtd": {
+            "command_id": "MAX"
+        }
+    }
+}
