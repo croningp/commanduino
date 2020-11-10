@@ -2,7 +2,7 @@
 
 .. module:: CommandMAX31865
    :platform: Windows
-   :synopsis: Represents a MAX31865 Arduino Device.
+   :synopsis: Represents a MAX31865 PT100 RTD Temperature Sensor Amplifier.
 
 .. moduleauthor:: Alex Hammer <2423935H@student.gla.ac.uk>
 
@@ -74,7 +74,6 @@ class CommandMAX31865(CommandDevice):
         <sensor>.initialization_code == 1 - the device is found and the communication was established successfully
         <sensor>.initialization_code == 0 - the device was not found or the communication cannot be established, please
             check the device datasheet for possible reasons
-
         Call get_initialization_code() to try again.
         """
 
@@ -82,7 +81,9 @@ class CommandMAX31865(CommandDevice):
 
         if self.initialization_code != 1:
             self.logger.error("Unable to connect to sensor!")
-
+        
+        # wait for sensor to stabilize
+        time.sleep(1)
 
     def handle_get_temp(self, *arg):
         """ Handles the temp read command. """

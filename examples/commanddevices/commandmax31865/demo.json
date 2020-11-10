@@ -1,11 +1,19 @@
 {
     "ios": [
         {
+<<<<<<< HEAD
             "port": "COM3"
         }
     ],
     "devices": {
         "rtd": {
+=======
+            "port": "COM4"
+        }
+    ],
+    "devices": {
+        "demo": {
+>>>>>>> 326808ff6d79e3dec0c0ce79633bee54527586c2
             "command_id": "MAX"
         }
     }
