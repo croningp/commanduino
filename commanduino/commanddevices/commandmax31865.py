@@ -18,6 +18,7 @@ CLASS_NAME = 'CommandMAX31865'
 
 # Incoming
 CMD_READ_TEMP = 'R'
+CMD_READ_ERROR = 'R'
 CMD_REPLY_HEADER = 'C'
 CMD_INITIALIZE = 'Z'
 CMD_INITIALIZE_HEADER = 'E'
@@ -46,7 +47,7 @@ class CommandMAX31865(CommandDevice):
             self.handle_get_temp
         )
         self.register_request(
-            CMD_READ_TEMP,
+            CMD_READ_ERROR,
             CMD_REPLY_HEADER,
             'error_code',
             self.handle_get_error_code
