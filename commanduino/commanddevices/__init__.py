@@ -64,7 +64,3 @@ add_to_bonjour_register('TCS34725', CommandTCS34725)
 # Pressure sensors BME280
 from .commandbme280 import CommandBME280
 add_to_bonjour_register('BME280', CommandBME280)
-
-# Temperature MAX31865 RTD PT100 amplifier
-from .commandmax31865 import CommandMAX31865
-add_to_bonjour_register('MAX31865', CommandMAX31865)
