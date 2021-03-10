@@ -1,9 +1,18 @@
+"""
+.. module:: CommandNeoPixel
+    :platform: Unix, Windows
+    :synopsis: Represents an AdaFruit NeoPixel device
+
+.. moduleauthor:: Cronin Group 2021
+
+"""
+
 from .commanddevice import CommandDevice
 
 import logging
 module_logger = logging.getLogger(__name__)
 
-# REgistration protocol information
+# Registration protocol information
 BONJOUR_ID = 'NEOPIXEL'
 CLASS_NAME = 'CommandNeoPixel'
 
