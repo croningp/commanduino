@@ -1,0 +1,25 @@
+{
+    "ios": [
+        {
+            "type": "serial",
+            "port": "/dev/ttyACM0"
+        },
+        {
+            "type": "serial",
+            "port": "/dev/ttyACM1"
+        },
+        {
+            "type": "serial",
+            "port": "/dev/ttyACM2"
+        },
+        {
+            "type": "serial",
+            "port": "/dev/ttyACM3"
+        }
+    ],
+    "devices": {
+        "NPX": {
+            "command_id": "NPX"
+        }
+    }
+}
